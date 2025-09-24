@@ -1,168 +1,189 @@
 # Synapse System
 
-A modular, agent-driven platform for project management, code quality, architectural design, and knowledge retrieval. Synapse integrates advanced AI agents, a unified CLI, and a knowledge engine to automate and enforce best practices across software projects.
+A modular, agent-driven platform that combines AI-powered agents with a knowledge engine for intelligent project management and code quality automation.
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Core Components](#core-components)
-- [Agent Infrastructure](#agent-infrastructure)
-- [Knowledge Engine](#knowledge-engine)
-- [CLI Usage](#cli-usage)
-- [Development & Testing](#development--testing)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## Overview
-
-**Synapse System** is an extensible framework that combines:
-
-- **AI-powered agents** for code review, DevOps, architecture, project management, and more
-- **A knowledge engine** leveraging Neo4j, Redis, and vector search for context-rich recommendations and standards
-- **A unified CLI** for orchestrating agent workflows, project setup, and system management
-
----
-
-## Core Components
-
-### 1. Unified CLI (`bin/synapse`)
-
-- **Single entry point** for all Synapse functionality
-- Context-sensitive command routing
-- Manages both project-local and global operations
-
-### 2. Project Manager (`lib/project.py`)
-
-- Handles project initialization and agent deployment
-- Manages configuration and environment setup
-
-### 3. Update Manager (`lib/updater.py`)
-
-- Manages agent and system updates, rollback, and version checks
-
-### 4. Version Manager (`lib/version_manager.py`)
-
-- Tracks agent versions, file checksums, and manifest integrity
-
-### 5. Knowledge Engine (`.synapse/neo4j/`)
-
-- Provides semantic, graph, and hybrid (vector+symbolic) search
-- Powers standards, templates, and contextual recommendations
-
----
-
-## Agent Infrastructure
-
-Agents are the core automation building blocks in Synapse. Each agent is a self-contained Python package with modular tool support, inter-agent communication, and integrated knowledge access.
-
-### Agent Directory Structure
-
-```
-.synapse/agents/{agent-name}/
-├── {agent_name}_agent.py           # Main executable (async entry point)
-├── {agent_name}_prompt.md          # System prompt/instructions
-├── {agent_name}_config.yml         # Config (model, parameters, tool settings)
-├── {agent_name}_state.json         # Agent memory (optional)
-└── tools/
-    ├── __init__.py                 # Tool loader/definition
-    ├── {domain}_tools.py           # Core capabilities
-    ├── synapse_integration.py      # Knowledge engine access
-    ├── agent_communication.py      # Multi-agent workflow support
-    └── mock_sdk.py                 # Development fallback (SDK-free)
-```
-
-#### Agent Types
-
-- **Universal Agents:** (e.g., Project Manager, Code Hound) — cross-language automation
-- **Language Specialists:** (e.g., Rust Specialist, Python Specialist) — enforce language-specific norms
-- **Utility Agents:** (e.g., 4QZero, Health Check) — support, compression, and diagnostics
-
-#### Main Agent Features
-
-- **Async event loop:** Handles queries and orchestrates tool execution
-- **@tool-decorated functions:** Modular agent capabilities (e.g., code analysis, deployment, architecture design)
-- **Dynamic tool loading:** All tools are registered with an MCP server for unified execution
-- **Rich inter-agent protocol:** Agents delegate, coordinate, and pass context for complex workflows
-
-#### Example: Code Hound Agent
-
-- Enforces TDD, SOLID, DRY, KISS principles
-- Modular tool suite for analysis, standards enforcement, reporting
-- Communicates with other agents for language expertise and project-wide audits
-
-#### Example: Synapse Project Manager
-
-- Gathers requirements & initializes projects
-- Orchestrates multi-agent task breakdown and delegation
-- Verifies completion and compliance with standards
-
----
-
-## Knowledge Engine
-
-- **Location:** `.synapse/neo4j/`
-- **Components:** Neo4j Graph DB, Redis cache, BGE-M3 vector engine
-- **Capabilities:** 
-  - Hybrid search (semantic + symbolic)
-  - Standards and template retrieval
-  - Contextual recommendations for agents and CLI
-
----
-
-## CLI Usage
-
-After [installation](#development--testing):
+## Quick Start
 
 ```bash
-synapse init .                   # Initialize project with agents and config
-synapse search "code review"     # Search global knowledge base
-synapse start                    # Start Synapse services (Neo4j, Redis, etc)
-synapse health                   # Run system health checks
-synapse manifest verify          # Verify agent versions and integrity
+# Install
+git clone https://github.com/your-repo/synapse-system.git ~/.synapse-system
+cd ~/.synapse-system && ./install.sh
+
+# Start services
+synapse start
+
+# Initialize any project
+cd your-project/
+synapse init .
 ```
 
-See [USAGE_GUIDE.md](USAGE_GUIDE.md) for more examples.
+**Auto-detects your language** (Rust, TypeScript, Go, Python) and sets up specialized agents.
 
----
+## What You Get
 
-## Development & Testing
+After `synapse init .`:
 
-**Setup:**
+```
+your-project/
+├── .claude/agents/              # AI agents for Claude Code
+│   ├── synapse-project-manager.md  # Task coordination
+│   ├── rust-specialist.md          # Language expertise
+│   └── code-hound.md               # Code quality
+└── .synapse.yml                    # Configuration
+```
+
+## Core Features
+
+### 🤖 **Smart Agents**
+- **Universal**: Project management, code quality, git workflows
+- **Language Specialists**: Rust, TypeScript, Go, Python patterns
+- **On-demand**: Architecture design, DevOps, security analysis
+
+### 🧠 **Knowledge Engine**
+- **Hybrid Search**: Neo4j graph + vector embeddings
+- **Standards**: Language-specific best practices
+- **Templates**: Project scaffolding and patterns
+- **Context-Aware**: Learns from your codebase
+
+### 🔄 **Intelligent Updates**
+- Version-controlled agent updates
+- Rollback capability
+- Integrity verification
+
+## Usage Examples
+
+### With Claude Code
+```
+@synapse-project-manager implement user authentication system
+@rust-specialist add error handling following patterns
+@code-hound review this code for quality issues
+```
+
+### Command Line
 ```bash
-git clone <repo-url>
-cd synapse-system
-cd .synapse/neo4j
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-docker-compose up -d
-python bin/synapse version
+# Search for patterns across projects
+synapse search "rust error handling"
+
+# Get coding standards
+synapse standard "naming-conventions" --lang=rust
+
+# Health check system
+synapse doctor --fix
 ```
 
-**Testing:**
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────┐
+│              Synapse CLI                │
+├─────────────────────────────────────────┤
+│  Project Management │ Update System    │
+│  Agent Deployment   │ Version Control  │
+├─────────────────────────────────────────┤
+│           Knowledge Engine              │
+│  Neo4j Graph │ Redis Cache │ Vectors   │
+├─────────────────────────────────────────┤
+│              Agent System               │
+│  16 Agents │ Tool Integration │ MCP     │
+└─────────────────────────────────────────┘
+```
+
+## Essential Commands
+
+| Command | Purpose |
+|---------|---------|
+| `synapse init .` | Setup project with agents |
+| `synapse start` | Start Neo4j/Redis services |
+| `synapse search "query"` | Search knowledge base |
+| `synapse update` | Update agents to latest |
+| `synapse doctor --fix` | Fix common issues |
+| `synapse status` | Check system health |
+
+## Multi-Language Projects
+
+Each language gets its specialist:
+
 ```bash
-# Unit tests
-cd .synapse/neo4j
-python -m pytest tests/
-
-# Integration tests
-./test-integration.sh
-
-# Agent integrity
-python lib/version_manager.py verify
+cd frontend/ && synapse init .    # Gets TypeScript specialist
+cd backend/ && synapse init .     # Gets Rust specialist
+cd scripts/ && synapse init .     # Gets Python specialist
 ```
 
----
+## Configuration
 
-## Contributing
+`.synapse.yml` tracks agent versions and settings:
 
-- See [DEVELOPMENT.md](DEVELOPMENT.md) for full technical details and architecture decisions
+```yaml
+synapse_version: "2024.1.0"
+agent_versions:
+  synapse-project-manager: "1758105430.ca551cb5"
+  rust-specialist: "1758107914.627812e8"
+deployment_mode: "copy"  # or "link" for auto-updates
+```
 
----
+## Agent Types
+
+### Universal (All Projects)
+- `synapse-project-manager` - Coordinates complex tasks
+- `code-hound` - Enforces quality standards (SOLID, DRY, KISS)
+- `git-workflow` - Git operations and PR management
+- `test-runner` - Test execution and TDD support
+- `file-creator` - Template-based file generation
+
+### Language Specialists
+- `rust-specialist` - Rust idioms, error handling, performance
+- `typescript-specialist` - React patterns, async/await, types
+- `golang-specialist` - Go conventions, concurrency, modules
+- `python-specialist` - PEP standards, packaging, testing
+
+### On-Demand Specialists
+- `architect` - System design and patterns
+- `devops-engineer` - CI/CD, deployment, containers
+- `security-specialist` - Security analysis and hardening
+- `docs-writer` - Documentation generation
+- `ux-designer` - User experience optimization
+
+## Knowledge Sources
+
+Synapse learns from:
+- **Your codebase** - Patterns, conventions, architecture
+- **Best practices** - Language standards, design principles
+- **Templates** - Proven project structures
+- **Standards** - Team conventions, style guides
+
+## Troubleshooting
+
+**Most issues auto-fix:**
+```bash
+synapse doctor --fix
+```
+
+**Manual debugging:**
+```bash
+synapse status          # Check what's broken
+synapse start           # Restart services
+synapse manifest verify # Check agent integrity
+```
+
+**Need Docker:** Neo4j and Redis run in containers
+**Need Python 3.12+:** For the knowledge engine
+
+## Documentation
+
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Technical architecture and contributing
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and updates
+- **[CLAUDE.md](CLAUDE.md)** - Claude Code integration guide
+
+## Philosophy
+
+Synapse follows the **Numogrammatic Codex** principles:
+- **KISS** - Keep it simple
+- **DRY** - Don't repeat yourself
+- **TDD** - Test-driven development
+- **SOLID** - Object-oriented design principles
+- **Five Whys** - Root cause analysis for debugging
+
+*Built for developers who want AI assistance that learns their patterns and enforces their standards.*
 
 ## License
 
