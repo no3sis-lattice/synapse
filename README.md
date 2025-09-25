@@ -2,6 +2,20 @@
 
 A modular, agent-driven platform that combines AI-powered agents with a knowledge engine for intelligent project management and code quality automation.
 
+## Platform Support
+
+This project is primarily designed for Linux environments. If you are on Windows, it's recommended to use [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/) for best compatibility. macOS users should also find most functionality works as expected. Native Windows support is not provided.
+
+| Platform    | Supported? | Notes                                |
+|-------------|------------|--------------------------------------|
+| **Linux**   | Yes        | Native support; all scripts work     |
+| **macOS**   | Mostly     | Most Bash scripts should work        |
+| **Windows** | No (native)| Use WSL or a Linux VM |
+
+> **Tip:**  
+> On Windows, install WSL and run all commands from your WSL shell to ensure compatibility with Bash scripts and Linux tools.
+
+
 ## Quick Start
 
 ```bash
