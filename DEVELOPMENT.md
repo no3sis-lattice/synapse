@@ -1,21 +1,10 @@
-# Synapse System - Development Guide
+# Synapse System - Technical Architecture
 
-Technical documentation for understanding, extending, and contributing to the Synapse System.
-
-## Table of Contents
-
-- [System Architecture](#system-architecture)
-- [Core Components](#core-components)
-- [Agent System](#agent-system)
-- [Knowledge Management](#knowledge-management)
-- [Update Mechanism](#update-mechanism)
-- [Language Support](#language-support)
-- [Development Setup](#development-setup)
-- [Contributing](#contributing)
+Deep technical documentation for understanding, extending, and contributing to the Synapse System.
 
 ## System Architecture
 
-### High-Level Overview
+### High-Level Design
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -80,22 +69,11 @@ Technical documentation for understanding, extending, and contributing to the Sy
 
 ## Core Components
 
-### 1. Unified CLI (`bin/synapse`)
-
-**Purpose**: Single entry point for all synapse functionality
-
-**Key Features**:
-- Intelligent context detection (finds projects by walking up directories)
-- Command routing and validation
-- Auto-detection of project vs global operations
-
-**Implementation**: Python executable that imports `lib/cli.py`
-
-### 2. Project Manager (`lib/project.py`)
+### 1. Project Manager (`lib/project.py`)
 
 **Purpose**: Handles project initialization, configuration, and agent deployment
 
-**Key Classes**:
+**Key Methods**:
 ```python
 class ProjectManager:
     def detect_language(project_dir: Path) -> str
@@ -105,37 +83,26 @@ class ProjectManager:
     def save_project_config(project_dir: Path, config: Dict[str, Any])
 ```
 
-**Language Detection Logic**:
+**Language Detection Algorithm**:
 ```python
-if (project_dir / "Cargo.toml").exists():
-    return "rust"
-elif (project_dir / "go.mod").exists():
-    return "golang"
-elif (project_dir / "package.json").exists():
-    return "typescript"
-# ... more languages
+def detect_language(project_dir: Path) -> str:
+    language_files = {
+        "rust": ["Cargo.toml"],
+        "golang": ["go.mod"],
+        "typescript": ["package.json"],
+        "python": ["pyproject.toml", "requirements.txt", "setup.py"],
+        "zig": ["build.zig"],
+        "c": ["Makefile", "CMakeLists.txt"]
+    }
+
+    for language, files in language_files.items():
+        if any((project_dir / f).exists() for f in files):
+            return language
+
+    return "unknown"
 ```
 
-### 3. Update Manager (`lib/updater.py`)
-
-**Purpose**: Manages version tracking and agent updates
-
-**Key Features**:
-- Version comparison using timestamps + checksums
-- Rollback support for failed updates
-- Handles both copy and symlink deployment modes
-
-**Update Algorithm**:
-```python
-1. Load project config (.synapse.yml)
-2. Get current system agent versions
-3. Compare project versions vs system versions
-4. Generate update list
-5. Apply updates (with user confirmation)
-6. Update project config
-```
-
-### 4. Version Manager (`lib/version_manager.py`)
+### 2. Version Manager (`lib/version_manager.py`)
 
 **Purpose**: Tracks agent versions, checksums, and integrity
 
@@ -143,14 +110,45 @@ elif (project_dir / "package.json").exists():
 - Timestamp: Unix timestamp of last modification
 - Checksum: 8-character MD5 hash of content
 
-**Features**:
+**Key Features**:
 - Agent integrity verification
 - Manifest generation and maintenance
 - Metadata extraction from agent files
 
-### 5. Knowledge Engine (`.synapse/neo4j/`)
+### 3. Update Manager (`lib/updater.py`)
 
-**Components**:
+**Update Algorithm**:
+```python
+def check_updates(project_dir: Path) -> List[Update]:
+    config = load_project_config(project_dir)
+    current_versions = get_system_agent_versions()
+    project_versions = config.get("agent_versions", {})
+
+    updates = []
+    for agent, project_version in project_versions.items():
+        current_version = current_versions.get(agent)
+        if current_version != project_version:
+            updates.append(Update(agent, project_version, current_version))
+
+    return updates
+```
+
+**Rollback System**:
+```python
+def rollback_update(project_dir: Path, backup_config: Dict):
+    # 1. Restore agent files
+    restore_agents_from_backup(project_dir, backup_config)
+
+    # 2. Restore configuration
+    save_project_config(project_dir, backup_config)
+
+    # 3. Verify integrity
+    verify_project_integrity(project_dir)
+```
+
+## Knowledge Engine Architecture
+
+### Components
 
 **Context Manager** (`context_manager.py`):
 - Central API for knowledge retrieval
@@ -162,113 +160,10 @@ elif (project_dir / "package.json").exists():
 - Local SQLite storage for vectors
 - Semantic similarity search
 
-**Ingestion** (`ingestion.py`):
+**Ingestion Pipeline** (`ingestion.py`):
 - Processes files into knowledge graph
 - Extracts relationships and entities
 - Updates vector embeddings
-
-## Agent System
-
-### Agent Types
-
-#### Universal Agents (5)
-Deployed to all projects:
-- `synapse-project-manager`: Task coordination
-- `code-hound`: Code quality enforcement
-- `git-workflow`: Git operations
-- `test-runner`: Test execution
-- `file-creator`: File/template creation
-
-#### Language Specialists (4)
-Language-specific patterns:
-- `rust-specialist`: Rust development
-- `typescript-specialist`: TypeScript/React
-- `golang-specialist`: Go development
-- `python-specialist`: Python development
-
-#### Utility Agents (7)
-Specialized functions:
-- `architect`: System design
-- `devops-engineer`: CI/CD and deployment
-- `docs-writer`: Documentation
-- `security-specialist`: Security analysis
-- `ux-designer`: User experience
-- `planner`: High-level planning
-- `tool-runner`: Tool execution
-
-### Agent Structure
-
-Each agent is a Markdown file with:
-
-```markdown
-description: Agent description here
-tools: Read, Grep, Glob, Write, Bash, SynapseSearch, SynapseStandard, SynapseTemplate, SynapseHealth
-
-# Agent Name
-
-Agent content and instructions...
-```
-
-### Tool System
-
-Agents have access to these Synapse-specific tools:
-
-#### SynapseSearch
-```python
-# Search global knowledge base
-SynapseSearch "rust error handling patterns"
-```
-
-#### SynapseStandard
-```python
-# Get coding standards
-SynapseStandard "naming-conventions" "rust"
-```
-
-#### SynapseTemplate
-```python
-# Access templates
-SynapseTemplate "web-api" {"language": "rust"}
-```
-
-#### SynapseHealth
-```python
-# Check system health
-SynapseHealth
-```
-
-### Agent Deployment
-
-Two deployment modes:
-
-#### Copy Deployment (Default)
-- Agents copied to `.claude/agents/`
-- Stable, controlled updates
-- Manual `synapse update` required
-
-#### Symlink Deployment
-- Agents symlinked to global source
-- Automatic updates
-- Use `synapse init --link`
-
-## Knowledge Management
-
-### Data Storage
-
-#### Neo4j Graph Database
-- **Nodes**: Files, functions, concepts, patterns
-- **Relationships**: Dependencies, similarities, hierarchies
-- **Properties**: Metadata, tags, classifications
-
-#### Redis Cache
-- Query result caching
-- Session state management
-- Performance optimization
-
-#### BGE-M3 Vector Store
-- 1024-dimensional embeddings
-- SQLite storage for persistence
-- Semantic similarity computation
 
 ### Search Algorithm
 
@@ -311,109 +206,109 @@ def ingest_file(file_path: Path):
     vector_store.store(file_path, embeddings)
 ```
 
-## Update Mechanism
+### Data Storage
 
-### Version Tracking
+#### Neo4j Graph Database
+- **Nodes**: Files, functions, concepts, patterns
+- **Relationships**: Dependencies, similarities, hierarchies
+- **Properties**: Metadata, tags, classifications
 
-Each component tracks versions:
+#### Redis Cache
+- Query result caching
+- Session state management
+- Performance optimization
 
-#### System Version
-- Stored in `.synapse/VERSION`
-- Semantic versioning (e.g., `2024.1.0`)
-- Updated with major releases
+#### BGE-M3 Vector Store
+- 1024-dimensional embeddings
+- SQLite storage for persistence
+- Semantic similarity computation
 
-#### Agent Versions
-- Format: `{timestamp}.{checksum}`
-- Example: `1758107914.627812e8`
-- Automatically generated on file changes
+## Agent System
 
-#### Project Configuration
-```yaml
-# .synapse.yml
-synapse_version: "2024.1.0"
-agent_versions:
-  synapse-project-manager: "1758105430.ca551cb5"
-  rust-specialist: "1758107914.627812e8"
-  # ... other agents
+### Agent Structure
+
+Each agent is a Markdown file with:
+
+```markdown
+description: Agent description here
+tools: Read, Grep, Glob, Write, Bash, SynapseSearch, SynapseStandard, SynapseTemplate, SynapseHealth
+
+# Agent Name
+
+Agent content and instructions...
 ```
 
-### Update Process
+### Agent Categories
 
+#### Universal Agents (5)
+- `synapse-project-manager`: Task coordination
+- `code-hound`: Code quality enforcement
+- `git-workflow`: Git operations
+- `test-runner`: Test execution
+- `file-creator`: File/template creation
+
+#### Language Specialists (4)
+- `rust-specialist`: Rust development
+- `typescript-specialist`: TypeScript/React
+- `golang-specialist`: Go development
+- `python-specialist`: Python development
+
+#### Utility Agents (7)
+- `architect`: System design
+- `devops-engineer`: CI/CD and deployment
+- `docs-writer`: Documentation
+- `security-specialist`: Security analysis
+- `ux-designer`: User experience
+- `planner`: High-level planning
+- `tool-runner`: Tool execution
+
+### Agent Deployment
+
+#### Copy Deployment (Default)
+- Agents copied to `.claude/agents/`
+- Stable, controlled updates
+- Manual `synapse update` required
+
+#### Symlink Deployment
+- Agents symlinked to global source
+- Automatic updates
+- Use `synapse init --link`
+
+### Tool System
+
+Agents have access to these Synapse-specific tools:
+
+#### SynapseSearch
 ```python
-def check_updates(project_dir: Path) -> List[Update]:
-    config = load_project_config(project_dir)
-    current_versions = get_system_agent_versions()
-    project_versions = config.get("agent_versions", {})
-
-    updates = []
-    for agent, project_version in project_versions.items():
-        current_version = current_versions.get(agent)
-        if current_version != project_version:
-            updates.append(Update(agent, project_version, current_version))
-
-    return updates
+# Search global knowledge base
+SynapseSearch "rust error handling patterns"
 ```
 
-### Rollback System
-
+#### SynapseStandard
 ```python
-def rollback_update(project_dir: Path, backup_config: Dict):
-    # 1. Restore agent files
-    restore_agents_from_backup(project_dir, backup_config)
-
-    # 2. Restore configuration
-    save_project_config(project_dir, backup_config)
-
-    # 3. Verify integrity
-    verify_project_integrity(project_dir)
+# Get coding standards
+SynapseStandard "naming-conventions" "rust"
 ```
 
-## Language Support
-
-### Adding New Languages
-
-1. **Detection**: Add file patterns to `detect_language()`
-2. **Agent**: Create language-specific agent in `.synapse/agents/`
-3. **Standards**: Add standards in `.synapse/standards/`
-4. **Templates**: Add templates in `.synapse/templates/`
-5. **Testing**: Test initialization and agent deployment
-
-### Language Detection
-
+#### SynapseTemplate
 ```python
-def detect_language(project_dir: Path) -> str:
-    language_files = {
-        "rust": ["Cargo.toml"],
-        "golang": ["go.mod"],
-        "typescript": ["package.json"],
-        "python": ["pyproject.toml", "requirements.txt", "setup.py"],
-        "zig": ["build.zig"],
-        "c": ["Makefile", "CMakeLists.txt"]
-    }
-
-    for language, files in language_files.items():
-        if any((project_dir / f).exists() for f in files):
-            return language
-
-    return "unknown"
+# Access templates
+SynapseTemplate "web-api" {"language": "rust"}
 ```
 
-### Standards Structure
-
-```
-.synapse/standards/
-├── coding-standards.md          # Universal standards
-└── languages/
-    ├── rust/
-    │   ├── naming-conventions.md
-    │   └── testing-strategy.md
-    ├── typescript/
-    │   ├── component-structure.md
-    │   └── async-patterns.md
-    └── ...
+#### SynapseHealth
+```python
+# Check system health
+SynapseHealth
 ```
 
 ## Development Setup
+
+### Prerequisites
+
+- Python 3.12+ with uv package manager
+- Docker & Docker Compose
+- Git
 
 ### Local Development
 
@@ -435,7 +330,7 @@ docker-compose up -d
 python bin/synapse version
 ```
 
-### Running Tests
+### Testing
 
 ```bash
 # Unit tests
@@ -449,6 +344,33 @@ python -m pytest tests/
 python lib/version_manager.py verify
 ```
 
+## Language Support
+
+### Adding New Languages
+
+1. **Detection**: Add file patterns to `detect_language()`
+2. **Agent**: Create language-specific agent in `.synapse/agents/`
+3. **Standards**: Add standards in `.synapse/standards/`
+4. **Templates**: Add templates in `.synapse/templates/`
+5. **Testing**: Test initialization and agent deployment
+
+### Standards Structure
+
+```
+.synapse/standards/
+├── coding-standards.md          # Universal standards
+└── languages/
+    ├── rust/
+    │   ├── naming-conventions.md
+    │   └── testing-strategy.md
+    ├── typescript/
+    │   ├── component-structure.md
+    │   └── async-patterns.md
+    └── ...
+```
+
+## Contributing
+
 ### Development Workflow
 
 1. **Feature Branches**: Create feature branches for new functionality
@@ -456,14 +378,6 @@ python lib/version_manager.py verify
 3. **Documentation**: Update relevant documentation
 4. **Agent Updates**: Update agent manifest if agents change
 5. **Version Bump**: Update VERSION file for releases
-
-## Contributing
-
-### Code Style
-
-- **Python**: Follow PEP 8, use type hints
-- **Bash**: Follow Google Shell Style Guide
-- **Markdown**: Use consistent formatting
 
 ### Adding Agents
 
@@ -474,12 +388,11 @@ python lib/version_manager.py verify
 5. Update manifest: `synapse manifest update`
 6. Test deployment: `synapse init /tmp/test-project`
 
-### Modifying Core Logic
+### Code Style
 
-1. **CLI Changes**: Update `lib/cli.py` and argument parser
-2. **Project Logic**: Modify `lib/project.py` for initialization changes
-3. **Update Logic**: Modify `lib/updater.py` for version tracking
-4. **Knowledge Engine**: Changes in `.synapse/neo4j/` for search/storage
+- **Python**: Follow PEP 8, use type hints
+- **Bash**: Follow Google Shell Style Guide
+- **Markdown**: Use consistent formatting
 
 ### Release Process
 
@@ -489,37 +402,6 @@ python lib/version_manager.py verify
 4. **Testing**: Comprehensive testing on multiple projects
 5. **Documentation**: Update docs if needed
 6. **Tag Release**: Create git tag with version
-
-### Debugging
-
-#### Enable Debug Logging
-```bash
-export SYNAPSE_DEBUG=1
-synapse init .
-```
-
-#### Check Component Health
-```bash
-# System health
-synapse health
-
-# Service status
-synapse status
-
-# Agent integrity
-synapse manifest verify
-```
-
-#### Manual Operations
-```bash
-# Direct Neo4j access
-cd .synapse/neo4j
-source .venv/bin/activate
-python
-
-# Direct Redis access
-redis-cli
-```
 
 ## Architecture Decisions
 
@@ -544,4 +426,35 @@ redis-cli
 - **Metadata**: Can embed metadata in frontmatter
 - **Version Control**: Git-friendly format
 
-This development guide provides the technical foundation for understanding, extending, and contributing to the Synapse System.
+## Debugging
+
+### Enable Debug Logging
+```bash
+export SYNAPSE_DEBUG=1
+synapse init .
+```
+
+### Check Component Health
+```bash
+# System health
+synapse health
+
+# Service status
+synapse status
+
+# Agent integrity
+synapse manifest verify
+```
+
+### Manual Operations
+```bash
+# Direct Neo4j access
+cd .synapse/neo4j
+source .venv/bin/activate
+python
+
+# Direct Redis access
+redis-cli
+```
+
+This technical documentation provides the foundation for understanding, extending, and contributing to the Synapse System.

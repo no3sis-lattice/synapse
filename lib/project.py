@@ -49,13 +49,22 @@ class ProjectManager:
     def get_agent_versions(self) -> Dict[str, str]:
         """Get versions of all available agents with checksums"""
         versions = {}
-        for agent_file in self.agents_source.glob("*.md"):
-            agent_name = agent_file.stem
-            # Use file modification time and content hash as version
-            content = agent_file.read_text()
-            content_hash = hashlib.md5(content.encode()).hexdigest()[:8]
-            mod_time = agent_file.stat().st_mtime
-            versions[agent_name] = f"{int(mod_time)}.{content_hash}"
+        # Handle new directory-based agent structure
+        for agent_dir in self.agents_source.iterdir():
+            if agent_dir.is_dir():
+                agent_name = agent_dir.name
+                # Look for the main agent file
+                agent_file = agent_dir / f"{agent_name}.md"
+                if agent_file.exists():
+                    # Use file modification time and content hash as version
+                    content = agent_file.read_text()
+                    content_hash = hashlib.md5(content.encode()).hexdigest()[:8]
+                    mod_time = agent_file.stat().st_mtime
+                    versions[agent_name] = f"{int(mod_time)}.{content_hash}"
+                else:
+                    # Fallback: use directory modification time
+                    mod_time = agent_dir.stat().st_mtime
+                    versions[agent_name] = f"{int(mod_time)}.000"
         return versions
 
     def get_universal_agents(self) -> List[str]:
@@ -83,6 +92,33 @@ class ProjectManager:
             "typescript-specialist"
         ]
 
+    def get_agent_directory_mapping(self) -> Dict[str, str]:
+        """Map expected agent names to actual directory names"""
+        return {
+            # Standard mappings where name matches directory
+            "synapse-project-manager": "synapse-project-manager",
+            "code-hound": "code-hound",
+            "git-workflow": "git-workflow",
+            "test-runner": "test-runner",
+            "file-creator": "file-creator",
+            "architect": "architect",
+            "devops-engineer": "devops-engineer",
+            "docs-writer": "docs-writer",
+            "security-specialist": "security-specialist",
+            "ux-designer": "ux-designer",
+            "4QZero": "4QZero",
+            # Language specialists - both old and new directory names
+            "rust-specialist": "rust-specialist",
+            "golang-specialist": "golang-specialist",
+            "python-specialist": "python-specialist",
+            "typescript-specialist": "typescript-specialist",
+            # Legacy directory names (fallback)
+            "rust-dev": "rust-dev",
+            "goland-dev": "goland-dev",
+            "python-dev": "python-dev",
+            "typescript-dev": "typescript-dev"
+        }
+
     def load_project_config(self, project_dir: Path) -> Optional[Dict[str, Any]]:
         """Load project configuration from .synapse.yml"""
         config_file = project_dir / ".synapse.yml"
@@ -107,13 +143,39 @@ class ProjectManager:
 
     def copy_or_link_agent(self, agent_name: str, project_dir: Path, use_links: bool = False) -> bool:
         """Copy or symlink agent to project directory"""
-        source_file = self.agents_source / f"{agent_name}.md"
-        target_file = project_dir / ".claude" / "agents" / f"{agent_name}.md"
+        # Get the actual directory name for this agent
+        directory_mapping = self.get_agent_directory_mapping()
+        actual_dir_name = directory_mapping.get(agent_name, agent_name)
 
-        if not source_file.exists():
-            print(f"Warning: Agent {agent_name}.md not found in {self.agents_source}")
+        # Try multiple source patterns
+        source_file = None
+        agent_dir = self.agents_source / actual_dir_name
+
+        if agent_dir.is_dir():
+            # New directory-based structure
+            # Try main agent file first
+            potential_sources = [
+                agent_dir / f"{actual_dir_name}.md",
+                agent_dir / f"{agent_name}.md",
+                # Fallback to compressed version if available
+                agent_dir / f"{actual_dir_name.replace('-', '_')}_compressed.md",
+                # Fallback to prompt version
+                agent_dir / f"{actual_dir_name.replace('-', '_')}_prompt.md"
+            ]
+
+            for potential_source in potential_sources:
+                if potential_source.exists():
+                    source_file = potential_source
+                    break
+        else:
+            # Legacy flat file structure
+            source_file = self.agents_source / f"{agent_name}.md"
+
+        if not source_file or not source_file.exists():
+            print(f"Warning: Agent {agent_name} not found (tried {actual_dir_name} directory)")
             return False
 
+        target_file = project_dir / ".claude" / "agents" / f"{agent_name}.md"
         target_file.parent.mkdir(parents=True, exist_ok=True)
 
         try:
