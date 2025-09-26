@@ -31,12 +31,12 @@ NIX_EXIT_CODE=$?
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
 
-log_message INFO "Nix flake check completed with exit code: $NIX_EXIT_CODE"
-log_message DEBUG "Nix flake check STDOUT/STDERR:\n$NIX_STDOUT"
-
-# --- QA Report Generation --- #
 NIX_STDOUT_SANITIZED=$(echo "$NIX_STDOUT" | sed 's/\x1b\[[0-9;]*m//g') # Remove ANSI escape codes
 
+log_message INFO "Nix flake check completed with exit code: $NIX_EXIT_CODE"
+log_message DEBUG "Nix flake check STDOUT/STDERR:\n$NIX_STDOUT_SANITIZED"
+
+# --- QA Report Generation --- #
 REPORT_CONTENT="# QA Report: Nix Flake Setup - ${TIMESTAMP}\n\n"
 REPORT_CONTENT+="## Test: Nix Flake Check\n\n"
 REPORT_CONTENT+="*   **Date/Time:** $(date)\n"
