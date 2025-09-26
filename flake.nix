@@ -18,11 +18,12 @@
         };
 
         # Python environment will be imported from a generated file
-        pythonPackages = import ./nix/python-packages.nix {
-          inherit pkgs;
-          pip2nix = pip2nix.packages.${system}.default;
-        };
-        pythonEnv = pythonPackages.env;
+        # pythonPackages = import ./nix/python-packages.nix {
+        #   inherit pkgs;
+        #   pip2nix = pip2nix.packages.${system}.default;
+        # };
+        # pythonEnv = pythonPackages.env;
+        pythonEnv = pkgs.python3;
 
       in
       {
@@ -31,14 +32,15 @@
         };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = [ pythonEnv ];
+          buildInputs = [ 
+            pythonEnv
+            pip2nix.packages.${system}.default # Add pip2nix tool to buildInputs
+          ];
           packages = with pkgs; [
             # Basic tools for development
             bashInteractive
             coreutils
             nix
-            # Add pip2nix tool to devShell for generating python-packages.nix
-            pip2nix.packages.${system}.default
           ];
         };
       }
