@@ -5,26 +5,32 @@
     # External dependencies pointing to the meta-introspector fork
     nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
     flake-utils.url = "github:numtide/flake-utils";
-
-    # pip2nix referenced via GitHub
-    pip2nix.url = "github:meta-introspector/pip2nix";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, ... }@inputs:
+  outputs = { self, nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [
-            pip2nix.overlays.default
-          ];
         };
 
-        # Generate the Python environment from all-requirements.txt
-        pythonEnv = pkgs.pip2nix.mkPythonPackages {
-          src = ./.;
-          requirements = ./nix/all-requirements.txt;
-        };
+        # Temporarily define Python environment directly
+        pythonEnv = pkgs.python3.withPackages (ps: with ps; [
+          # Main dependencies from nix/all-requirements.txt
+          # This is a temporary measure to get the flake working
+          neo4j
+          numpy
+          python-dotenv
+          pytest
+          pytest-snapshot
+          redis
+          requests
+          sentence-transformers
+          sqlite-vss
+          testcontainers
+          testcontainers-neo4j
+          testcontainers-redis
+        ]);
 
       in
       {
@@ -39,8 +45,6 @@
             bashInteractive
             coreutils
             nix
-            # Development tools from requirements-dev.txt
-            # pytest and related tools are included in pythonEnv, so no need to add them separately here
           ];
         };
       }
