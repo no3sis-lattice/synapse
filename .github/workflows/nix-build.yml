@@ -15,6 +15,7 @@ jobs:
         uses: meta-introspector/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
       - name: Install Nix
         uses: meta-introspector/install-nix-action@v22
         with:
