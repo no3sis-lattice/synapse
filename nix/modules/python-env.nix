@@ -1,17 +1,13 @@
 {
   pkgs,
-  pip2nix,
-  allRequirementsFile,
-  pipLockFile,
+  pythonPackagesFile,
 }:
 
 let
-  # Define the Python environment using pip2nix and the generated pip.lock
-  pythonEnv = pip2nix.mkPythonEnv {
-    src = ./.; # Reference the project root for context
-    requirements = allRequirementsFile;
-    pipLock = pipLockFile;
-  };
+  # Import the generated python-packages.nix
+  generatedPythonPackages = import pythonPackagesFile { inherit pkgs; };
+  pythonEnv = generatedPythonPackages.env;
+
 in
 
 {

@@ -19,9 +19,8 @@
 
         # Import the foundational Python environment module
         pythonModule = import ./nix/modules/python-env.nix {
-          inherit pkgs pip2nix;
-          allRequirementsFile = ./nix/all-requirements.txt;
-          pipLockFile = ./nix/pip.lock;
+          inherit pkgs;
+          pythonPackagesFile = ./nix/python-packages.nix;
         };
         pythonEnv = pythonModule.env;
 
