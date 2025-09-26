@@ -1,0 +1,3 @@
+[submodule "vendor/nix/pip2nix"]
+	path = vendor/nix/pip2nix
+	url = https://github.com/meta-introspector/pip2nix
