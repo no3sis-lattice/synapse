@@ -35,6 +35,8 @@ log_message INFO "Nix flake check completed with exit code: $NIX_EXIT_CODE"
 log_message DEBUG "Nix flake check STDOUT/STDERR:\n$NIX_STDOUT"
 
 # --- QA Report Generation --- #
+NIX_STDOUT_SANITIZED=$(echo "$NIX_STDOUT" | sed 's/\x1b\[[0-9;]*m//g') # Remove ANSI escape codes
+
 REPORT_CONTENT="# QA Report: Nix Flake Setup - ${TIMESTAMP}\n\n"
 REPORT_CONTENT+="## Test: Nix Flake Check\n\n"
 REPORT_CONTENT+="*   **Date/Time:** $(date)\n"
@@ -47,10 +49,10 @@ if [[ $NIX_EXIT_CODE -eq 0 ]]; then
     REPORT_CONTENT+="The Nix flake setup appears to be functional.\n\n"
 else
     REPORT_CONTENT+="## Result: ❌ FAIL\n\n"
-    REPORT_CONTENT+="The Nix flake setup encountered an error. This is likely due to the persistent `path:` input issue as described in `NIXIFICATION_PLAN.md`.\n\n"
+    REPORT_CONTENT+="The Nix flake setup encountered an error. This is likely due to the persistent `path:` input issue or an incorrect `pip2nix` integration as described in `NIXIFICATION_PLAN.md`.\n\n"
 fi
 
-REPORT_CONTENT+="### Full Output (STDOUT/STDERR):\n\n```\n${NIX_STDOUT}\n```\n\n"
+REPORT_CONTENT+="### Full Output (STDOUT/STDERR):\n\n```\n${NIX_STDOUT_SANITIZED}\n```\n\n"
 
 echo -e "$REPORT_CONTENT" > "$REPORT_FILE"
 

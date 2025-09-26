@@ -6,7 +6,6 @@ pytest-snapshot
 redis>=4.5.0
 requests>=2.28.0
 sentence-transformers>=2.2.0
-sqlite-vss>=0.1.2
 testcontainers
 testcontainers-neo4j
 testcontainers-redis
