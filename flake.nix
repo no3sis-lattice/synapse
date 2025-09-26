@@ -52,6 +52,13 @@
       in
       {
         packages = {
+          # Main synapse system package
+          default = pkgs.writeShellScriptBin "synapse-system" ''
+            echo "Synapse System - Multi-agent development platform"
+            echo "Available agents: architect, code-hound, synapse-project-manager, etc."
+            echo "Use 'synapse --help' for CLI commands"
+          '';
+
           # Expose packages from agent flakes
           inherit (inputs.architect.packages.${system}) architect;
           inherit (inputs.clarity-judge.packages.${system}) clarity-judge;
