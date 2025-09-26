@@ -8,7 +8,7 @@
 
     # Internal toolchain dependencies
     pip2nix = {
-      url = "path:./vendor/nix/pip2nix";
+      url = "github:meta-introspector/pip2nix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
