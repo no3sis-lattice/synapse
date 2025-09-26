@@ -46,36 +46,20 @@
         # Generate the Python environment from requirements.txt
         pythonEnv = pkgs.pip2nix.mkPythonPackages {
           src = ./.;
-          requirements = ./requirements.txt;
+          requirements = ./nix/all-requirements.txt;
         };
 
       in
       {
-        packages = {
-          # Expose packages from agent flakes
-          inherit (inputs.architect.packages.${system}) architect;
-          inherit (inputs.clarity-judge.packages.${system}) clarity-judge;
-          inherit (inputs.code-hound.packages.${system}) code-hound;
-          inherit (inputs.devops-engineer.packages.${system}) devops-engineer;
-          inherit (inputs.docs-writer.packages.${system}) docs-writer;
-          inherit (inputs.file-creator.packages.${system}) file-creator;
-          inherit (inputs.git-workflow.packages.${system}) git-workflow;
-          inherit (inputs.golang-specialist.packages.${system}) golang-specialist;
-          inherit (inputs.python-specialist.packages.${system}) python-specialist;
-          inherit (inputs.rust-specialist.packages.${system}) rust-specialist;
-          inherit (inputs.security-specialist.packages.${system}) security-specialist;
-          inherit (inputs.synapse-project-manager.packages.${system}) synapse-project-manager;
-          inherit (inputs.test-runner.packages.${system}) test-runner;
-          inherit (inputs.tool-runner.packages.${system}) tool-runner;
-          inherit (inputs.typescript-specialist.packages.${system}) typescript-specialist;
-          inherit (inputs.ux-designer.packages.${system}) ux-designer;
-          inherit (inputs."4QZero".packages.${system}) "4QZero";
-        };
-
         devShells.default = pkgs.mkShell {
           buildInputs = [ pythonEnv ];
           packages = with pkgs; [
-            # Add any other development tools here
+            # Basic tools for development
+            bashInteractive
+            coreutils
+            nix
+            # Development tools from requirements-dev.txt
+            # pytest and related tools are included in pythonEnv, so no need to add them separately here
           ];
         };
       }
