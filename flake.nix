@@ -38,16 +38,12 @@
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [
-            pip2nix.overlays.default
-          ];
         };
 
         # Generate the Python environment from requirements.txt
-        pythonEnv = pkgs.pip2nix.mkPythonPackages {
-          src = ./.;
-          requirements = ./requirements.txt;
-        };
+        pythonEnv = pkgs.python3.withPackages (ps: with ps; [
+          redis
+        ]);
 
       in
       {
