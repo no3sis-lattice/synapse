@@ -17,13 +17,13 @@
           inherit system;
         };
 
-        # Python environment will be imported from a generated file
-        # pythonPackages = import ./nix/python-packages.nix {
-        #   inherit pkgs;
-        #   pip2nix = pip2nix.packages.${system}.default;
-        # };
-        # pythonEnv = pythonPackages.env;
-        pythonEnv = pkgs.python3;
+        # Import the foundational Python environment module
+        pythonModule = import ./nix/modules/python-env.nix {
+          inherit pkgs pip2nix;
+          allRequirementsFile = ./nix/all-requirements.txt;
+          pipLockFile = ./nix/pip.lock;
+        };
+        pythonEnv = pythonModule.env;
 
       in
       {
