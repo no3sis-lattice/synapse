@@ -58,8 +58,8 @@
             bashInteractive
             coreutils
             nix
-            # Development tools from requirements-dev.txt
-            # pytest and related tools are included in pythonEnv, so no need to add them separately here
+            # Temporarily add pipdeptree for dependency graph analysis
+            (pythonEnv.withPackages (p: [ p.pipdeptree ]))
           ];
         };
       }
