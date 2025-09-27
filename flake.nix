@@ -10,7 +10,6 @@
     pip2nix.url = "github:meta-introspector/pip2nix?ref=master";
 
     # Agent flakes
-    synapse-repo.url = "self";
     AGENT1.url = "path:./nix/flakes/4QZero";
     ARCHITECT.url = "path:./nix/flakes/architect";
   };
@@ -31,19 +30,32 @@
 
       in
       {
+        pythonEnv = pythonEnv;
+
         packages = rec {
           AGENT1-agent = (import AGENT1 {
             inherit self nixpkgs flake-utils;
-            synapse-system = self; # Pass self as synapse-system
           }).packages.${system}.default;
           ARCHITECT-agent = (import ARCHITECT {
             inherit self nixpkgs flake-utils;
-            synapse-system = self; # Pass self as synapse-system
           }).packages.${system}.default;
           # No agent packages exposed directly here yet, will be done via nix/modules
         };
 
         devShells.default = pkgs.mkShell {
+          buildInputs = [
+            pythonEnv
+            pip2nix.packages.${system}.default
+          ];
+          packages = with pkgs; [
+            bashInteractive
+            coreutils
+            nix
+          ];
+        };
+      }
+    );
+}
           buildInputs = [
             pythonEnv
             pip2nix.packages.${system}.default
