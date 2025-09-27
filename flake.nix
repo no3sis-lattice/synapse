@@ -4,16 +4,17 @@
   inputs = {
     # External dependencies pointing to the meta-introspector fork
     nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-utils.url = "github:meta-introspector/flake-utils?ref=feature/CRQ-016-nixify";
 
     # pip2nix referenced via GitHub
     pip2nix.url = "github:meta-introspector/pip2nix?ref=master";
 
     # Agent flakes
-    synapse-repo.url = "github:meta-introspector/synapse-system?ref=feature/CRQ-001-NixFlakeModularization";
+    synapse-repo.url = "self";
+    AGENT1.url = "self#nix/flakes/4QZero";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, synapse-repo, ... }:
+  outputs = { self, nixpkgs, flake-utils, pip2nix, AGENT1, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -32,10 +33,7 @@
         pythonEnv = pythonEnv;
 
         packages = rec {
-          _4qzero-agent = (import (synapse-repo + "/nix/flakes/4QZero/flake.nix") {
-            inherit self nixpkgs flake-utils;
-            synapse-system = synapse-repo; # Pass synapse-repo as synapse-system
-          }).packages.${system}.default;
+          AGENT1-agent = AGENT1.packages.${system}.default;
           # No agent packages exposed directly here yet, will be done via nix/modules
         };
 

@@ -3,9 +3,9 @@
 
   inputs = {
     nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-utils.url = "github:meta-introspector/flake-utils?ref=feature/CRQ-016-nixify";
     # Reference the root synapse-system flake to get the shared Python environment
-    synapse-system.url = "github:meta-introspector/synapse-system?ref=agent/4QZero/development";
+    synapse-system.url = "self";
   };
 
   outputs = { self, nixpkgs, flake-utils, synapse-system, ... }:
