@@ -2,9 +2,9 @@
   description = "A lattice of flakes for the Synapse system.";
 
   inputs = {
-    # External dependencies pointing to the meta-introspector fork
+    # External dependencies
     nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
-    flake-utils.url = "github:numtide/flake-utils"; # Using official flake-utils as meta-introspector one might be outdated
+    flake-utils.url = "github:numtide/flake-utils";
 
     # Internal toolchain dependencies
     pip2nix = {
@@ -40,7 +40,6 @@
           inherit system;
         };
 
-        # Generate the Python environment from requirements.txt
         pythonEnv = pkgs.python3.withPackages (ps: with ps; [
           redis
         ]);
@@ -48,14 +47,12 @@
       in
       {
         packages = {
-          # Main synapse system package
           default = pkgs.writeShellScriptBin "synapse-system" ''
             echo "Synapse System - Multi-agent development platform"
             echo "Available agents: architect, code-hound, synapse-project-manager, etc."
             echo "Use 'synapse --help' for CLI commands"
           '';
 
-          # Expose packages from agent flakes
           inherit (inputs.architect.packages.${system}) architect;
           inherit (inputs.clarity-judge.packages.${system}) clarity-judge;
           inherit (inputs.code-hound.packages.${system}) code-hound;
@@ -76,11 +73,18 @@
         };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = [ pythonEnv ];
+          buildInputs = [
+            pythonEnv
+            pip2nix.packages.${system}.default
+          ];
           packages = with pkgs; [
-            # Add any other development tools here
+            bashInteractive
+            coreutils
+            nix
           ];
         };
+        
+        defaultPackage = self.devShells.${system}.default;
       }
     );
 }

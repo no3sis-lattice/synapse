@@ -1,3 +1,9 @@
 [submodule "vendor/nix/pip2nix"]
 	path = vendor/nix/pip2nix
 	url = https://github.com/meta-introspector/pip2nix
+[submodule "vendor/nix/mach-nix"]
+	path = vendor/nix/mach-nix
+	url = https://github.com/DavHau/mach-nix.git
+[submodule "vendor/nix/pynixify"]
+	path = vendor/nix/pynixify
+	url = https://github.com/cript0nauta/pynixify

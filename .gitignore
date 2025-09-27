@@ -52,3 +52,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Added by Gemini
+result
+qa_reports/
