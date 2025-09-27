@@ -13,10 +13,9 @@
     synapse-repo.url = "self";
     AGENT1.url = "path:./nix/flakes/4QZero";
     ARCHITECT.url = "path:./nix/flakes/architect";
-    python-env-module.url = "path:./nix/modules/python-env.nix";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, AGENT1, ARCHITECT, python-env-module, ... }:
+  outputs = { self, nixpkgs, flake-utils, pip2nix, AGENT1, ARCHITECT, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -36,12 +35,14 @@
 
         packages = rec {
           AGENT1-agent = (import AGENT1 {
-            inherit self nixpkgs flake-utils python-env-module;
+            inherit self nixpkgs flake-utils;
             synapse-system = self; # Pass self as synapse-system
+            python-env-module = pythonModule; # Pass pythonModule directly
           }).packages.${system}.default;
           ARCHITECT-agent = (import ARCHITECT {
-            inherit self nixpkgs flake-utils python-env-module;
+            inherit self nixpkgs flake-utils;
             synapse-system = self; # Pass self as synapse-system
+            python-env-module = pythonModule; # Pass pythonModule directly
           }).packages.${system}.default;
           # No agent packages exposed directly here yet, will be done via nix/modules
         };
