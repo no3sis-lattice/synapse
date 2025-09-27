@@ -1,6 +1,6 @@
 {
   "nodes": {
-    "AGENT1": {
+    "ARCHITECT": {
       "inputs": {
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
@@ -8,16 +8,16 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-tY/fau876ykHuwHPPC/TeuhmZTWDonj0YjNrIYj0yDM=",
-        "path": "./nix/flakes/4QZero",
+        "narHash": "sha256-wdSBsD+SSDPvmv/oWAYwXvs/g5Kbn//FAt8YyYYHhJE=",
+        "path": "./nix/flakes/architect",
         "type": "path"
       },
       "original": {
-        "path": "./nix/flakes/4QZero",
+        "path": "./nix/flakes/architect",
         "type": "path"
       }
     },
-    "ARCHITECT": {
+    "Agent4QZero": {
       "inputs": {
         "flake-utils": "flake-utils_3",
         "nixpkgs": "nixpkgs_3",
@@ -25,12 +25,12 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-K4YkHtmF6z3dsKkknG8C5j1e0qA4NvklvL5ToNzb0OI=",
-        "path": "./nix/flakes/architect",
+        "narHash": "sha256-yjxuxJPj9t/eE8Qi3umXBxVWtv1dDTs7aXlKJYns7LA=",
+        "path": "./nix/flakes/4QZero",
         "type": "path"
       },
       "original": {
-        "path": "./nix/flakes/architect",
+        "path": "./nix/flakes/4QZero",
         "type": "path"
       }
     },
@@ -303,8 +303,8 @@
     },
     "root": {
       "inputs": {
-        "AGENT1": "AGENT1",
         "ARCHITECT": "ARCHITECT",
+        "Agent4QZero": "Agent4QZero",
         "flake-utils": "flake-utils_5",
         "nixpkgs": "nixpkgs_5",
         "pip2nix": "pip2nix_3"

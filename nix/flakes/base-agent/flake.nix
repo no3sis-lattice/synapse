@@ -7,18 +7,21 @@
     pip2nix.url = "github:meta-introspector/pip2nix?ref=master";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, pythonModule, pythonPackagesFile, ... }:
+  outputs = { self, nixpkgs, flake-utils, pip2nix,
+              #pythonModule,
+              #pythonPackagesFile,
+              ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
         };
 
-        pythonEnv = pythonModule { inherit pkgs pythonPackagesFile; };
+     #   pythonEnv = pythonModule { inherit pkgs pythonPackagesFile; };
 
       in
       {
-        pythonEnv = pythonEnv; # Expose the Python environment
+     #   pythonEnv = pythonEnv; # Expose the Python environment
       }
     );
 }
