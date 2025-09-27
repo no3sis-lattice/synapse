@@ -10,10 +10,10 @@
     pip2nix.url = "github:meta-introspector/pip2nix";
 
     # Agent flakes
-    _4qzero.url = "./nix/flakes/4QZero";
+    synapse-repo.url = "github:meta-introspector/synapse";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, _4qzero, ... }:
+  outputs = { self, nixpkgs, flake-utils, pip2nix, synapse-repo, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -31,8 +31,11 @@
       {
         pythonEnv = pythonEnv;
 
-        packages = {
-          _4qzero-agent = _4qzero.packages.${system}.default;
+        packages = rec {
+          _4qzero-agent = (import (synapse-repo + "/nix/flakes/4QZero/flake.nix") {
+            inherit self nixpkgs flake-utils;
+            synapse-system = synapse-repo; # Pass synapse-repo as synapse-system
+          }).packages.${system}.default;
           # No agent packages exposed directly here yet, will be done via nix/modules
         };
 
