@@ -197,16 +197,8 @@ synapse manifest verify # Check agent integrity
 
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** - Technical architecture and contributing
 - **[CHANGELOG.md](CHANGELOG.md)** - Version history and updates
-- **[CLAUDE.md](CLAUDE.md)** - Claude Code integration guide
 
-## Philosophy
 
-Synapse follows the **Numogrammatic Codex** principles:
-- **KISS** - Keep it simple
-- **DRY** - Don't repeat yourself
-- **TDD** - Test-driven development
-- **SOLID** - Object-oriented design principles
-- **Five Whys** - Root cause analysis for debugging
 
 *Built for developers who want AI assistance that learns their patterns and enforces their standards.*
 
