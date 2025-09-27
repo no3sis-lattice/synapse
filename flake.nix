@@ -8,9 +8,12 @@
 
     # pip2nix referenced via GitHub
     pip2nix.url = "github:meta-introspector/pip2nix";
+
+    # Agent flakes
+    _4qzero.url = "./nix/flakes/4QZero";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, ... }:
+  outputs = { self, nixpkgs, flake-utils, pip2nix, _4qzero, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -22,18 +25,21 @@
           inherit pkgs;
           pythonPackagesFile = ./nix/python-packages.nix;
         };
-        pythonEnv = pythonModule.env;
+        pythonEnv = pythonModule;
 
       in
       {
+        pythonEnv = pythonEnv;
+
         packages = {
+          _4qzero-agent = _4qzero.packages.${system}.default;
           # No agent packages exposed directly here yet, will be done via nix/modules
         };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = [ 
+          buildInputs = [
             pythonEnv
-            pip2nix.packages.${system}.default # Add pip2nix tool to buildInputs
+            pip2nix.packages.${system}.default
           ];
           packages = with pkgs; [
             # Basic tools for development
