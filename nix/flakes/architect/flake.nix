@@ -5,16 +5,17 @@
     nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
     flake-utils.url = "github:meta-introspector/flake-utils?ref=feature/CRQ-016-nixify";
     pip2nix.url = "github:meta-introspector/pip2nix?ref=master";
+    python-env-module.url = "path:../../modules/python-env.nix";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, ... }:
+  outputs = { self, nixpkgs, flake-utils, pip2nix, python-env-module, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
         };
 
-        pythonModule = import ../../modules/python-env.nix {
+        pythonModule = python-env-module {
           inherit pkgs;
           pythonPackagesFile = ../../python-packages.nix;
         };
