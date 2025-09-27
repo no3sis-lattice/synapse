@@ -14,7 +14,7 @@
           inherit system;
         };
 
-        pythonModule = python-env-module {
+        pythonModule = python-env-module.lib {
           inherit pkgs;
           pythonPackagesFile = ../../python-packages.nix;
         };
