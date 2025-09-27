@@ -23,7 +23,7 @@
       {
         packages.default = pkgs.writeShellScriptBin "architect-agent" ''
           #!${pkgs.bash}/bin/bash
-          # The path to the agent script is relative to the current flake
+          # The path to the agent script is relative to the root of the synapse-system flake
           ${pythonEnv}/bin/python ${./.synapse/agents/architect/architect_agent.py} "$@"
         '';
       }
