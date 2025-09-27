@@ -7,13 +7,18 @@
     pip2nix.url = "github:meta-introspector/pip2nix?ref=master";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, pythonEnv, ... }:
+  outputs = { self, nixpkgs, flake-utils, pip2nix, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
         };
 
+        pythonModule = import ../../modules/python-env.nix {
+          inherit pkgs;
+          pythonPackagesFile = ../../python-packages.nix;
+        };
+        pythonEnv = pythonModule;
       in
       {
         packages.default = pkgs.writeShellScriptBin "architect-agent" ''

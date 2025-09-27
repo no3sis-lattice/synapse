@@ -31,18 +31,14 @@
 
       in
       {
-        pythonEnv = pythonEnv;
-
         packages = rec {
           AGENT1-agent = (import AGENT1 {
             inherit self nixpkgs flake-utils;
             synapse-system = self; # Pass self as synapse-system
-            pythonEnv = pythonEnv; # Pass pythonEnv directly
           }).packages.${system}.default;
           ARCHITECT-agent = (import ARCHITECT {
             inherit self nixpkgs flake-utils;
             synapse-system = self; # Pass self as synapse-system
-            pythonEnv = pythonEnv; # Pass pythonEnv directly
           }).packages.${system}.default;
           # No agent packages exposed directly here yet, will be done via nix/modules
         };
@@ -53,7 +49,6 @@
             pip2nix.packages.${system}.default
           ];
           packages = with pkgs; [
-            # Basic tools for development
             bashInteractive
             coreutils
             nix
