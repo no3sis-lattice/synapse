@@ -7,23 +7,18 @@
     pip2nix.url = "github:meta-introspector/pip2nix?ref=master";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, python-env-module, ... }:
+  outputs = { self, nixpkgs, flake-utils, pip2nix, pythonEnv, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
         };
 
-        pythonModule = python-env-module.lib {
-          inherit pkgs;
-          pythonPackagesFile = ../../python-packages.nix;
-        };
-        pythonEnv = pythonModule;
       in
       {
         packages.default = pkgs.writeShellScriptBin "architect-agent" ''
           #!${pkgs.bash}/bin/bash
-          # The path to the agent script is relative to the root of the synapse-system flake
+          # The path to the agent script is relative to the current flake
           ${pythonEnv}/bin/python ${./.synapse/agents/architect/architect_agent.py} "$@"
         '';
       }
