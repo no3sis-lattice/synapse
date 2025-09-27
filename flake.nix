@@ -33,10 +33,7 @@
         pythonEnv = pythonEnv;
 
         packages = rec {
-          AGENT1-agent = (import AGENT1 {
-            inherit self nixpkgs flake-utils;
-            #synapse-system = self; # Pass self as synapse-system
-          }).packages.${system}.default;
+          AGENT1-agent = AGENT1.packages.${system}.default;
           # No agent packages exposed directly here yet, will be done via nix/modules
         };
 
