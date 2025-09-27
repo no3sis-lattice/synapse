@@ -56,16 +56,3 @@
       }
     );
 }
-          buildInputs = [
-            pythonEnv
-            pip2nix.packages.${system}.default
-          ];
-          packages = with pkgs; [
-            bashInteractive
-            coreutils
-            nix
-          ];
-        };
-      }
-    );
-}
