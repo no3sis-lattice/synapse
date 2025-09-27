@@ -7,7 +7,7 @@
     flake-utils.url = "github:numtide/flake-utils";
 
     # pip2nix referenced via GitHub
-    pip2nix.url = "github:meta-introspector/pip2nix?ref=main";
+    pip2nix.url = "github:meta-introspector/pip2nix?ref=master";
 
     # Agent flakes
     synapse-repo.url = "github:meta-introspector/synapse?ref=feature/CRQ-001-NixFlakeModularization";
