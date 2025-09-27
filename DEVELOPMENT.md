@@ -10,6 +10,12 @@ Deep technical documentation for understanding, extending, and contributing to t
 ┌─────────────────────────────────────────────────────────────┐
 │                    Synapse System                           │
 ├─────────────────────────────────────────────────────────────┤
+│  Nix Flake Layer (Build & Package)                         │
+│  ├── Agent Flakes (17 specialized agents)                  │
+│  ├── Reproducible Builds                                   │
+│  ├── CI/CD Integration (GitHub Actions)                    │
+│  └── Development Environment                               │
+├─────────────────────────────────────────────────────────────┤
 │  Unified CLI (bin/synapse)                                  │
 │  ├── Project Management (lib/project.py)                    │
 │  ├── Update System (lib/updater.py)                         │
@@ -17,8 +23,8 @@ Deep technical documentation for understanding, extending, and contributing to t
 │  └── Core CLI Logic (lib/cli.py)                           │
 ├─────────────────────────────────────────────────────────────┤
 │  Knowledge Engine (.synapse/neo4j/)                        │
-│  ├── Neo4j Graph Database                                   │
-│  ├── Redis Cache                                           │
+│  ├── Neo4j Graph Database (Docker)                         │
+│  ├── Redis Cache (Docker)                                  │
 │  ├── BGE-M3 Vector Engine                                  │
 │  └── Hybrid Search                                         │
 ├─────────────────────────────────────────────────────────────┤

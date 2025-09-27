@@ -48,6 +48,14 @@ check_prerequisites() {
     fi
     success "Docker is running."
 
+    # Check for Nix (optional enhancement)
+    if command -v nix &> /dev/null; then
+        log "Nix detected! For a reproducible development environment, consider using:"
+        echo "  cd ~/.synapse-system && nix develop"
+        echo "  This provides all tools with guaranteed version consistency."
+        echo ""
+    fi
+
     # Check for docker-compose
     if ! command -v docker-compose &> /dev/null; then
         warning "docker-compose not found. Checking if docker compose (v2) is available..."
