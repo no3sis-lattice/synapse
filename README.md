@@ -18,6 +18,7 @@ This project is primarily designed for Linux environments. If you are on Windows
 
 ## Quick Start
 
+### Option A: Traditional Install
 ```bash
 # Install
 git clone https://github.com/your-repo/synapse-system.git ~/.synapse-system
@@ -29,6 +30,16 @@ synapse start
 # Initialize any project
 cd your-project/
 synapse init .
+```
+
+### Option B: With Nix (Reproducible Environment)
+```bash
+# Clone and enter development environment
+git clone https://github.com/your-repo/synapse-system.git ~/.synapse-system
+cd ~/.synapse-system
+nix develop              # Enter dev shell with all tools
+nix build                # Build all agents
+nix run .#synapse-system # Run directly
 ```
 
 **Auto-detects your language** (Rust, TypeScript, Go, Python) and sets up specialized agents.

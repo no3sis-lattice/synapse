@@ -54,8 +54,49 @@ The development shell currently provides:
 - All Python packages defined in `requirements.txt` (currently `redis`).
 - A set of core utilities for development, including `bash`, `coreutils`, and `nix` itself.
 
-## Next Steps: Building the Modules
+## Agent Flake Architecture
 
-Now that we have a stable base environment, the next phase is to modularize the system.
+The Synapse System uses a modular flake architecture where each agent is its own independent flake:
 
-We will create a `nix/modules` directory. For each agent in the project, we will create a corresponding `.nix` file (e.g., `nix/modules/architect.nix`). The main `flake.nix` will import these files to build and compose the entire system, package by package.
+```
+nix/flakes/
+├── architect/flake.nix           # System design agent
+├── rust-specialist/flake.nix     # Rust language expert
+├── python-specialist/flake.nix   # Python language expert
+├── typescript-specialist/flake.nix
+├── golang-specialist/flake.nix
+├── synapse-project-manager/flake.nix
+├── code-hound/flake.nix         # Code quality
+├── devops-engineer/flake.nix     # Infrastructure
+└── ... (17 total agents)
+```
+
+Each agent flake exports a package that can be built independently or composed together via the main `flake.nix`.
+
+## Hybrid Architecture: Docker + Nix
+
+The system uses a hybrid approach for optimal development and deployment:
+
+- **Docker**: Stateful services (Neo4j, Redis) for data persistence
+- **Nix**: Stateless tools, agents, and build environment for reproducibility
+
+This gives you the best of both worlds:
+- Database services remain easy to manage with `docker-compose`
+- Development tools are completely reproducible with Nix
+- No dependency conflicts between Python, Rust, Go components
+
+## Practical Usage
+
+```bash
+# Enter development environment
+nix develop
+
+# Build specific agent
+nix build .#rust-specialist
+
+# Build all agents
+nix build
+
+# See all available packages
+nix flake show
+```
