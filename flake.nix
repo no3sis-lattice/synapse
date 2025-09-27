@@ -10,7 +10,7 @@
     pip2nix.url = "github:meta-introspector/pip2nix?ref=master";
 
     # Agent flakes
-    synapse-repo.url = "github:meta-introspector/synapse?ref=feature/CRQ-001-NixFlakeModularization";
+    synapse-repo.url = "github:meta-introspector/synapse-system?ref=feature/CRQ-001-NixFlakeModularization";
   };
 
   outputs = { self, nixpkgs, flake-utils, pip2nix, synapse-repo, ... }:
