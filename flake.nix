@@ -12,42 +12,33 @@
     # Agent flakes
     AGENT1.url = "path:./nix/flakes/4QZero";
     ARCHITECT.url = "path:./nix/flakes/architect";
-    python-env-module.url = "path:./nix/modules/python-env.nix";
+    base-agent.url = "path:./nix/flakes/base-agent";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, AGENT1, ARCHITECT, python-env-module, ... }:
+  outputs = { self, nixpkgs, flake-utils, pip2nix, AGENT1, ARCHITECT, base-agent, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
         };
 
-        # Import the foundational Python environment module
-        pythonModule = import ./nix/modules/python-env.nix {
-          inherit pkgs;
-          pythonPackagesFile = ./nix/python-packages.nix;
-        };
-        pythonEnv = pythonModule;
-
       in
       {
-        pythonEnv = pythonEnv;
-
         packages = rec {
           AGENT1-agent = (import AGENT1 {
-            inherit self nixpkgs flake-utils python-env-module;
-            synapse-system = self; # Pass self as synapse-system
+            inherit self nixpkgs flake-utils;
+            synapse-system = base-agent; # Pass base-agent flake
           }).packages.${system}.default;
           ARCHITECT-agent = (import ARCHITECT {
-            inherit self nixpkgs flake-utils python-env-module;
-            synapse-system = self; # Pass self as synapse-system
+            inherit self nixpkgs flake-utils;
+            synapse-system = base-agent; # Pass base-agent flake
           }).packages.${system}.default;
           # No agent packages exposed directly here yet, will be done via nix/modules
         };
 
         devShells.default = pkgs.mkShell {
           buildInputs = [
-            pythonEnv
+            base-agent.pythonEnv.${system}
             pip2nix.packages.${system}.default
           ];
           packages = with pkgs; [
@@ -59,3 +50,4 @@
       }
     );
 }
+
