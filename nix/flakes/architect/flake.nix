@@ -10,7 +10,7 @@
           inherit system;
         };
         # Access the shared Python environment from the root flake
-        pythonEnv = synapse-system.pythonEnv;
+        pythonEnv = synapse-system.pythonEnv.${system};
       in
       {
         packages.default = pkgs.writeShellScriptBin "architect-agent" ''
