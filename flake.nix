@@ -12,7 +12,7 @@
     # Agent flakes
     #synapse-repo.url = "self";
     AGENT1.url = "path:./nix/flakes/4QZero";
-    ARCHITECT.url = "self?dir=nix/flakes/architect";
+    ARCHITECT.url = "path:./nix/flakes/architect";
   };
 
   outputs = { self, nixpkgs, flake-utils, pip2nix, AGENT1, ARCHITECT, ... }:
