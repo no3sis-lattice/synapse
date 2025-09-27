@@ -4,8 +4,6 @@
   inputs = {
     nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
     flake-utils.url = "github:meta-introspector/flake-utils?ref=feature/CRQ-016-nixify";
-    # Reference the root synapse-system flake to get the shared Python environment
-    synapse-system.url = "self";
   };
 
   outputs = { self, nixpkgs, flake-utils, synapse-system, ... }:
@@ -15,7 +13,7 @@
           inherit system;
         };
         # Access the shared Python environment from the root flake
-        pythonEnv = synapse-system.outputs.pythonEnv.${system};
+        pythonEnv = synapse-system.pythonEnv.${system};
       in
       {
         packages.default = pkgs.writeShellScriptBin "4qzero-agent" ''
