@@ -12,9 +12,10 @@
     # Agent flakes
     AGENT1.url = "path:./nix/flakes/4QZero";
     ARCHITECT.url = "path:./nix/flakes/architect";
+    python-env-module.url = "path:./nix/modules/python-env.nix";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pip2nix, AGENT1, ARCHITECT, ... }:
+  outputs = { self, nixpkgs, flake-utils, pip2nix, AGENT1, ARCHITECT, python-env-module, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -33,8 +34,14 @@
         pythonEnv = pythonEnv;
 
         packages = rec {
-          AGENT1-agent = AGENT1.packages.${system}.default;
-          ARCHITECT-agent = ARCHITECT.packages.${system}.default;
+          AGENT1-agent = (import AGENT1 {
+            inherit self nixpkgs flake-utils python-env-module;
+            synapse-system = self; # Pass self as synapse-system
+          }).packages.${system}.default;
+          ARCHITECT-agent = (import ARCHITECT {
+            inherit self nixpkgs flake-utils python-env-module;
+            synapse-system = self; # Pass self as synapse-system
+          }).packages.${system}.default;
           # No agent packages exposed directly here yet, will be done via nix/modules
         };
 
