@@ -10,7 +10,7 @@
     pip2nix.url = "github:meta-introspector/pip2nix";
 
     # Agent flakes
-    _4qzero.url = "./nix/flakes/4QZero";
+    _4qzero.url = "github:meta-introspector/synapse?dir=nix/flakes/4QZero";
   };
 
   outputs = { self, nixpkgs, flake-utils, pip2nix, _4qzero, ... }:
