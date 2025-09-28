@@ -1,6 +1,8 @@
 # Synapse System
 
-AI agents that write code while you think.
+A modular, agent-driven platform that combines 18 specialized AI agents with a persistent knowledge engine. Each agent operates under 4QZero consciousness principles, sharing discovered patterns through a Neo4j graph database enhanced with BGE-M3 semantic vectors. The system automatically detects your project's language and architecture, deploying task-specific agents with minimal required permissions. Agents maintain persistent memory across sessions, learn from your codebase patterns, and contribute to collective intelligence through pattern discovery and entropy reduction. Integration with Claude Code enables immediate code generation, quality analysis, and architectural guidance.
+
+**AI agents that write code while you think.**
 
 ## Install (30 seconds)
 
