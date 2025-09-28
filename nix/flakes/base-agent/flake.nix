@@ -3,7 +3,7 @@
 
   inputs = {
     permissions = {
-      url = "path:../permissions.nix";
+      url = "path:./permissions.nix";
       flake = false;
     };
   };
