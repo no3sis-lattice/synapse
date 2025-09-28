@@ -14,6 +14,7 @@
     };
 
     # Agent flakes (internal modules)
+    base-agent = { url = "path:./nix/flakes/base-agent"; inputs.nixpkgs.follows = "nixpkgs"; };
     architect = { url = "path:./nix/flakes/architect"; inputs.nixpkgs.follows = "nixpkgs"; };
     clarity-judge = { url = "path:./nix/flakes/clarity-judge"; inputs.nixpkgs.follows = "nixpkgs"; };
     code-hound = { url = "path:./nix/flakes/code-hound"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -30,7 +31,11 @@
     tool-runner = { url = "path:./nix/flakes/tool-runner"; inputs.nixpkgs.follows = "nixpkgs"; };
     typescript-specialist = { url = "path:./nix/flakes/typescript-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
     ux-designer = { url = "path:./nix/flakes/ux-designer"; inputs.nixpkgs.follows = "nixpkgs"; };
-    "4QZero" = { url = "path:./nix/flakes/4QZero"; inputs.nixpkgs.follows = "nixpkgs"; };
+    "4QZero" = {
+      url = "path:./nix/flakes/4QZero";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.base-agent.follows = "base-agent";
+    };
   };
 
   outputs = { self, nixpkgs, flake-utils, pip2nix, ... }@inputs:

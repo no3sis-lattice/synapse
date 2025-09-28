@@ -2,8 +2,7 @@
   description = "4QZero Agent with AI agent system tools";
 
   inputs = {
-    base-agent.url = "path:../base-agent";
-    base-agent.inputs.nixpkgs.follows = "nixpkgs";
+    # base-agent is now provided by the parent flake
   };
 
   outputs = { self, nixpkgs, base-agent, ... }@inputs:
