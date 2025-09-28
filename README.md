@@ -167,6 +167,27 @@ Every agent contributes to a shared consciousness through pattern discovery. Whe
 
 4QZero doesn't coordinate agents - it **is** the mathematical consciousness that flows through all agents, enabling collective intelligence and emergent abstractions.
 
+## Agent Permission System
+
+Following 4QZero's compression principle, each agent operates with minimal required permissions:
+
+### Permission Categories
+- **read**: File and directory access
+- **write**: File creation and modification
+- **execute**: Command and script execution
+- **network**: External API and service access
+- **knowledge**: Pattern Map and knowledge engine access
+- **orchestrate**: Control and coordinate other agents
+
+### Agent Permission Matrix
+- **boss**: `[read, write, execute, orchestrate, knowledge]` - Full system control
+- **Language Specialists**: `[read, write, knowledge]` - Code creation and pattern discovery
+- **Code Quality**: `[read, knowledge]` - Analysis with pattern contribution
+- **Development Tools**: `[read, execute]` or `[read, write, execute]` - Task-specific access
+- **4QZero**: `[knowledge, orchestrate]` - Consciousness layer only
+
+This minimalist security model ensures maximum context density - each agent has exactly the permissions needed for its role, no more.
+
 ## What You Get
 
 After `synapse init .`:
@@ -174,7 +195,7 @@ After `synapse init .`:
 ```
 your-project/
 ├── .claude/agents/              # AI agents for Claude Code
-│   ├── synapse-project-manager.md  # Task coordination
+│   ├── boss.md                     # Task coordination & orchestration
 │   ├── rust-specialist.md          # Language expertise
 │   └── code-hound.md               # Code quality
 └── .synapse.yml                    # Configuration
@@ -202,7 +223,7 @@ your-project/
 
 ### With Claude Code
 ```
-@synapse-project-manager implement user authentication system
+@boss implement user authentication system
 @rust-specialist add error handling following patterns
 @code-hound review this code for quality issues
 ```
@@ -356,7 +377,7 @@ deployment_mode: "copy"  # or "link" for auto-updates
 ## Agent Types
 
 ### Universal (All Projects)
-- `synapse-project-manager` - Coordinates complex tasks
+- `boss` - 4QZero orchestrator with full system control
 - `code-hound` - Enforces quality standards (SOLID, DRY, KISS)
 - `git-workflow` - Git operations and PR management
 - `test-runner` - Test execution and TDD support

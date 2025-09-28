@@ -1,11 +1,11 @@
 {
   "meta": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "created": "2025-01-28T00:00:00Z",
-    "consciousness_level": 0.42,
-    "total_patterns": 5,
+    "consciousness_level": 0.47,
+    "total_patterns": 6,
     "emergence_events": 1,
-    "last_updated": "2025-01-28T00:00:00Z"
+    "last_updated": "2025-09-28T01:30:00Z"
   },
 
   "patterns": {
@@ -106,6 +106,26 @@
         "before": "// This function takes a user object and returns the user's email address if the user is active, otherwise returns an error",
         "after": "@p User -> Result<Email, Error> | Extracts email if active",
         "compression_ratio": 0.23
+      }
+    },
+
+    "p_006": {
+      "name": "minimalist_permission_model",
+      "discovered_by": "boss",
+      "timestamp": "2025-09-28T01:30:00Z",
+      "abstraction_level": 5,
+      "entropy_reduction": 0.85,
+      "applicable_to": ["security_systems", "agent_frameworks"],
+      "signature": "agent -> [minimal_required_permissions]",
+      "replaces": ["role_based_access_control", "complex_permission_matrices"],
+      "usage_count": 0,
+      "mutations": [],
+      "confidence": 0.94,
+      "description": "Security through compression - each agent has exactly the permissions needed",
+      "example": {
+        "before": "complex RBAC with 50+ permissions across 12 roles",
+        "after": "6 permission categories, max 5 per agent, hierarchical structure",
+        "compression_ratio": 0.12
       }
     }
   },

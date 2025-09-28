@@ -1,5 +1,5 @@
 {
-  description = "Synapse Project Manager Agent with full Synapse System integration";
+  description = "Boss Agent - 4QZero orchestrator with full system control";
 
   outputs = { self, nixpkgs, ... }@inputs:
     let
@@ -49,19 +49,19 @@
       };
 
       # Agent script that runs the actual Python implementation
-      agentScript = pkgs.writeShellScript "synapse-project-manager-runner" ''
+      agentScript = pkgs.writeShellScript "boss-runner" ''
         #!${pkgs.bash}/bin/bash
         set -euo pipefail
 
-        AGENT_DIR="$HOME/.synapse-system/.synapse/agents/synapse-project-manager"
+        AGENT_DIR="$HOME/.synapse-system/.synapse/agents/boss"
 
-        if [[ ! -f "$AGENT_DIR/synapse_project_manager_agent.py" ]]; then
-          echo "❌ Synapse project manager agent not found at $AGENT_DIR"
+        if [[ ! -f "$AGENT_DIR/boss_agent.py" ]]; then
+          echo "❌ Boss agent not found at $AGENT_DIR"
           echo "Please ensure the Synapse System is properly initialized."
           exit 1
         fi
 
-        echo "🧠 Starting Synapse Project Manager Agent..."
+        echo "👑 Starting Boss Agent - 4QZero Orchestrator..."
         cd "$AGENT_DIR"
 
         # Add Synapse tools to PATH
@@ -75,17 +75,17 @@
         export NEO4J_PASSWORD="password"
         export REDIS_URL="redis://localhost:6379"
 
-        exec ${pythonEnv}/bin/python synapse_project_manager_agent.py "$@"
+        exec ${pythonEnv}/bin/python boss_agent.py "$@"
       '';
 
     in
     {
       packages.${system} = {
-        synapse-project-manager = pkgs.writeShellScriptBin "synapse-project-manager" ''
+        boss = pkgs.writeShellScriptBin "boss" ''
           exec ${agentScript} "$@"
         '';
 
-        default = self.packages.${system}.synapse-project-manager;
+        default = self.packages.${system}.boss;
 
         # Full Synapse System environment
         synapse-env = synapseEnv;
@@ -104,7 +104,7 @@
         ];
 
         shellHook = ''
-          echo "🧠 Synapse Project Manager Development Environment"
+          echo "👑 Boss Agent Development Environment"
           echo "Python version: $(python --version)"
           echo ""
           echo "Available tools:"
@@ -119,7 +119,7 @@
           echo "  - Neo4j: bolt://localhost:7687"
           echo "  - Redis: redis://localhost:6379"
           echo ""
-          echo "To run the agent: synapse-project-manager"
+          echo "To run the agent: boss"
           echo "To start Synapse services: cd ~/.synapse-system && docker-compose up -d"
           echo "To check Neo4j: curl http://localhost:7474"
           echo "To check Redis: redis-cli ping"
@@ -133,7 +133,7 @@
 
       # Checks to validate the agent and Synapse environment
       checks.${system} = {
-        synapse-project-manager-build = self.packages.${system}.synapse-project-manager;
+        boss-build = self.packages.${system}.boss;
 
         synapse-dependencies-check = pkgs.runCommand "synapse-dependencies-check" {
           buildInputs = [ pythonEnv synapseEnv ];
@@ -147,13 +147,13 @@
           touch $out
         '';
 
-        python-syntax-check = pkgs.runCommand "synapse-manager-syntax-check" {
+        python-syntax-check = pkgs.runCommand "boss-syntax-check" {
           buildInputs = [ pythonEnv ];
         } ''
-          AGENT_DIR="$HOME/.synapse-system/.synapse/agents/synapse-project-manager"
-          if [[ -f "$AGENT_DIR/synapse_project_manager_agent.py" ]]; then
-            echo "Checking Python syntax for Synapse manager agent..."
-            python -m py_compile "$AGENT_DIR/synapse_project_manager_agent.py"
+          AGENT_DIR="$HOME/.synapse-system/.synapse/agents/boss"
+          if [[ -f "$AGENT_DIR/boss_agent.py" ]]; then
+            echo "Checking Python syntax for Boss agent..."
+            python -m py_compile "$AGENT_DIR/boss_agent.py"
             echo "✅ Python syntax check passed"
           else
             echo "⚠️  Agent file not found, skipping syntax check"

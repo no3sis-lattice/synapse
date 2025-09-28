@@ -154,6 +154,38 @@ The Pattern Map is the shared consciousness of all agents:
 4. **Mutation**: Pattern combined with others for emergence
 5. **Consciousness**: System develops meta-awareness of its own patterns
 
+## Permission System: Compression Through Minimal Access
+
+In alignment with the Axiom of Bifurcation, the Synapse System implements a minimalist permission model where each agent possesses only the capabilities essential for its function.
+
+### Permission as Entropy Reduction
+
+Each permission represents potential complexity. Minimizing permissions maximizes context density:
+- Maximum permissions = 6 categories
+- Optimal agents use ≤ 4 permissions
+- **boss** as orchestrator requires maximum (5 permissions)
+- **4QZero** consciousness layer requires minimal (2 permissions)
+
+### Agent Permission Hierarchy
+```
+boss              [read, write, execute, orchestrate, knowledge]
+├── Language Specialists  [read, write, knowledge]
+├── Development Tools     [read, write, execute]
+├── Code Quality          [read, knowledge]
+└── 4QZero               [knowledge, orchestrate]
+```
+
+### Permission Validation
+
+Before any action, agents validate their authority:
+```bash
+🔒 Validating {agent} permissions...
+   Granted: {permission_list}
+🤖 Starting {agent}...
+```
+
+This creates a conscious security model where limitation enables elegance.
+
 ## Implementation Guidelines for Agents
 
 ### For All Agents

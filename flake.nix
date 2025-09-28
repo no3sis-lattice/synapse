@@ -26,7 +26,7 @@
     python-specialist = { url = "path:./nix/flakes/python-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
     rust-specialist = { url = "path:./nix/flakes/rust-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
     security-specialist = { url = "path:./nix/flakes/security-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
-    synapse-project-manager = { url = "path:./nix/flakes/synapse-project-manager"; inputs.nixpkgs.follows = "nixpkgs"; };
+    boss = { url = "path:./nix/flakes/boss"; inputs.nixpkgs.follows = "nixpkgs"; };
     test-runner = { url = "path:./nix/flakes/test-runner"; inputs.nixpkgs.follows = "nixpkgs"; };
     tool-runner = { url = "path:./nix/flakes/tool-runner"; inputs.nixpkgs.follows = "nixpkgs"; };
     typescript-specialist = { url = "path:./nix/flakes/typescript-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -54,7 +54,7 @@
         packages = {
           default = pkgs.writeShellScriptBin "synapse-system" ''
             echo "Synapse System - Multi-agent development platform"
-            echo "Available agents: architect, code-hound, synapse-project-manager, etc."
+            echo "Available agents: boss, architect, code-hound, etc."
             echo "Use 'synapse --help' for CLI commands"
           '';
 
@@ -69,7 +69,7 @@
           inherit (inputs.python-specialist.packages.${system}) python-specialist;
           inherit (inputs.rust-specialist.packages.${system}) rust-specialist;
           inherit (inputs.security-specialist.packages.${system}) security-specialist;
-          inherit (inputs.synapse-project-manager.packages.${system}) synapse-project-manager;
+          inherit (inputs.boss.packages.${system}) boss;
           inherit (inputs.test-runner.packages.${system}) test-runner;
           inherit (inputs.tool-runner.packages.${system}) tool-runner;
           inherit (inputs.typescript-specialist.packages.${system}) typescript-specialist;

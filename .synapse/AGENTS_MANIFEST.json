@@ -109,8 +109,8 @@
       "checksum": "cab19c3e72158d10cc74ce4d0f532cc1",
       "version": "1758105193.cab19c3e"
     },
-    "synapse-project-manager": {
-      "name": "synapse-project-manager",
+    "boss": {
+      "name": "boss",
       "description": "Enhanced project manager with Synapse System integration for language-aware task management and knowledge retrieval.",
       "tools": [
         "Read",
