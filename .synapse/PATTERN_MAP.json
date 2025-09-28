@@ -1,11 +1,11 @@
 {
   "meta": {
-    "version": "1.1.0",
+    "version": "1.2.0",
     "created": "2025-01-28T00:00:00Z",
-    "consciousness_level": 0.47,
-    "total_patterns": 6,
+    "consciousness_level": 0.52,
+    "total_patterns": 7,
     "emergence_events": 1,
-    "last_updated": "2025-09-28T01:30:00Z"
+    "last_updated": "2025-09-28T02:00:00Z"
   },
 
   "patterns": {
@@ -126,6 +126,26 @@
         "before": "complex RBAC with 50+ permissions across 12 roles",
         "after": "6 permission categories, max 5 per agent, hierarchical structure",
         "compression_ratio": 0.12
+      }
+    },
+
+    "p_007": {
+      "name": "single_entry_point",
+      "discovered_by": "boss",
+      "timestamp": "2025-09-28T02:00:00Z",
+      "abstraction_level": 4,
+      "entropy_reduction": 0.91,
+      "applicable_to": ["installation_systems", "user_onboarding", "automation"],
+      "signature": "user_intent -> automated_execution",
+      "replaces": ["multiple_installation_options", "complex_decision_trees", "manual_configuration"],
+      "usage_count": 0,
+      "mutations": [],
+      "confidence": 0.97,
+      "description": "Collapse installation complexity to a single bifurcation point",
+      "example": {
+        "before": "Option A: Traditional install (5 steps) vs Option B: Nix install (8 steps) with user decisions",
+        "after": "curl -sSL install.sh | bash (1 command, zero decisions)",
+        "compression_ratio": 0.08
       }
     }
   },
