@@ -70,7 +70,7 @@ class ProjectManager:
     def get_universal_agents(self) -> List[str]:
         """Get list of universal agents that should be included in all projects"""
         return [
-            "synapse-project-manager",
+            "boss",
             "code-hound",
             "git-workflow",
             "test-runner",
@@ -96,7 +96,7 @@ class ProjectManager:
         """Map expected agent names to actual directory names"""
         return {
             # Standard mappings where name matches directory
-            "synapse-project-manager": "synapse-project-manager",
+            "boss": "boss",
             "code-hound": "code-hound",
             "git-workflow": "git-workflow",
             "test-runner": "test-runner",
@@ -112,11 +112,12 @@ class ProjectManager:
             "golang-specialist": "golang-specialist",
             "python-specialist": "python-specialist",
             "typescript-specialist": "typescript-specialist",
-            # Legacy directory names (fallback)
-            "rust-dev": "rust-dev",
-            "goland-dev": "goland-dev",
-            "python-dev": "python-dev",
-            "typescript-dev": "typescript-dev"
+            # Legacy mappings for backward compatibility
+            "synapse-project-manager": "boss",  # Renamed agent
+            "rust-dev": "rust-specialist",
+            "goland-dev": "golang-specialist",
+            "python-dev": "python-specialist",
+            "typescript-dev": "typescript-specialist"
         }
 
     def load_project_config(self, project_dir: Path) -> Optional[Dict[str, Any]]:
@@ -275,7 +276,7 @@ class ProjectManager:
             print(f"   • {agent}")
 
         print(f"\n💡 Usage in Claude Code:")
-        print(f"   @synapse-project-manager help with this {language} project")
+        print(f"   @boss help with this {language} project")
         print(f"   @rust-specialist implement error handling patterns")
         print(f"   @golang-specialist optimize concurrent operations")
         print(f"   @python-specialist improve data processing")
