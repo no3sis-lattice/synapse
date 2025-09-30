@@ -61,12 +61,16 @@ class RuntimeAdapter:
 
     def _load_mojo_features(self) -> dict[str, bool]:
         """Load Mojo feature flags from config"""
-        # TODO: Load from lib/config.py once created
-        return {
-            'pattern_search': False,    # Enable after Phase 2 validation
-            'message_router': False,    # Enable after Phase 3 validation
-            'vector_engine': False,     # Future phase
-        }
+        try:
+            from config import MOJO_FEATURES
+            return MOJO_FEATURES.copy()
+        except ImportError:
+            # Fallback to disabled if config not available
+            return {
+                'pattern_search': False,
+                'message_router': False,
+                'vector_engine': False,
+            }
 
     def execute_task(
         self,

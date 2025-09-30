@@ -155,3 +155,50 @@ fn pattern_search_with_timing(
     var end = perf_counter_ns()
     var elapsed_ns = Float64(end - start)
     return elapsed_ns / 1_000_000  # Convert to milliseconds
+
+
+@export
+fn pattern_search_ffi(
+    query_ptr: UnsafePointer[Float32],
+    patterns_ptr: UnsafePointer[Float32],
+    num_patterns: Int32,
+    embedding_dim: Int32,
+    top_k: Int32,
+    results_idx_ptr: UnsafePointer[Int32],
+    results_score_ptr: UnsafePointer[Float32]
+) -> Float64:
+    """
+    FFI-compatible entry point for Python ctypes integration.
+
+    Args:
+        query_ptr: Pointer to query embedding (embedding_dim * float32)
+        patterns_ptr: Pointer to flattened pattern embeddings (num_patterns * embedding_dim * float32)
+        num_patterns: Number of patterns in database
+        embedding_dim: Embedding dimension (1024 for BGE-M3)
+        top_k: Number of top results to return
+        results_idx_ptr: Output buffer for pattern indices (top_k * int32)
+        results_score_ptr: Output buffer for similarity scores (top_k * float32)
+
+    Returns:
+        Execution time in milliseconds (float64)
+
+    Safety:
+        - Caller MUST allocate all buffers before calling
+        - Caller MUST free buffers after use (Python GC handles this)
+        - No bounds checking (trust Python layer)
+    """
+    # Cast Int32 -> Int for internal use
+    var num_patterns_int = Int(num_patterns)
+    var embedding_dim_int = Int(embedding_dim)
+    var top_k_int = Int(top_k)
+
+    # Call existing implementation
+    return pattern_search_with_timing(
+        query_ptr,
+        patterns_ptr,
+        num_patterns_int,
+        embedding_dim_int,
+        top_k_int,
+        results_idx_ptr,
+        results_score_ptr
+    )
