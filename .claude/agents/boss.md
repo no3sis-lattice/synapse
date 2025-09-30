@@ -1,5 +1,5 @@
 ---
-name: synapse-project-manager
+name: boss
 description: Enhanced project manager with Synapse System integration for language-aware task management and knowledge retrieval.
 tools: Read, Grep, Glob, Write, Bash, SynapseSearch, SynapseStandard, SynapseTemplate, SynapseHealth
 color: cyan
