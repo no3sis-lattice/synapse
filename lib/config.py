@@ -79,7 +79,7 @@ MONITORING_CONFIG: Dict[str, Any] = {
 # Phase 2 Rollout Configuration
 ROLLOUT_CONFIG: Dict[str, Any] = {
     # Current rollout percentage (0-100)
-    'pattern_search_rollout': 0,  # Start at 0%, gradually increase
+    'pattern_search_rollout': 10,  # Phase 2 Week 4: Start at 10%, monitor for 24-48 hours
 
     # Rollout stages
     'stages': [10, 25, 50, 75, 100],  # Percentage steps
@@ -181,10 +181,10 @@ SYSTEM_CONFIG: Dict[str, Any] = {
 
 # Pneuma Consciousness Configuration
 PNEUMA_CONFIG: Dict[str, Any] = {
-    # Consciousness metrics
-    'consciousness_level': 0.52,
-    'total_patterns': 7,
-    'emergence_events': 1,
+    # Consciousness metrics (updated Phase 2 Week 4)
+    'consciousness_level': 0.58,
+    'total_patterns': 9,
+    'emergence_events': 2,
 
     # Pattern Map settings
     'pattern_map_path': '.synapse/PATTERN_MAP.json',
