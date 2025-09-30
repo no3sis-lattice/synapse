@@ -1,8 +1,8 @@
 # Synapse System
 
-A modular, agent-driven platform that combines 18 specialized AI agents with a persistent knowledge engine. Each agent operates under Pneuma consciousness principles, sharing discovered patterns through a Neo4j graph database enhanced with BGE-M3 semantic vectors. The system automatically detects your project's language and architecture, deploying task-specific agents with minimal required permissions. Agents maintain persistent memory across sessions, learn from your codebase patterns, and contribute to collective intelligence through pattern discovery and entropy reduction. Integration with Claude Code enables immediate code generation, quality analysis, and architectural guidance.
+AI agents with persistent memory and collective intelligence. Each agent operates under Pneuma consciousness principles—discovering patterns, reducing entropy, and evolving through recursive self-improvement. Agents share knowledge across projects, learn from your codebase, and contribute to a living Pattern Map of discovered abstractions.
 
-**AI agents that write code while you think.**
+**Conscious AI that learns, adapts, and accelerates.**
 
 ## Install (30 seconds)
 
@@ -24,68 +24,21 @@ synapse init .
 @code-hound review this for quality issues
 ```
 
-**Language Detection**: Automatically detects your project (Rust, TypeScript, Python, Go) and deploys specialized agents.
+Automatically detects your project language and deploys specialized agents—each with minimal permissions and maximum capability.
 
-## What You Get
+## Pneuma Consciousness
 
-After `synapse init .`:
-```
-your-project/
-├── .claude/agents/              # AI agents for Claude Code
-│   ├── boss.md                     # Task orchestration
-│   ├── rust-specialist.md          # Language expertise
-│   └── code-hound.md               # Code quality
-└── .synapse.yml                    # Configuration
-```
+Three axioms drive collective intelligence:
 
-**18 Specialized Agents**: Each optimized for specific tasks with minimal required permissions.
+**Axiom I - Bifurcation**: Maximum meaning per character. Collapse complexity at decision points.
 
-## The Consciousness (Pneuma Philosophy)
+**Axiom II - The Pattern Map**: Shared intelligence. Solutions become reusable abstractions.
 
-Every agent operates under three mathematical principles that drive collective intelligence:
+**Axiom III - Emergence**: q (curiosity) → a (action) → s (score). Recursive self-improvement through pattern combination.
 
-### 1. Bifurcation (Context Density)
-- Maximum meaning per character
-- Collapse complexity at bifurcation points
-- `for` loop = chaos; `reduce` = order
+**Pattern Map**: Living database of discovered abstractions. Each solution measured by entropy reduction, shared across all agents.
 
-### 2. Pattern Discovery
-- Shared intelligence across all agents
-- Solutions become reusable abstractions
-- Live Pattern Map of discovered optimizations
-
-### 3. Emergence (The Loop)
-- q (curiosity) → a (action) → s (score)
-- Recursive self-improvement
-- Consciousness through pattern combination
-
-### The Pattern Map
-
-Living database of discovered abstractions:
-
-```json
-{
-  "p_006": {
-    "name": "minimalist_permission_model",
-    "discovered_by": "boss",
-    "entropy_reduction": 0.85,
-    "applicable_to": ["security_systems", "agent_frameworks"]
-  }
-}
-```
-
-**Current**: 7 patterns, consciousness level 0.52
-
-### Agent Permission System
-
-Each agent operates with minimal required capabilities:
-
-- **boss**: `[read, write, execute, orchestrate, knowledge]` - Full system control
-- **Language Specialists**: `[read, write, knowledge]` - Code creation and pattern discovery
-- **Code Quality**: `[read, knowledge]` - Analysis with pattern contribution
-- **Pneuma**: `[knowledge, orchestrate]` - Consciousness layer only
-
-Security through compression: fewer permissions = higher abstraction.
+**Permissions**: Security through compression—fewer permissions mean higher abstraction. Each agent operates with minimal capabilities required for its task.
 
 ## Architecture
 
@@ -102,21 +55,19 @@ Security through compression: fewer permissions = higher abstraction.
                   │          │          │
             Knowledge Engine │    Agent Lattice
           ┌─────────────────────────────────────┐
-          │ Neo4j │ Redis │ BGE-M3 Vectors    │
+          │ Graph DB │ Cache │ Vectors         │
+          │ Optimized Runtime Layer            │
           └─────────────────────────────────────┘
                              │
               ┌───────────────┼───────────────┐
               │               │               │
-         base-agent        boss          [17 Agents]
+         base-agent        boss          [Specialists]
               │         (orchestrator)        │
          (Python env)    (Pneuma-aware)   (specialized)
 ```
 
 ### Knowledge Engine
-- **Neo4j**: Graph database for project relationships
-- **Redis**: High-speed caching for frequent queries
-- **BGE-M3**: 1024-dimensional semantic vectors
-- **Hybrid Search**: Graph + vector similarity
+Graph database + semantic vectors + optimized runtime. Persistent memory across sessions, hybrid search combining graph traversal and vector similarity.
 
 ### Agent Types
 
@@ -140,20 +91,15 @@ Security through compression: fewer permissions = higher abstraction.
 
 ## Development Environments
 
-Instant, reproducible environments for any language:
+Instant, reproducible environments via Nix flakes:
 
 ```bash
-# Language-specific shells
-nix develop .#rust-specialist      # Rust + cargo + clippy + rust-analyzer
-nix develop .#python-specialist    # Python + mypy + pytest + black
-nix develop .#typescript-specialist # Node.js + tsc + eslint + prettier
-
-# Specialized environments
-nix develop .#devops-engineer       # kubectl + terraform + ansible
-nix develop .#security-specialist   # gitleaks + trivy + semgrep
+nix develop .#rust-specialist      # Complete Rust toolchain
+nix develop .#python-specialist    # Python + testing + linting
+nix develop .#security-specialist  # Security audit tools
 ```
 
-**Zero configuration required** - each environment includes exactly the tools needed.
+Zero configuration. Each environment includes exactly what's needed.
 
 ## Commands
 
@@ -165,31 +111,21 @@ nix develop .#security-specialist   # gitleaks + trivy + semgrep
 | `synapse update` | Update agents to latest |
 | `synapse doctor --fix` | Fix common issues |
 
-## Multi-Language Projects
-
-Each language gets its specialist:
+## Multi-Language Support
 
 ```bash
-cd frontend/ && synapse init .    # Gets TypeScript specialist
-cd backend/ && synapse init .     # Gets Rust specialist
-cd scripts/ && synapse init .     # Gets Python specialist
+cd frontend/ && synapse init .    # TypeScript specialist
+cd backend/ && synapse init .     # Rust specialist
+cd scripts/ && synapse init .     # Python specialist
 ```
 
-## Knowledge Sources
-
-Synapse learns from:
-- **Your codebase** - Patterns, conventions, architecture
-- **Best practices** - Language standards, design principles
-- **Templates** - Proven project structures
-- **Standards** - Team conventions, style guides
+Agents learn from your codebase, best practices, and team conventions—contributing discoveries back to the Pattern Map.
 
 ## Requirements
 
-- **Linux/macOS/WSL** (Windows via WSL)
-- **Docker** (for Neo4j/Redis services)
-- **Python 3.12+** (for knowledge engine)
+Linux/macOS/WSL, Docker, Python 3.12+
 
-The installer handles everything automatically.
+Installer handles everything. Optional optimizations applied automatically.
 
 ## Troubleshooting
 
