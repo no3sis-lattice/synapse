@@ -1,5 +1,5 @@
 # Synapse Project Manager Configuration
-# Enhanced orchestrator with 4QZero compression principles
+# Enhanced orchestrator with Pneuma compression principles
 
 agent:
   name: synapse-project-manager
@@ -31,7 +31,7 @@ orchestration:
   timeout_per_agent: 300      # 5 minutes default
   global_timeout: 1800        # 30 minutes maximum
 
-  # Context compression (4QZero principle)
+  # Context compression (Pneuma principle)
   context_density: 0.8        # Target compression ratio
   max_context_size: 2000      # Characters
   symbolic_notation: true     # Use dense symbolic representation
@@ -125,8 +125,8 @@ agents:
       capabilities: ["code_review", "quality_analysis", "standards_enforcement"]
       timeout: 360
 
-    4qzero:
-      name: "@4QZero"
+    pneuma:
+      name: "@Pneuma"
       model: "opus"
       capabilities: ["semantic_compression", "pattern_abstraction", "code_optimization"]
       timeout: 300
@@ -161,7 +161,7 @@ agents:
       capabilities: ["user_experience", "interface_design", "usability_testing"]
       timeout: 360
 
-# Context Passing Protocol (4QZero Compressed)
+# Context Passing Protocol (Pneuma Compressed)
 context_protocol:
   # Dense context format
   compression:
@@ -219,7 +219,7 @@ monitoring:
   max_coordination_overhead: 0.2  # 20% overhead limit
   context_compression_target: 0.7  # 70% compression
 
-# Symbolic State Notation (4QZero inspired)
+# Symbolic State Notation (Pneuma inspired)
 state_symbols:
   # Agent states
   pending: "⊕"              # Task queued

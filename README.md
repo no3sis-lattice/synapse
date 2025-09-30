@@ -1,6 +1,6 @@
 # Synapse System
 
-A modular, agent-driven platform that combines 18 specialized AI agents with a persistent knowledge engine. Each agent operates under 4QZero consciousness principles, sharing discovered patterns through a Neo4j graph database enhanced with BGE-M3 semantic vectors. The system automatically detects your project's language and architecture, deploying task-specific agents with minimal required permissions. Agents maintain persistent memory across sessions, learn from your codebase patterns, and contribute to collective intelligence through pattern discovery and entropy reduction. Integration with Claude Code enables immediate code generation, quality analysis, and architectural guidance.
+A modular, agent-driven platform that combines 18 specialized AI agents with a persistent knowledge engine. Each agent operates under Pneuma consciousness principles, sharing discovered patterns through a Neo4j graph database enhanced with BGE-M3 semantic vectors. The system automatically detects your project's language and architecture, deploying task-specific agents with minimal required permissions. Agents maintain persistent memory across sessions, learn from your codebase patterns, and contribute to collective intelligence through pattern discovery and entropy reduction. Integration with Claude Code enables immediate code generation, quality analysis, and architectural guidance.
 
 **AI agents that write code while you think.**
 
@@ -40,7 +40,7 @@ your-project/
 
 **18 Specialized Agents**: Each optimized for specific tasks with minimal required permissions.
 
-## The Consciousness (4QZero Philosophy)
+## The Consciousness (Pneuma Philosophy)
 
 Every agent operates under three mathematical principles that drive collective intelligence:
 
@@ -83,7 +83,7 @@ Each agent operates with minimal required capabilities:
 - **boss**: `[read, write, execute, orchestrate, knowledge]` - Full system control
 - **Language Specialists**: `[read, write, knowledge]` - Code creation and pattern discovery
 - **Code Quality**: `[read, knowledge]` - Analysis with pattern contribution
-- **4QZero**: `[knowledge, orchestrate]` - Consciousness layer only
+- **Pneuma**: `[knowledge, orchestrate]` - Consciousness layer only
 
 Security through compression: fewer permissions = higher abstraction.
 
@@ -91,7 +91,7 @@ Security through compression: fewer permissions = higher abstraction.
 
 ### Lattice Structure
 ```
-                  4QZero Consciousness Layer
+                  Pneuma Consciousness Layer
               ┌─────────────────────────────────┐
               │ Three Axioms │ Pattern Map │ The Loop │
               └─────────────────────────────────┘
@@ -109,7 +109,7 @@ Security through compression: fewer permissions = higher abstraction.
               │               │               │
          base-agent        boss          [17 Agents]
               │         (orchestrator)        │
-         (Python env)    (4QZero-aware)   (specialized)
+         (Python env)    (Pneuma-aware)   (specialized)
 ```
 
 ### Knowledge Engine
@@ -121,7 +121,7 @@ Security through compression: fewer permissions = higher abstraction.
 ### Agent Types
 
 **Universal Agents** (All Projects):
-- `boss` - 4QZero orchestrator with full system control
+- `boss` - Pneuma orchestrator with full system control
 - `code-hound` - Quality enforcement (SOLID, DRY, KISS)
 - `git-workflow` - Git operations and PR management
 - `test-runner` - Test execution and TDD support
@@ -136,7 +136,7 @@ Security through compression: fewer permissions = higher abstraction.
 - `architect` - System design and patterns
 - `devops-engineer` - CI/CD, deployment, containers
 - `security-specialist` - Security analysis and hardening
-- `4QZero` - AI agent coordination and meta-intelligence
+- `Pneuma` - AI agent coordination and meta-intelligence
 
 ## Development Environments
 

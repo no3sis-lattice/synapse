@@ -1,7 +1,7 @@
 """
-4Q.Zero Synapse Integration Tools
+Pneuma Synapse Integration Tools
 
-Connects 4QZero to the broader Synapse knowledge graph for:
+Connects Pneuma to the broader Synapse knowledge graph for:
 - Global pattern discovery and sharing
 - Cross-project learning
 - Organizational pattern vocabulary building
@@ -112,8 +112,8 @@ async def publish_pattern_to_graph(pattern: Dict[str, Any], confidence: float = 
 
         # Create a structured pattern entry
         pattern_entry = {
-            "id": f"4qzero_{pattern.get('name', 'unnamed')}_{hash(pattern.get('signature', '')) % 10000}",
-            "agent": "4qzero",
+            "id": f"pneuma_{pattern.get('name', 'unnamed')}_{hash(pattern.get('signature', '')) % 10000}",
+            "agent": "pneuma",
             "type": "compression_pattern",
             "name": pattern.get("name", "unnamed_pattern"),
             "signature": pattern.get("signature", ""),

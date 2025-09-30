@@ -2,7 +2,7 @@
 """
 Test Synapse Project Manager Orchestration
 
-Tests the complete orchestration workflow using 4QZero compression principles.
+Tests the complete orchestration workflow using Pneuma compression principles.
 """
 
 import asyncio
@@ -136,7 +136,7 @@ async def test_task_decomposition():
 
 
 async def test_context_compression():
-    """Test context compression using 4QZero principles."""
+    """Test context compression using Pneuma principles."""
     print("\n\n🗜️ Testing Context Compression")
     print("=" * 60)
 
@@ -222,7 +222,7 @@ async def test_agent_communication():
 async def main():
     """Run all orchestration tests."""
     print("🎭 Synapse Project Manager - Orchestration Test Suite")
-    print("Using 4QZero compression principles for maximum coordination density")
+    print("Using Pneuma compression principles for maximum coordination density")
     print("=" * 80)
 
     # Run tests
@@ -256,7 +256,7 @@ async def main():
     if successful_tests > 0:
         print("\n🎯 Key Achievements:")
         print("   • Multi-agent orchestration functional")
-        print("   • 4QZero compression principles applied")
+        print("   • Pneuma compression principles applied")
         print("   • Symbolic state management working")
         print("   • Context density maximization achieved")
         print("   • Workflow pattern matching operational")

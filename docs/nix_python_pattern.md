@@ -39,15 +39,15 @@ This flake is responsible for constructing and exposing the shared Python enviro
     ```
 *   **Outputs:** Exposes the fully configured `pythonEnv` as an attribute in its output set (e.g., `base-agent.pythonEnv.${system}`).
 
-### 2. Consumer Flakes (e.g., `4QZero`, `architect`)
+### 2. Consumer Flakes (e.g., `Pneuma`, `architect`)
 
 These flakes depend on and utilize the shared Python environment provided by `base-agent`.
 
-*   **Location:** `nix/flakes/4QZero/flake.nix`, `nix/flakes/architect/flake.nix`
+*   **Location:** `nix/flakes/Pneuma/flake.nix`, `nix/flakes/architect/flake.nix`
 *   **Inputs:**
     *   Declares `base-agent` as an input using its **GitHub URL**.
         ```nix
-        # In nix/flakes/4QZero/flake.nix
+        # In nix/flakes/Pneuma/flake.nix
         inputs = {
           # ... other inputs ...
           base-agent.url = "github:meta-introspector/synapse-system?dir=nix/flakes/base-agent&ref=feature/base-agent-flake";
@@ -55,7 +55,7 @@ These flakes depend on and utilize the shared Python environment provided by `ba
         ```
 *   **`outputs` Function Arguments:** Includes `base-agent` in its `outputs` function arguments.
     ```nix
-    # In nix/flakes/4QZero/flake.nix
+    # In nix/flakes/Pneuma/flake.nix
     outputs = { self, nixpkgs, flake-utils, pip2nix, base-agent, ... }:
       # ...
     ```
@@ -73,7 +73,7 @@ This is the top-level flake that orchestrates the entire system, defining the ov
         # In main flake.nix
         inputs = {
           # ... other inputs ...
-          AGENT1.url = "github:meta-introspector/synapse-system?dir=nix/flakes/4QZero&ref=feature/base-agent-flake";
+          AGENT1.url = "github:meta-introspector/synapse-system?dir=nix/flakes/Pneuma&ref=feature/base-agent-flake";
           ARCHITECT.url = "github:meta-introspector/synapse-system?dir=nix/flakes/architect&ref=feature/base-agent-flake";
           base-agent.url = "github:meta-introspector/synapse-system?dir=nix/flakes/base-agent&ref=feature/base-agent-flake";
         };

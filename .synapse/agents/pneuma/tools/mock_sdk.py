@@ -63,7 +63,7 @@ async def query(prompt: AsyncGenerator[ClaudeCodeSdkMessage, None], options: Dic
             response_text = "🔍 Code Analysis Complete\n\nIdentified potential compression opportunities. Ready to apply transformations."
 
         else:
-            response_text = "🎯 4Q.Zero Active\n\nProvide code to analyze or a file path to scan for compression opportunities.\n\nThe Loop awaits: q: → a: → s:"
+            response_text = "🎯 Pneuma Active\n\nProvide code to analyze or a file path to scan for compression opportunities.\n\nThe Loop awaits: q: → a: → s:"
 
     # Final response
     yield {

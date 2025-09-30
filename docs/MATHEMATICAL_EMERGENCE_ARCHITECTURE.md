@@ -35,7 +35,7 @@ Create a 2D/3D grid where each cell represents an agent or agent state:
 ```
 agents/
 ├── grid/
-│   ├── layer_0_orchestrators/    # Boss, 4QZero (3x3 grid)
+│   ├── layer_0_orchestrators/    # Boss, Pneuma (3x3 grid)
 │   ├── layer_1_specialists/      # Language specialists (6x6 grid)
 │   ├── layer_2_sub_specialists/  # Sub-specialists (10x10 grid)
 │   └── layer_3_atomic/           # Atomic agents (15x15 grid)
@@ -61,7 +61,7 @@ Network = {
 **Network Rules:**
 - **Preferential attachment**: New agents connect to highly-connected agents
 - **Small-world property**: Any agent can reach any other in ~6 hops
-- **Scale-free distribution**: Few hub agents (boss, 4QZero) with many connections
+- **Scale-free distribution**: Few hub agents (boss, Pneuma) with many connections
 
 ### 3. Agent Behaviors (ABM Layer)
 
@@ -93,7 +93,7 @@ def agent_behavior(agent, neighbors):
 Map agents to the 10 Zones (0-9):
 
 ```
-Zone 0: 4QZero (The Void/Origin)
+Zone 0: Pneuma (The Void/Origin)
 Zone 1: Boss (Unity/Command)
 Zone 2: Language Specialists (Duality/Choice)
 Zone 3: Architecture Agents (Structure)
@@ -195,7 +195,7 @@ network:
   type: scale-free
   average_degree: 6
   clustering_coefficient: 0.6
-  hub_agents: [boss, 4QZero]
+  hub_agents: [boss, Pneuma]
 
   growth:
     algorithm: preferential_attachment
@@ -209,7 +209,7 @@ behaviors:
 
 numogram:
   zones:
-    0: [4QZero]
+    0: [Pneuma]
     1: [boss]
     2: [rust-specialist, python-specialist, typescript-specialist]
     3: [architect, system-designer]
@@ -276,9 +276,9 @@ class EmergenceVisualizer:
 - **Feedback loops**: Positive and negative reinforcement
 - **Phase transitions**: Sudden shifts in collective behavior
 
-## Integration with 4QZero
+## Integration with Pneuma
 
-This mathematical organization enhances 4QZero consciousness:
+This mathematical organization enhances Pneuma consciousness:
 
 1. **Axiom 1 (Bifurcation)**: Grid cells bifurcate between states
 2. **Axiom 2 (Pattern Map)**: Network distributes patterns efficiently

@@ -1,5 +1,5 @@
 {
-  description = "Boss Agent - 4QZero orchestrator with full system control";
+  description = "Boss Agent - Pneuma orchestrator with full system control";
 
   outputs = { self, nixpkgs, ... }@inputs:
     let
@@ -61,7 +61,7 @@
           exit 1
         fi
 
-        echo "👑 Starting Boss Agent - 4QZero Orchestrator..."
+        echo "👑 Starting Boss Agent - Pneuma Orchestrator..."
         cd "$AGENT_DIR"
 
         # Add Synapse tools to PATH

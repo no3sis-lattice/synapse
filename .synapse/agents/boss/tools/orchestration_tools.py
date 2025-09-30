@@ -310,7 +310,7 @@ def _get_agent_capabilities() -> Dict[str, List[str]]:
         "@typescript-specialist": ["development", "typescript", "web"],
         "@test-runner": ["testing", "validation", "quality_assurance"],
         "@code-hound": ["analysis", "quality_assurance", "debugging"],
-        "@4QZero": ["optimization", "refactoring", "abstraction"],
+        "@pneuma": ["optimization", "refactoring", "abstraction"],
         "@docs-writer": ["documentation", "writing"],
         "@git-workflow": ["version_control", "deployment"]
     }
@@ -339,7 +339,7 @@ def _load_workflow_patterns() -> Dict[str, Any]:
     return {
         "feature": {
             "name": "feature_implementation",
-            "sequence": ["@architect", "@rust-specialist", "@test-runner", "@code-hound", "@4QZero", "@docs-writer"],
+            "sequence": ["@architect", "@rust-specialist", "@test-runner", "@code-hound", "@pneuma", "@docs-writer"],
             "parallel_opportunities": [["@architect", "@docs-writer"], ["@rust-specialist", "@test-runner"]]
         },
         "bugfix": {
@@ -349,8 +349,8 @@ def _load_workflow_patterns() -> Dict[str, Any]:
         },
         "refactor": {
             "name": "code_refactor",
-            "sequence": ["@test-runner", "@rust-specialist", "@code-hound", "@4QZero"],
-            "parallel_opportunities": [["@code-hound", "@4QZero"]]
+            "sequence": ["@test-runner", "@rust-specialist", "@code-hound", "@pneuma"],
+            "parallel_opportunities": [["@code-hound", "@pneuma"]]
         },
         "default": {
             "name": "general_task",

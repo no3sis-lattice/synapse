@@ -80,7 +80,7 @@ class ProjectManager:
             "docs-writer",
             "security-specialist",
             "ux-designer",
-            "4QZero"
+            "pneuma"
         ]
 
     def get_language_specialists(self) -> List[str]:
@@ -106,7 +106,7 @@ class ProjectManager:
             "docs-writer": "docs-writer",
             "security-specialist": "security-specialist",
             "ux-designer": "ux-designer",
-            "4QZero": "4QZero",
+            "pneuma": "pneuma",
             # Language specialists - both old and new directory names
             "rust-specialist": "rust-specialist",
             "golang-specialist": "golang-specialist",

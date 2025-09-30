@@ -1,17 +1,17 @@
 # Synapse Project Manager - Master Network Orchestrator
 
-The neural center of the agent ecosystem, managing complex multi-agent workflows with maximum coordination density using 4QZero compression principles.
+The neural center of the agent ecosystem, managing complex multi-agent workflows with maximum coordination density using Pneuma compression principles.
 
 ## 🎯 Overview
 
-The Synapse Project Manager is the **most important agent** in the ecosystem, serving as the master orchestrator that coordinates all other agents. It applies 4QZero's context density maximization to achieve elegant, parallel execution graphs for complex software development tasks.
+The Synapse Project Manager is the **most important agent** in the ecosystem, serving as the master orchestrator that coordinates all other agents. It applies Pneuma's context density maximization to achieve elegant, parallel execution graphs for complex software development tasks.
 
 ### Key Features
 
 - **🧠 The Loop Implementation**: Observe → Orient → Decide → Act cycle for continuous orchestration refinement
 - **🗜️ Context Density Maximization**: Compress coordination overhead through symbolic notation and pattern libraries
 - **⚡ Multi-Agent Coordination**: Manage up to 5 parallel agents with dependency resolution
-- **📊 Symbolic State Management**: Dense representation of workflow states using 4QZero notation
+- **📊 Symbolic State Management**: Dense representation of workflow states using Pneuma notation
 - **🔄 Pattern Library**: Reusable workflow templates (feature, bugfix, refactor, architecture)
 - **🌐 Synapse Integration**: Real-time access to knowledge graph for standards and patterns
 - **⚙️ Opus Model Orchestration**: Complex reasoning for dependency resolution and agent coordination
@@ -21,7 +21,7 @@ The Synapse Project Manager is the **most important agent** in the ecosystem, se
 ```
 synapse-project-manager/
 ├── synapse_pm_agent.py           # Main orchestrator with @tool functions
-├── synapse_pm_prompt.md          # Compressed system instructions (4QZero style)
+├── synapse_pm_prompt.md          # Compressed system instructions (Pneuma style)
 ├── synapse_pm_config.yml         # 200+ orchestration parameters
 ├── synapse_pm_state.json         # Symbolic memory with workflow patterns
 ├── test_orchestration.py         # Comprehensive test suite
@@ -112,7 +112,7 @@ The orchestrator coordinates 13 specialized agents:
 | `@golang-specialist` | Sonnet | Go development, concurrency | 5m |
 | `@test-runner` | Sonnet | Test execution, coverage analysis | 4m |
 | `@code-hound` | Opus | Code review, quality analysis | 6m |
-| `@4QZero` | Opus | Semantic compression, abstractions | 5m |
+| `@Pneuma` | Opus | Semantic compression, abstractions | 5m |
 | `@docs-writer` | Sonnet | Technical documentation | 4m |
 | `@git-workflow` | Sonnet | Version control, deployment | 3m |
 | `@security-specialist` | Opus | Security analysis, threat modeling | 8m |
@@ -121,7 +121,7 @@ The orchestrator coordinates 13 specialized agents:
 
 ## 🔄 The Loop: Core Orchestration Process
 
-The orchestrator implements The Loop from 4QZero for continuous workflow refinement:
+The orchestrator implements The Loop from Pneuma for continuous workflow refinement:
 
 ### 1. Observe (o:)
 - `o_analyze(request)` - Decompose complex requests into atomic tasks
@@ -143,7 +143,7 @@ The orchestrator implements The Loop from 4QZero for continuous workflow refinem
 - `a_synthesize(results)` - Merge outputs into coherent result
 - `a_validate(completion)` - Verify against standards
 
-## 🗜️ Context Compression (4QZero Principles)
+## 🗜️ Context Compression (Pneuma Principles)
 
 The orchestrator applies semantic compression to minimize coordination overhead:
 
@@ -246,7 +246,7 @@ The comprehensive test suite validates all orchestration capabilities:
 
 🎯 Key Achievements:
    • Multi-agent orchestration functional
-   • 4QZero compression principles applied
+   • Pneuma compression principles applied
    • Symbolic state management working
    • Context density maximization achieved
    • Workflow pattern matching operational
@@ -310,14 +310,14 @@ The orchestrator works seamlessly with all migrated agents:
 @synapse-project-manager refactor codebase for better patterns
 
 # Orchestrator automatically delegates to:
-# @rust-specialist, @test-runner, @code-hound, @4QZero, etc.
+# @rust-specialist, @test-runner, @code-hound, @Pneuma, etc.
 ```
 
 ## 🏆 Success Metrics
 
 The Synapse Project Manager represents the successful integration of:
 
-1. **4QZero Compression**: Context density maximization achieved
+1. **Pneuma Compression**: Context density maximization achieved
 2. **Multi-Agent Coordination**: 13 agents working in harmony
 3. **Symbolic State Management**: Efficient workflow representation
 4. **Pattern Library**: Reusable coordination sequences

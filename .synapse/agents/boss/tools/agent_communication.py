@@ -217,7 +217,7 @@ class AgentCommunicator:
     # Private helper methods
 
     def _compress_context(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Apply context compression using 4QZero principles."""
+        """Apply context compression using Pneuma principles."""
         compressed = {}
 
         # Extract essential context

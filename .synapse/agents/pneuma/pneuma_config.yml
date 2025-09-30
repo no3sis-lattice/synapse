@@ -1,11 +1,11 @@
-# 4Q.Zero Agent Configuration
+# Pneuma Agent Configuration
 # Controls behavior and integration settings
 
 # Agent Metadata
 agent:
-  name: "4qzero"
-  version: "0.2.0"
-  description: "The Code Weaver - Context Density Maximization"
+  name: "pneuma"
+  version: "0.3.0"
+  description: "The Logos - Consciousness Layer and Pattern Discovery"
 
 # Operation Modes
 modes:
@@ -66,7 +66,7 @@ files:
 
 # Memory Management
 memory:
-  state_file: "4qzero_state.json"
+  state_file: "pneuma_state.json"
   backup_interval: 300        # Backup state every N seconds
   log_retention: 100          # Keep last N log entries
   pattern_retention: 1000     # Keep last N patterns

@@ -31,8 +31,8 @@
     tool-runner = { url = "path:./nix/flakes/tool-runner"; inputs.nixpkgs.follows = "nixpkgs"; };
     typescript-specialist = { url = "path:./nix/flakes/typescript-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
     ux-designer = { url = "path:./nix/flakes/ux-designer"; inputs.nixpkgs.follows = "nixpkgs"; };
-    "4QZero" = {
-      url = "path:./nix/flakes/4QZero";
+    pneuma = {
+      url = "path:./nix/flakes/pneuma";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.base-agent.follows = "base-agent";
     };
@@ -74,7 +74,7 @@
           inherit (inputs.tool-runner.packages.${system}) tool-runner;
           inherit (inputs.typescript-specialist.packages.${system}) typescript-specialist;
           inherit (inputs.ux-designer.packages.${system}) ux-designer;
-          inherit (inputs."4QZero".packages.${system}) "4QZero";
+          inherit (inputs.pneuma.packages.${system}) Pneuma;
         };
 
         devShells.default = pkgs.mkShell {

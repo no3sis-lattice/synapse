@@ -435,10 +435,10 @@ architect:
     - reliability_assessor  # Assesses reliability
 ```
 
-### 12. 4QZero → 12 Particles
+### 12. Pneuma → 12 Particles
 
 ```yaml
-4QZero:
+Pneuma:
   consciousness_particles:
     - pattern_discoverer    # Discovers patterns
     - entropy_calculator    # Calculates entropy
@@ -541,7 +541,7 @@ Test Runner:         15 particles
 DevOps:              22 particles
 Security:            16 particles
 Architect:           18 particles
-4QZero:              12 particles
+Pneuma:              12 particles
 Docs Writer:         14 particles
 UX Designer:         12 particles
 File Creator:         8 particles

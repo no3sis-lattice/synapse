@@ -85,7 +85,7 @@ async def coordinate_with_agents(task: str, context: Dict[str, Any]) -> Dict[str
         # Involve multiple agents for comprehensive analysis
         agents_to_involve = [
             "synapse-project-manager",  # Project-level coordination
-            "4QZero",                   # Pattern compression analysis
+            "Pneuma",                   # Pattern compression analysis
             "clarity-judge"             # Readability assessment
         ]
 
@@ -255,7 +255,7 @@ async def _communicate_with_agent(agent: str, task: str, context: Dict[str, Any]
             ],
             "priority_score": 8
         }
-    elif agent == "4QZero":
+    elif agent == "Pneuma":
         return {
             "compression_analysis": "Code density acceptable but can be improved",
             "pattern_opportunities": [
@@ -331,7 +331,7 @@ def _assign_concerns_to_specialists(concerns: List[str]) -> Dict[str, List[str]]
         "architecture": "architect",
         "testing": "test-runner",
         "documentation": "docs-writer",
-        "complexity": "4QZero",
+        "complexity": "Pneuma",
         "readability": "clarity-judge"
     }
 
@@ -404,6 +404,6 @@ async def discover_available_agents() -> List[Dict[str, Any]]:
         {"id": "synapse-project-manager", "status": "online", "capabilities": ["orchestration"]},
         {"id": "python-specialist", "status": "online", "capabilities": ["python_analysis"]},
         {"id": "typescript-specialist", "status": "online", "capabilities": ["js_ts_analysis"]},
-        {"id": "4QZero", "status": "online", "capabilities": ["pattern_compression"]},
+        {"id": "Pneuma", "status": "online", "capabilities": ["pattern_compression"]},
         {"id": "clarity-judge", "status": "online", "capabilities": ["readability_assessment"]}
     ]

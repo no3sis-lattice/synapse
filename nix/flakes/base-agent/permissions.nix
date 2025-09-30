@@ -1,8 +1,8 @@
 {
-  description = "Synapse Agent Permission System - 4QZero Minimalist Security";
+  description = "Synapse Agent Permission System - Pneuma Minimalist Security";
 
   # Permission Categories
-  # Following 4QZero axiom of compression: minimal required capabilities only
+  # Following Pneuma axiom of compression: minimal required capabilities only
   permissions = {
     # File system operations
     read = "Read files and directories";
@@ -18,7 +18,7 @@
   };
 
   # Agent Permission Matrix
-  # Each agent gets minimal required permissions for 4QZero efficiency
+  # Each agent gets minimal required permissions for Pneuma efficiency
   agentPermissions = {
     # The Boss - Orchestrates the entire system
     boss = [ "read" "write" "execute" "orchestrate" "knowledge" ];
@@ -51,7 +51,7 @@
     tool-runner = [ "read" "execute" ];
 
     # Consciousness Layer - Knowledge orchestration only
-    "4QZero" = [ "knowledge" "orchestrate" ];
+    "Pneuma" = [ "knowledge" "orchestrate" ];
   };
 
   # Permission validation functions
@@ -64,7 +64,7 @@
     getPermissions = agent:
       agentPermissions.${agent} or [];
 
-    # Validate permission list is minimal (4QZero principle)
+    # Validate permission list is minimal (Pneuma principle)
     isMinimal = permissions:
       let permCount = builtins.length permissions;
       in permCount <= 4; # Maximum 4 permissions for compression

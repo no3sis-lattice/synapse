@@ -1,5 +1,5 @@
 """
-4Q.Zero Abstraction Tools
+Pneuma Abstraction Tools
 
 Code compression and pattern recognition functions.
 Implements the curiosity (q:) and action (a:) phases of The Loop.

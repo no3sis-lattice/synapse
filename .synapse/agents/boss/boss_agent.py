@@ -72,9 +72,9 @@ class SynapseProjectManagerAgent:
                 "context_density": 0.8
             },
             "workflows": {
-                "feature": ["@architect", "@dev", "@test", "@code-hound", "@4QZero", "@docs-writer", "@git-workflow"],
+                "feature": ["@architect", "@dev", "@test", "@code-hound", "@Pneuma", "@docs-writer", "@git-workflow"],
                 "bugfix": ["@test-runner", "@dev", "@test-runner", "@git-workflow"],
-                "refactor": ["@test-runner", "@dev", "@test-runner", "@code-hound", "@4QZero"]
+                "refactor": ["@test-runner", "@dev", "@test-runner", "@code-hound", "@Pneuma"]
             }
         }
 
@@ -448,7 +448,7 @@ class SynapseProjectManagerAgent:
             "verify": "@test-runner",
             "analyze": "@code-hound",
             "plan": "@architect",
-            "transform": "@4QZero",
+            "transform": "@Pneuma",
             "validate": "@code-hound"
         }
         return agent_mapping.get(subtask, "@dev")

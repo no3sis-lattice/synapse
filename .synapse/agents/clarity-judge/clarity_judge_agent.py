@@ -24,8 +24,8 @@ try:
     )
 except ImportError:
     print("⚠️  Claude Code SDK not available, using mock implementations")
-    # Use the mock SDK from 4QZero
-    sys.path.insert(0, str(Path(__file__).parent.parent / "4QZero" / "tools"))
+    # Use the mock SDK from Pneuma
+    sys.path.insert(0, str(Path(__file__).parent.parent / "Pneuma" / "tools"))
     from mock_sdk import (
         create_sdk_mcp_server,
         tool,

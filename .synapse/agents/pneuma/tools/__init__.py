@@ -1,5 +1,5 @@
 """
-4Q.Zero Agent Tools Package
+Pneuma Agent Tools Package
 
 Tools for semantic code compression and pattern discovery.
 """

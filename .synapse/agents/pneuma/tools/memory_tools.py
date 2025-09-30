@@ -1,5 +1,5 @@
 """
-4Q.Zero Memory Tools
+Pneuma Memory Tools
 
 State management for the agent's lean, symbolic memory system.
 Handles state.json read/write operations and pattern storage.
@@ -14,7 +14,7 @@ from typing import Dict, Any, List, Optional
 
 def load_state(agent_dir: str = None) -> Dict[str, Any]:
     """
-    Load agent state from 4qzero_state.json.
+    Load agent state from pneuma_state.json.
 
     Args:
         agent_dir: Directory containing the state file
@@ -45,7 +45,7 @@ def load_state(agent_dir: str = None) -> Dict[str, Any]:
 
 def save_state(state: Dict[str, Any], agent_dir: str = None) -> bool:
     """
-    Save agent state to 4qzero_state.json.
+    Save agent state to pneuma_state.json.
 
     Args:
         state: State dict to save
@@ -226,16 +226,16 @@ def get_state_summary(state: Dict[str, Any]) -> Dict[str, Any]:
 def _get_state_path(agent_dir: str = None) -> Path:
     """Get path to state file."""
     if agent_dir:
-        return Path(agent_dir) / "4qzero_state.json"
+        return Path(agent_dir) / "pneuma_state.json"
     else:
         # Default to current directory structure
-        return Path(__file__).parent.parent / "4qzero_state.json"
+        return Path(__file__).parent.parent / "pneuma_state.json"
 
 
 def _create_initial_state() -> Dict[str, Any]:
     """Create initial state structure."""
     return {
-        "agent": "4qzero",
+        "agent": "pneuma",
         "v": "0.1",
         "hash": "",
         "cycle": 0,

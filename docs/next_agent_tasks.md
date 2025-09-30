@@ -7,7 +7,7 @@ This document provides context, current status, and a detailed set of tasks for 
 The `synapse-system` project leverages Nix flakes to achieve reproducible development environments and consistent packaging. A foundational pattern has been established for managing Python environments:
 
 *   A dedicated `base-agent` flake is responsible for defining, building, and exposing a self-contained Python environment.
-*   Other agent-specific flakes (e.g., `4QZero`, `architect`) consume this shared Python environment from the `base-agent` flake.
+*   Other agent-specific flakes (e.g., `Pneuma`, `architect`) consume this shared Python environment from the `base-agent` flake.
 *   A strict Standard Operating Procedure (SOP) dictates that all inter-flake dependencies must be referenced using GitHub URLs (e.g., `github:owner/repo?dir=path/to/flake&ref=branch`), minimizing the use of local `path:` references.
 
 ## Current Status
@@ -15,7 +15,7 @@ The `synapse-system` project leverages Nix flakes to achieve reproducible develo
 As of this handover, the following has been achieved:
 
 *   The `base-agent` flake (`nix/flakes/base-agent/flake.nix`) has been correctly configured to define and expose the project's primary Python environment.
-*   The `4QZero` agent flake (`nix/flakes/4QZero/flake.nix`) has been successfully updated to consume the `base-agent`'s Python environment via its GitHub URL, adhering to the established pattern.
+*   The `Pneuma` agent flake (`nix/flakes/Pneuma/flake.nix`) has been successfully updated to consume the `base-agent`'s Python environment via its GitHub URL, adhering to the established pattern.
 *   The main `flake.nix` at the project root is configured to orchestrate these dependencies and pass necessary inputs.
 *   A documentation file, `docs/nix_python_pattern.md`, has been created to explain the established pattern in detail.
 *   An executable script, `update_flake_lock.sh`, has been created to facilitate updating the `flake.lock` file.

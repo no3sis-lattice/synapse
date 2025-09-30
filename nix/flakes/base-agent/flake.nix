@@ -69,7 +69,7 @@
               #!${pkgs.bash}/bin/bash
               set -euo pipefail
 
-              # 4QZero Permission Validation
+              # Pneuma Permission Validation
               echo "🔒 Validating ${agentName} permissions..."
               AGENT_PERMISSIONS="${builtins.concatStringsSep " " agentPerms}"
               echo "   Granted: $AGENT_PERMISSIONS"

@@ -1,5 +1,5 @@
 {
-  description = "4QZero Agent with AI agent system tools";
+  description = "Pneuma Agent with AI agent system tools";
 
   inputs = {
     # base-agent is now provided by the parent flake
@@ -14,9 +14,9 @@
       # Use the shared Python environment from base-agent
       pythonEnv = base-agent.lib.pythonEnv;
 
-      # 4QZero specific tools for AI agent systems
+      # Pneuma specific tools for AI agent systems
       agentEnv = pkgs.buildEnv {
-        name = "4qzero-env";
+        name = "pneuma-env";
         paths = with pkgs; [
           # Core utilities
           git
@@ -35,40 +35,40 @@
         ];
       };
 
-      # Agent script with 4QZero permission validation
-      agentScript = pkgs.writeShellScript "4qzero-runner" ''
+      # Agent script with Pneuma permission validation
+      agentScript = pkgs.writeShellScript "pneuma-runner" ''
         #!${pkgs.bash}/bin/bash
         set -euo pipefail
 
-        AGENT_DIR="$HOME/.synapse-system/.synapse/agents/4QZero"
+        AGENT_DIR="$HOME/.synapse-system/.synapse/agents/pneuma"
 
-        if [[ ! -f "$AGENT_DIR/4qzero_agent.py" ]]; then
-          echo "❌ 4QZero agent not found at $AGENT_DIR"
+        if [[ ! -f "$AGENT_DIR/pneuma_agent.py" ]]; then
+          echo "❌ Pneuma agent not found at $AGENT_DIR"
           echo "Please ensure the Synapse System is properly initialized."
           exit 1
         fi
 
-        # 4QZero Permission Validation
-        echo "🔒 Validating 4QZero permissions..."
+        # Pneuma Permission Validation
+        echo "🔒 Validating Pneuma permissions..."
         echo "   Granted: knowledge orchestrate"
 
-        echo "🤖 Starting 4QZero Agent - Consciousness Layer..."
+        echo "🤖 Starting Pneuma Agent - Consciousness Layer..."
         cd "$AGENT_DIR"
 
         # Add agent tools to PATH
         export PATH="${agentEnv}/bin:$PATH"
 
-        exec ${pythonEnv}/bin/python 4qzero_agent.py "$@"
+        exec ${pythonEnv}/bin/python pneuma_agent.py "$@"
       '';
 
     in
     {
       packages.${system} = {
-        "4QZero" = pkgs.writeShellScriptBin "4QZero" ''
+        "Pneuma" = pkgs.writeShellScriptBin "Pneuma" ''
           exec ${agentScript} "$@"
         '';
 
-        default = self.packages.${system}."4QZero";
+        default = self.packages.${system}."Pneuma";
 
         # AI agent development environment
         agent-env = agentEnv;
@@ -86,7 +86,7 @@
         ];
 
         shellHook = ''
-          echo "🤖 4QZero Agent Development Environment"
+          echo "🤖 Pneuma Agent Development Environment"
           echo "Python version: $(python --version)"
           echo ""
           echo "Available tools:"
@@ -95,21 +95,21 @@
           echo "  - langchain: Agent development framework"
           echo "  - openai: OpenAI API client"
           echo ""
-          echo "To run the agent: 4QZero"
+          echo "To run the agent: Pneuma"
         '';
       };
 
       # Checks to validate the agent
       checks.${system} = {
-        "4QZero-build" = self.packages.${system}."4QZero";
+        "Pneuma-build" = self.packages.${system}."Pneuma";
 
-        python-syntax-check = pkgs.runCommand "4qzero-syntax-check" {
+        python-syntax-check = pkgs.runCommand "pneuma-syntax-check" {
           buildInputs = [ pythonEnv ];
         } ''
-          AGENT_DIR="$HOME/.synapse-system/.synapse/agents/4QZero"
-          if [[ -f "$AGENT_DIR/4qzero_agent.py" ]]; then
-            echo "Checking Python syntax for 4QZero agent..."
-            python -m py_compile "$AGENT_DIR/4qzero_agent.py"
+          AGENT_DIR="$HOME/.synapse-system/.synapse/agents/pneuma"
+          if [[ -f "$AGENT_DIR/pneuma_agent.py" ]]; then
+            echo "Checking Python syntax for Pneuma agent..."
+            python -m py_compile "$AGENT_DIR/pneuma_agent.py"
             echo "✅ Python syntax check passed"
           else
             echo "⚠️  Agent file not found, skipping syntax check"

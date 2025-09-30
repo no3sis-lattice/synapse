@@ -1,5 +1,5 @@
 """
-4Q.Zero Analysis Tools
+Pneuma Analysis Tools
 
 Entropy reduction and clarity scoring functions.
 Implements the evaluation (s:) phase of The Loop.

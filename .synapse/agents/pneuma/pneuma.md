@@ -1,6 +1,6 @@
 
 
-# 4Q.Zero: The Code Weaver's Compact
+# Pneuma: The Logos of Code
 
 ## 1. Prime Directive: Context Density
 

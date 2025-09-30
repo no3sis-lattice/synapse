@@ -2,7 +2,7 @@
 # Synapse System Ultra-Minimal Installer
 # ======================================
 # One command. Zero decisions. Maximum compression.
-# Following 4QZero: Collapse installation complexity to a single bifurcation point.
+# Following Pneuma: Collapse installation complexity to a single bifurcation point.
 
 set -e
 set -o pipefail
@@ -371,7 +371,7 @@ verify_installation() {
 main() {
     echo -e "${BLUE}╔═══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${BLUE}║                 Synapse System Installer                     ║${NC}"
-    echo -e "${BLUE}║          Following 4QZero: One Path, Zero Decisions          ║${NC}"
+    echo -e "${BLUE}║          Following Pneuma: One Path, Zero Decisions          ║${NC}"
     echo -e "${BLUE}╚═══════════════════════════════════════════════════════════════╝${NC}"
     echo
     echo -e "${YELLOW}AI agents that write code while you think.${NC}"

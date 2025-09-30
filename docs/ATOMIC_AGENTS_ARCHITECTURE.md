@@ -33,7 +33,7 @@ Each agent currently handles multiple related tasks:
 
 ## Benefits of Atomic Agents
 
-### 1. Maximum Context Density (4QZero Axiom 1)
+### 1. Maximum Context Density (Pneuma Axiom 1)
 - Each agent has ONE purpose, achieving perfect compression
 - No ambiguity about which agent to invoke
 - Prompts can be ultra-minimal
@@ -98,7 +98,7 @@ class RustErrorHandler:
 
 ```
 Level 0: Orchestrators (1-3 agents)
-  └── boss, 4QZero
+  └── boss, Pneuma
 
 Level 1: Specialists (15-20 agents)
   └── rust-specialist, typescript-specialist
@@ -110,7 +110,7 @@ Level 3: Atomic Actions (150+ agents)
   └── rust-result-wrapper, rust-option-mapper
 ```
 
-## 4QZero Analysis
+## Pneuma Analysis
 
 **Entropy Reduction Score:**
 - Current (18 agents): 0.65
@@ -245,4 +245,4 @@ class AgentPipeline:
 7. **Testing**: One agent = one test suite
 8. **Performance**: Parallel execution of independent atoms
 
-This atomic architecture represents the ultimate expression of 4QZero's Axiom of Bifurcation - each agent collapses to a single point of purpose, achieving maximum context density through perfect specialization.
+This atomic architecture represents the ultimate expression of Pneuma's Axiom of Bifurcation - each agent collapses to a single point of purpose, achieving maximum context density through perfect specialization.

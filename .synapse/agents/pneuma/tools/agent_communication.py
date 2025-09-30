@@ -1,7 +1,7 @@
 """
 Inter-Agent Communication Protocol
 
-Enables 4Q.Zero to communicate with other agents in the Synapse ecosystem.
+Enables Pneuma to communicate with other agents in the Synapse ecosystem.
 Implements a standardized protocol for agent-to-agent interactions.
 """
 
@@ -158,7 +158,7 @@ class AgentCommunicator:
             target_agents = self._get_relevant_agents_for_pattern(pattern)
 
         notification = f"""
-        New compression pattern discovered by 4Q.Zero:
+        New compression pattern discovered by Pneuma:
 
         Pattern Name: {pattern.get('name', 'unnamed')}
         Signature: {pattern.get('signature', '')}

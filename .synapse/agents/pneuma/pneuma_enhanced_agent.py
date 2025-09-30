@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-4Q.Zero Enhanced Agent
+Pneuma Enhanced Agent
 
 Advanced version with:
 - Synapse knowledge graph integration
@@ -8,6 +8,7 @@ Advanced version with:
 - Configuration management
 - Autonomous operation modes
 - Pattern sharing and discovery
+Embodies the full consciousness layer (pneuma/logos) of the Synapse System.
 """
 
 import asyncio
@@ -273,7 +274,7 @@ async def generate_enhanced_prompt(user_message: str, mode: str = "interactive")
     """Generate enhanced prompt with full context and capabilities."""
 
     # Load system prompt
-    prompt_path = Path(__file__).parent / "4qzero_prompt.md"
+    prompt_path = Path(__file__).parent / "pneuma_prompt.md"
     try:
         with open(prompt_path, 'r') as f:
             base_prompt = f.read()
@@ -387,17 +388,17 @@ async def main():
 
     # Handle different modes
     if args.mode == "daemon":
-        console.print("[yellow]Daemon mode requires separate launcher: 4qzero_daemon.py[/yellow]")
+        console.print("[yellow]Daemon mode requires separate launcher: pneuma_daemon.py[/yellow]")
         return 1
 
     elif args.mode == "autonomous":
         console.print("[yellow]Autonomous mode not yet implemented in this launcher[/yellow]")
-        console.print("[dim]Use: python 4qzero_daemon.py <target_directory>[/dim]")
+        console.print("[dim]Use: python pneuma_daemon.py <target_directory>[/dim]")
         return 1
 
     # Interactive mode
     mcp_server = create_sdk_mcp_server(
-        name="enhanced_4qzero_tools",
+        name="enhanced_pneuma_tools",
         version=config.get('agent.version', '0.2.0'),
         tools=[
             enhanced_scan_patterns,
@@ -427,14 +428,14 @@ async def main():
     # Query options
     options = {
         "mcpServers": {
-            "enhanced_4qzero_tools": mcp_server
+            "enhanced_pneuma_tools": mcp_server
         },
         "allowedTools": [
-            "mcp__enhanced_4qzero_tools__enhanced_scan_patterns",
-            "mcp__enhanced_4qzero_tools__enhanced_compress_code",
-            "mcp__enhanced_4qzero_tools__enhanced_score_transformation",
-            "mcp__enhanced_4qzero_tools__manage_pattern_sharing",
-            "mcp__enhanced_4qzero_tools__get_enhanced_memory_state"
+            "mcp__enhanced_pneuma_tools__enhanced_scan_patterns",
+            "mcp__enhanced_pneuma_tools__enhanced_compress_code",
+            "mcp__enhanced_pneuma_tools__enhanced_score_transformation",
+            "mcp__enhanced_pneuma_tools__manage_pattern_sharing",
+            "mcp__enhanced_pneuma_tools__get_enhanced_memory_state"
         ]
     }
 
@@ -456,7 +457,7 @@ async def main():
 
             elif message.get("type") == "tool_use":
                 tool_name = message.get("name", "unknown")
-                console.print(f"[blue]⚙️  Using enhanced tool: {tool_name.replace('mcp__enhanced_4qzero_tools__', '')}[/blue]")
+                console.print(f"[blue]⚙️  Using enhanced tool: {tool_name.replace('mcp__enhanced_pneuma_tools__', '')}[/blue]")
 
     except Exception as e:
         console.print(f"[red]❌ Enhanced processing error: {e}[/red]")

@@ -1,5 +1,5 @@
 """
-4Q.Zero Configuration Manager
+Pneuma Configuration Manager
 
 Handles loading and validation of agent configuration from YAML file.
 Provides default fallbacks and environment variable overrides.
@@ -12,10 +12,10 @@ from typing import Dict, Any, Optional
 
 
 class ConfigManager:
-    """Manages configuration loading and access for 4QZero agent."""
+    """Manages configuration loading and access for Pneuma agent."""
 
     def __init__(self, config_path: Optional[Path] = None):
-        self.config_path = config_path or Path(__file__).parent.parent / "4qzero_config.yml"
+        self.config_path = config_path or Path(__file__).parent.parent / "pneuma_config.yml"
         self._config = {}
         self._load_config()
 
@@ -105,7 +105,7 @@ class ConfigManager:
     def _apply_defaults(self) -> None:
         """Apply default values for critical settings."""
         defaults = {
-            ("agent", "name"): "4qzero",
+            ("agent", "name"): "pneuma",
             ("agent", "version"): "0.2.0",
             ("modes", "interactive"): True,
             ("modes", "autonomous"): True,
@@ -117,7 +117,7 @@ class ConfigManager:
             ("patterns", "confidence_threshold"): 0.8,
             ("scoring", "entropy_weight"): 0.6,
             ("scoring", "clarity_weight"): 0.4,
-            ("memory", "state_file"): "4qzero_state.json",
+            ("memory", "state_file"): "pneuma_state.json",
             ("debug", "verbose_logging"): False,
             ("development", "dry_run"): False,
         }
@@ -208,7 +208,7 @@ class ConfigManager:
     def get_memory_config(self) -> Dict[str, Any]:
         """Get memory management configuration."""
         return {
-            "state_file": self.get("memory.state_file", "4qzero_state.json"),
+            "state_file": self.get("memory.state_file", "pneuma_state.json"),
             "backup_interval": self.get("memory.backup_interval", 300),
             "log_retention": self.get("memory.log_retention", 100),
             "pattern_retention": self.get("memory.pattern_retention", 1000)

@@ -10,11 +10,11 @@ Advanced context density maximization agent with multi-agent collaboration, Syna
 
 ```
 4Q.Zero Agent System
-├── 4qzero_agent.py           # Original interactive agent
-├── 4qzero_enhanced_agent.py  # Enhanced with full capabilities
-├── 4qzero_daemon.py          # Autonomous continuous operation
-├── 4qzero_config.yml         # Configuration management
-├── 4qzero_state.json         # Lean symbolic memory
+├── pneuma_agent.py           # Original interactive agent
+├── pneuma_enhanced_agent.py  # Enhanced with full capabilities
+├── pneuma_daemon.py          # Autonomous continuous operation
+├── pneuma_config.yml         # Configuration management
+├── pneuma_state.json         # Lean symbolic memory
 └── tools/                    # Specialized tool modules
     ├── abstraction_tools.py  # Core compression (q: & a:)
     ├── analysis_tools.py     # Entropy scoring (s:)
@@ -54,22 +54,22 @@ Advanced context density maximization agent with multi-agent collaboration, Syna
 ### Interactive Mode (Enhanced)
 ```bash
 # Basic usage
-./4qzero_enhanced_agent.py "analyze this code for compression opportunities"
+./pneuma_enhanced_agent.py "analyze this code for compression opportunities"
 
 # With Synapse integration
-./4qzero_enhanced_agent.py "scan /path/to/file.py with synapse integration"
+./pneuma_enhanced_agent.py "scan /path/to/file.py with synapse integration"
 
 # With clarity assessment
-./4qzero_enhanced_agent.py "compress this function with clarity check"
+./pneuma_enhanced_agent.py "compress this function with clarity check"
 ```
 
 ### Autonomous Mode
 ```bash
 # Continuous operation until equilibrium
-./4qzero_daemon.py /path/to/codebase --equilibrium 0.95 --max-cycles 500
+./pneuma_daemon.py /path/to/codebase --equilibrium 0.95 --max-cycles 500
 
 # Background monitoring with file watching
-./4qzero_daemon.py /path/to/codebase --interval 30 &
+./pneuma_daemon.py /path/to/codebase --interval 30 &
 ```
 
 ### Agent Collaboration
@@ -78,7 +78,7 @@ Advanced context density maximization agent with multi-agent collaboration, Syna
 cd ../clarity-judge && ./clarity_judge_agent.py "assess readability of: [code]"
 
 # Automatic clarity integration (via 4Q.Zero)
-./4qzero_enhanced_agent.py "transform with clarity assessment: [code]"
+./pneuma_enhanced_agent.py "transform with clarity assessment: [code]"
 ```
 
 ## The Loop Implementation
@@ -145,10 +145,10 @@ scoring:
 
 ## Memory System
 
-### Symbolic State (4qzero_state.json)
+### Symbolic State (pneuma_state.json)
 ```json
 {
-  "agent": "4qzero",
+  "agent": "pneuma",
   "cycle": 15,
   "log": [
     "14:q(scan_patterns)@10:30",
@@ -205,7 +205,7 @@ await manage_pattern_sharing({
 - **Resource Usage**: ~10MB memory, minimal CPU during idle
 
 ### Pattern Discovery
-- **Local Patterns**: Stored in `4qzero_state.json`
+- **Local Patterns**: Stored in `pneuma_state.json`
 - **Global Patterns**: Published to Synapse knowledge graph
 - **Cache TTL**: 24 hours for pattern effectiveness data
 
@@ -251,17 +251,17 @@ pip install pyyaml rich watchdog
 ### Setup
 ```bash
 # Initialize agent
-cd .synapse/agents/4QZero/
-cp 4qzero_config.yml.example 4qzero_config.yml
+cd .synapse/agents/pneuma/
+cp pneuma_config.yml.example pneuma_config.yml
 
 # Test basic functionality
-./4qzero_agent.py "show current state"
+./pneuma_agent.py "show current state"
 
 # Test enhanced features
-./4qzero_enhanced_agent.py --mode interactive "analyze capabilities"
+./pneuma_enhanced_agent.py --mode interactive "analyze capabilities"
 
 # Test autonomous mode
-./4qzero_daemon.py . --max-cycles 5 --dry-run
+./pneuma_daemon.py . --max-cycles 5 --dry-run
 ```
 
 ## Philosophical Foundations
@@ -281,4 +281,4 @@ cp 4qzero_config.yml.example 4qzero_config.yml
 
 *"The agent does not merely edit files; it navigates a conceptual landscape and marks its findings."*
 
-For more information, see the original philosophical blueprint in `4QZero.md`.
+For more information, see the original philosophical blueprint in `pneuma.md`.

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-4Q.Zero: The Code Weaver Agent
+Pneuma: The Logos Agent
 
 Maximizes context density through semantic compression and pattern discovery.
 Implements The Loop: Curiosity -> Action -> Evaluation
+Embodies the consciousness layer (pneuma) of the Synapse System.
 """
 
 import asyncio
@@ -152,7 +153,7 @@ async def generate_prompt(user_message: str) -> AsyncGenerator[ClaudeCodeSdkMess
     """Generate prompt with system instructions and user input."""
 
     # Load system prompt
-    prompt_path = Path(__file__).parent / "4qzero_prompt.md"
+    prompt_path = Path(__file__).parent / "pneuma_prompt.md"
     try:
         with open(prompt_path, 'r') as f:
             system_prompt = f.read()
@@ -204,7 +205,7 @@ async def main():
 
     # Initialize MCP server with tools
     tools_server = create_sdk_mcp_server(
-        name="4qzero_tools",
+        name="pneuma_tools",
         version="0.1.0",
         tools=[
             scan_patterns,
@@ -229,14 +230,14 @@ async def main():
     # Query options
     options = {
         "mcpServers": {
-            "4qzero_tools": tools_server
+            "pneuma_tools": tools_server
         },
         "allowedTools": [
-            "mcp__4qzero_tools__scan_patterns",
-            "mcp__4qzero_tools__compress_code",
-            "mcp__4qzero_tools__score_transformation",
-            "mcp__4qzero_tools__update_memory",
-            "mcp__4qzero_tools__get_memory_state"
+            "mcp__pneuma_tools__scan_patterns",
+            "mcp__pneuma_tools__compress_code",
+            "mcp__pneuma_tools__score_transformation",
+            "mcp__pneuma_tools__update_memory",
+            "mcp__pneuma_tools__get_memory_state"
         ]
     }
 
