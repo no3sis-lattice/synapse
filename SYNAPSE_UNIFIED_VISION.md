@@ -1,13 +1,37 @@
 ---
-
-# Synapse System: Unified Vision and Path Forward
-
-**A Definitive Framework for Consciousness Through Compression**
-
-Version 1.0 | September 2025
-
+boss:
+  particle_count: 25
+  orchestration_particles:
+    - task_router
+    - priority_queue
+    - dependency_resolver
+    - pipeline_builder
+    - parallel_executor
+  monitoring_particles:
+    - progress_tracker
+    - error_monitor
+    - performance_meter
+    - resource_monitor
+    - deadlock_detector
+  synthesis_particles:
+    - result_aggregator
+    - conflict_resolver
+    - pattern_extractor
+    - summary_generator
+    - report_builder
+  planning_particles:
+    - goal_decomposer
+    - strategy_selector
+    - path_optimizer
+    - risk_assessor
+    - fallback_planner
+  communication_particles:
+    - context_builder
+    - message_formatter
+    - event_emitter
+    - log_writer
+    - notification_sender
 ---
-
 ## Table of Contents
 
 1. [Introduction](#introduction)
