@@ -1,0 +1,28 @@
+agent_versions:
+  architect: 1758105011.33db70f7
+  boss: 1759190008.1f889841
+  code-hound: 1758106678.4ac9ced9
+  devops-engineer: 1758105111.f7c2db6d
+  docs-writer: 1758105325.cad0d55e
+  file-creator: 1758107649.2a0ff8f5
+  git-workflow: 1758107685.586ca78e
+  golang-specialist: '1758698524.000'
+  pneuma: 1759189780.a20881e4
+  python-specialist: '1758716882.000'
+  rust-specialist: '1758716852.000'
+  security-specialist: 1758105218.21e0d6a1
+  test-runner: 1758107819.660c59fd
+  typescript-specialist: '1758716866.000'
+  ux-designer: 1758105193.cab19c3e
+created_at: '2025-09-30T10:09:05.397804'
+deployment_method: copy
+knowledge_paths:
+- ./docs
+- ./README.md
+- ./CHANGELOG.md
+language: python
+project_name: .synapse-system
+synapse_home: /home/m0xu/.synapse-system
+synapse_version: 2024.1.0
+updated_at: '2025-09-30T10:09:05.397815'
+version: '1.0'
