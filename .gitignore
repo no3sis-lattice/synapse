@@ -22,12 +22,34 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+*.cover
+.hypothesis/
 
 # Virtual environments
 .venv/
 venv/
 ENV/
 env/
+.python-version
+
+# UV package manager
+uv.lock
+.uv/
+
+# Mojo artifacts
+*.mojo.o
+*.mojopkg
+.mojo_cache/
+*.mojo~
 
 # Local state and runtime data
 .synapse/task_state.db
@@ -36,23 +58,59 @@ env/
 .synapse/neo4j/logs/
 .synapse/neo4j/import/
 .synapse/neo4j/plugins/
+.synapse/mojo-pilot/.venv/
+.claude/
+
+# Database files
+neo4j/vector_store.db
+neo4j/vector_store.db-shm
+neo4j/vector_store.db-wal
+*.db-journal
 
 # Docker volumes
 docker-compose.override.yml
+
+# Benchmark results
+benchmarks/results/
+benchmarks/*.json
+benchmarks/*.csv
+benchmarks/*.html
+*.benchmark
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.project
+.classpath
+.settings/
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Logs
 *.log
+logs/
+
+# Nix build artifacts
+result
+result-*
+.direnv/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*_backup
+*~
 
 # Added by Gemini
-result
 qa_reports/
+
+# pixi environments
+.pixi/*
+!.pixi/config.toml

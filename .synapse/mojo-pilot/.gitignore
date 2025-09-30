@@ -1,0 +1,47 @@
+# Mojo build artifacts
+__pycache__/
+*.pyc
+*.pyo
+.mojo_cache/
+build/
+dist/
+*.so
+*.dylib
+*.dll
+
+# UV virtual environment
+.venv/
+uv.lock
+
+# Python
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Benchmark results
+benchmarks/*.json
+benchmarks/*.html
+benchmarks/*.csv
+benchmarks/results/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentation generated files
+docs/*.html
+docs/*.pdf
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
