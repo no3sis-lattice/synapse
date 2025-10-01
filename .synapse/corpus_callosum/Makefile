@@ -22,7 +22,7 @@ all: build
 .PHONY: build
 build:
 	@echo "Building Corpus Callosum message router..."
-	$(MOJO) build $(SRC) -o $(BUILD_DIR)/$(LIB_NAME)
+	$(MOJO) build $(SRC) --emit shared-lib -o $(BUILD_DIR)/$(LIB_NAME)
 	@echo "✓ Built $(LIB_NAME)"
 	@ls -lh $(BUILD_DIR)/$(LIB_NAME)
 

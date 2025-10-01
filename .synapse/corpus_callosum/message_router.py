@@ -281,13 +281,13 @@ class MessageRouterPython:
             )
 
             # Route to appropriate queue
-            # PriorityQueue uses tuples (priority, item) - negate priority for descending order
+            # PriorityQueue uses tuples (priority, tiebreaker, item) - negate priority for descending order
             try:
                 if dest_tract == TractType.INTERNAL:
-                    self.internal_queue.put((-priority.value, msg), block=False)
+                    self.internal_queue.put((-priority.value, msg_id, msg), block=False)
                     self.stats.messages_to_internal += 1
                 elif dest_tract == TractType.EXTERNAL:
-                    self.external_queue.put((-priority.value, msg), block=False)
+                    self.external_queue.put((-priority.value, msg_id, msg), block=False)
                     self.stats.messages_to_external += 1
 
                 self.stats.total_messages += 1
@@ -304,11 +304,11 @@ class MessageRouterPython:
         try:
             if tract == TractType.INTERNAL:
                 if not self.internal_queue.empty():
-                    _, msg = self.internal_queue.get(block=False)
+                    _, _, msg = self.internal_queue.get(block=False)
                     return msg
             elif tract == TractType.EXTERNAL:
                 if not self.external_queue.empty():
-                    _, msg = self.external_queue.get(block=False)
+                    _, _, msg = self.external_queue.get(block=False)
                     return msg
         except Exception:
             pass

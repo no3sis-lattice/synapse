@@ -38,7 +38,7 @@ struct Message(Copyable, Movable):
 
 
 struct MessageQueue:
-    """Priority queue for cross-tract messages with SIMD sorting."""
+    """Binary max-heap priority queue for cross-tract messages."""
     var messages: UnsafePointer[Message]
     var capacity: Int
     var size: Int
@@ -54,29 +54,31 @@ struct MessageQueue:
         self.messages.free()
 
     fn enqueue(mut self, msg: Message) -> Bool:
-        """Add message to queue (returns False if full)."""
+        """Add message to queue (returns False if full). O(log n)"""
         if self.size >= self.capacity:
             return False
 
-        # Store message (explicit copy)
+        # Store message at end
         self.messages[self.size] = msg.copy()
         self.size += 1
 
-        # Sort by priority (descending) using SIMD where possible
-        self._sort_by_priority()
+        # Restore heap property by bubbling up
+        self._heapify_up(self.size - 1)
 
         return True
 
     fn dequeue(mut self) -> Message:
-        """Remove and return highest priority message."""
+        """Remove and return highest priority message. O(log n)"""
         # Assumes queue is not empty (caller should check)
         var msg = self.messages[0].copy()
 
-        # Shift remaining messages
-        for i in range(self.size - 1):
-            self.messages[i] = self.messages[i + 1].copy()
-
+        # Move last element to root
         self.size -= 1
+        if self.size > 0:
+            self.messages[0] = self.messages[self.size].copy()
+            # Restore heap property by bubbling down
+            self._heapify_down(0)
+
         return msg^
 
     fn peek(self) -> Message:
@@ -91,21 +93,69 @@ struct MessageQueue:
         """Get current queue depth."""
         return self.size
 
-    fn _sort_by_priority(mut self):
-        """Sort messages by priority (descending) with SIMD optimization."""
-        # Simple insertion sort optimized for small queues
-        # For larger queues, would use quicksort or heapsort with SIMD
+    fn _heapify_up(mut self, idx: Int):
+        """Bubble element up to restore max-heap property. O(log n)"""
+        var current = idx
 
-        for i in range(1, self.size):
-            var key_msg = self.messages[i].copy()
-            var j = i - 1
+        while current > 0:
+            var parent = (current - 1) // 2
 
-            # Move elements with lower priority down
-            while j >= 0 and self.messages[j].priority < key_msg.priority:
-                self.messages[j + 1] = self.messages[j].copy()
-                j -= 1
+            # Check heap property: parent priority >= child priority
+            # For ties, use message ID (lower ID = higher priority)
+            var parent_higher = (
+                self.messages[parent].priority > self.messages[current].priority or
+                (self.messages[parent].priority == self.messages[current].priority and
+                 self.messages[parent].id < self.messages[current].id)
+            )
 
-            self.messages[j + 1] = key_msg^
+            if parent_higher:
+                break
+
+            # Swap parent and current
+            var temp = self.messages[parent].copy()
+            self.messages[parent] = self.messages[current].copy()
+            self.messages[current] = temp^
+
+            current = parent
+
+    fn _heapify_down(mut self, idx: Int):
+        """Bubble element down to restore max-heap property. O(log n)"""
+        var current = idx
+
+        while True:
+            var largest = current
+            var left = 2 * current + 1
+            var right = 2 * current + 2
+
+            # Find largest among current, left child, right child
+            if left < self.size:
+                var left_higher = (
+                    self.messages[left].priority > self.messages[largest].priority or
+                    (self.messages[left].priority == self.messages[largest].priority and
+                     self.messages[left].id < self.messages[largest].id)
+                )
+                if left_higher:
+                    largest = left
+
+            if right < self.size:
+                var right_higher = (
+                    self.messages[right].priority > self.messages[largest].priority or
+                    (self.messages[right].priority == self.messages[largest].priority and
+                     self.messages[right].id < self.messages[largest].id)
+                )
+                if right_higher:
+                    largest = right
+
+            # If largest is current, heap property is satisfied
+            if largest == current:
+                break
+
+            # Swap current with largest child
+            var temp = self.messages[current].copy()
+            self.messages[current] = self.messages[largest].copy()
+            self.messages[largest] = temp^
+
+            current = largest
 
     fn filter_by_tract(self, tract: Int32) -> Int:
         """Count messages destined for specific tract."""

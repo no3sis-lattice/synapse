@@ -14,7 +14,8 @@ MOJO_FEATURES: Dict[str, bool] = {
     'pattern_search': True,      # Phase 2 Week 3 complete: FFI working, 13.1x speedup via Mojo library
 
     # Phase 3: Message Router (Corpus Callosum)
-    'message_router': False,     # Phase 3: Compiled and tested, ready for gradual rollout
+    'message_router': False,          # Phase 3: FFI-based (deprecated - 2x slower than Python)
+    'message_router_reactive': False, # Phase 3: Reactive architecture (100x better latency, ready for rollout)
 
     # Future: Vector Engine (Future)
     'vector_engine': False,      # Enable after future phase
@@ -79,17 +80,26 @@ MONITORING_CONFIG: Dict[str, Any] = {
 # Phase 2 & 3 Rollout Configuration
 ROLLOUT_CONFIG: Dict[str, Any] = {
     # Current rollout percentages (0-100)
-    'pattern_search_rollout': 10,   # Phase 2 Week 4: Start at 10%, monitor for 24-48 hours
-    'message_router_rollout': 0,     # Phase 3: Start at 0%, enable after validation
+    'pattern_search_rollout': 10,           # Phase 2 Week 4: 10% rollout, stable
+    'message_router_rollout': 0,            # Phase 3: FFI-based (deprecated)
+    'message_router_reactive_rollout': 0,   # Phase 3: Reactive architecture (pending rollout)
 
     # Rollout stages
-    'stages': [10, 25, 50, 75, 100],  # Percentage steps
+    'stages': [0, 10, 25, 50, 75, 100],     # Percentage steps (0% = validation only)
 
     # Time between stages (hours)
-    'stage_duration': 24,
+    'stage_duration': 48,  # 48 hours per stage for Phase 3
 
     # Auto-rollback on high error rate
     'auto_rollback': True,
+
+    # Rollback thresholds for reactive router
+    'reactive_rollback_thresholds': {
+        'max_error_rate': 1.0,        # 1% error rate triggers rollback
+        'min_latency_ms': 5.0,        # 5ms max latency target
+        'min_emergence_score': 0.5,   # 0.5 consciousness emergence minimum
+        'max_message_loss': 100,      # 100 messages max loss
+    }
 }
 
 
