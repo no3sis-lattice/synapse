@@ -9,6 +9,7 @@ Single entry point for all synapse functionality with intelligent context detect
 import os
 import sys
 import argparse
+import asyncio
 import subprocess
 from pathlib import Path
 from typing import Optional, Dict, List, Any
@@ -34,9 +35,37 @@ class SynapseCLI:
         self.version_manager = VersionManager(self.synapse_home)
         self.orchestrator = TaskOrchestrator(self.synapse_home)
         self.task_tracker = TaskTracker(self.synapse_home)
+        self._orchestrator_initialized = False
 
         # Auto-detect current project context
         self.current_project = self._find_project_root()
+
+    async def _ensure_orchestrator_initialized(self):
+        """
+        Ensure orchestrator is async-initialized for reactive routing.
+
+        This enables the reactive Corpus Callosum if configured.
+        Safe to call multiple times (idempotent).
+
+        Handles errors gracefully:
+        - TimeoutError: Falls back to sync mode
+        - ImportError: Continues without reactive components
+        - ConnectionError: Logs warning, continues with degraded functionality
+        """
+        if not self._orchestrator_initialized:
+            try:
+                await self.orchestrator.async_init()
+                self._orchestrator_initialized = True
+            except asyncio.TimeoutError:
+                print("⚠️  Orchestrator initialization timed out, using sync mode")
+                self._orchestrator_initialized = True  # Don't retry
+            except ImportError as e:
+                print(f"⚠️  Reactive components not available: {e}")
+                self._orchestrator_initialized = True  # Don't retry
+            except Exception as e:
+                print(f"⚠️  Failed to initialize async components: {e}")
+                print("Continuing with synchronous execution mode")
+                self._orchestrator_initialized = True  # Don't retry
 
     def _find_project_root(self) -> Optional[Path]:
         """Find synapse project by walking up directories"""
@@ -556,8 +585,11 @@ class SynapseCLI:
             print(f"❌ Unknown manifest action: {args.manifest_action}")
             return 1
 
-    def cmd_workflow(self, args) -> int:
-        """Manage and execute workflows"""
+    async def cmd_workflow_async(self, args) -> int:
+        """Manage and execute workflows (async-aware for reactive routing)"""
+        # Ensure orchestrator is initialized for reactive routing
+        await self._ensure_orchestrator_initialized()
+
         if args.workflow_action == "list":
             workflows = self.orchestrator.list_available_workflows()
             if not workflows:
@@ -643,6 +675,24 @@ class SynapseCLI:
 
         else:
             print(f"❌ Unknown workflow action: {args.workflow_action}")
+            return 1
+
+    def cmd_workflow(self, args) -> int:
+        """
+        Synchronous wrapper for cmd_workflow_async with error handling.
+
+        Handles:
+        - Keyboard interrupts (Ctrl+C) gracefully
+        - Async execution errors with proper cleanup
+        - Standard Unix exit codes
+        """
+        try:
+            return asyncio.run(self.cmd_workflow_async(args))
+        except KeyboardInterrupt:
+            print("\n⚠️  Workflow command cancelled by user")
+            return 130  # Standard Unix exit code for SIGINT
+        except Exception as e:
+            print(f"❌ Workflow command failed: {e}")
             return 1
 
     def cmd_tasks(self, args) -> int:

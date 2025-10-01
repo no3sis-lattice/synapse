@@ -15,6 +15,7 @@ Tests cover:
 
 import asyncio
 import pytest
+import pytest_asyncio
 import sys
 import time
 from pathlib import Path
@@ -40,7 +41,7 @@ from agent_consumer import AgentConsumer, AgentConfig
 # Test Fixtures
 # ============================================================================
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def orchestrator():
     """Create orchestrator instance for testing"""
     orch = TaskOrchestrator(Path.home() / '.synapse-system')
@@ -100,7 +101,7 @@ class TestAsyncInitialization:
     async def test_async_init_success(self, orchestrator):
         """Test successful async initialization"""
         # Mock MOJO_FEATURES to enable reactive router
-        with patch('orchestration.MOJO_FEATURES', {'message_router_reactive': True}):
+        with patch('config.MOJO_FEATURES', {'message_router_reactive': True}):
             with patch('orchestration.REACTIVE_ROUTER_AVAILABLE', True):
                 # Mock ReactiveCorpusCallosum
                 mock_router = AsyncMock()
@@ -116,7 +117,7 @@ class TestAsyncInitialization:
     @pytest.mark.asyncio
     async def test_async_init_timeout(self, orchestrator):
         """Test async initialization with timeout"""
-        with patch('orchestration.MOJO_FEATURES', {'message_router_reactive': True}):
+        with patch('config.MOJO_FEATURES', {'message_router_reactive': True}):
             with patch('orchestration.REACTIVE_ROUTER_AVAILABLE', True):
                 # Mock router that hangs on start
                 mock_router = AsyncMock()
@@ -133,7 +134,7 @@ class TestAsyncInitialization:
     @pytest.mark.asyncio
     async def test_async_init_disabled_in_config(self, orchestrator):
         """Test async init when reactive router disabled in config"""
-        with patch('orchestration.MOJO_FEATURES', {'message_router_reactive': False}):
+        with patch('config.MOJO_FEATURES', {'message_router_reactive': False}):
             await orchestrator.async_init()
 
             assert orchestrator.use_reactive is False

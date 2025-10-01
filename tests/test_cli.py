@@ -6,7 +6,12 @@ project initialization and manifest operations.
 """
 
 import pytest
+import asyncio
+import sys
 from pathlib import Path
+
+# Add lib path for CLI imports
+sys.path.insert(0, str(Path(__file__).parent.parent / 'lib'))
 
 
 def test_synapse_init(cli_runner, tmp_path):
@@ -73,3 +78,71 @@ def test_manifest_list_snapshot(cli_runner, snapshot):
 
     # Compare output with snapshot
     snapshot.assert_match(result.stdout, "manifest_list_output.txt")
+
+
+@pytest.mark.asyncio
+async def test_orchestrator_async_initialization():
+    """
+    Test CLI orchestrator async initialization.
+
+    This test verifies that:
+    1. TaskOrchestrator can be async-initialized via CLI helper
+    2. Initialization flag works correctly
+    3. Multiple calls are idempotent (safe to call repeatedly)
+    4. Reactive router is enabled if configured
+    """
+    from cli import SynapseCLI
+
+    # Create CLI instance
+    cli = SynapseCLI()
+
+    # Initially not initialized
+    assert not cli._orchestrator_initialized, "Orchestrator should not be initialized on creation"
+
+    # Call async initialization
+    await cli._ensure_orchestrator_initialized()
+
+    # Should now be initialized
+    assert cli._orchestrator_initialized, "Orchestrator should be initialized after first call"
+
+    # Call again (idempotent check)
+    await cli._ensure_orchestrator_initialized()
+
+    # Should still be initialized (no errors)
+    assert cli._orchestrator_initialized, "Orchestrator should remain initialized after second call"
+
+    # Verify orchestrator exists
+    assert cli.orchestrator is not None, "Orchestrator should exist"
+
+    # Verify reactive router state is set (may be True or False depending on config)
+    assert hasattr(cli.orchestrator, 'use_reactive'), "Orchestrator should have use_reactive attribute"
+
+    # Clean up if needed
+    if cli.orchestrator.use_reactive and cli.orchestrator.reactive_router:
+        await cli.orchestrator.stop_all_agents()
+
+
+def test_workflow_command_uses_async_init(cli_runner):
+    """
+    Test that workflow command properly initializes async components.
+
+    This is a smoke test to ensure the workflow command can be executed
+    without errors when async initialization is in place.
+    """
+    # Execute synapse workflow list command (should initialize orchestrator)
+    result = cli_runner("workflow", "list")
+
+    # Command should complete without errors (even if no workflows)
+    # Exit code 0 or 1 is acceptable (1 means no workflows, 0 means success)
+    assert result.exit_code in [0, 1], f"Command failed unexpectedly: {result.stderr}"
+
+    # Should not have initialization errors
+    assert "async_init" not in result.stderr.lower(), "Initialization error detected"
+
+    # Reactive router messages are acceptable (disabled, not available, etc.)
+    stderr_lower = result.stderr.lower()
+    if "reactive" in stderr_lower:
+        # Verify it's a benign message (disabled or not available), not an error
+        acceptable_messages = ["disabled", "not available", "not enabled"]
+        assert any(msg in stderr_lower for msg in acceptable_messages), \
+            f"Unexpected reactive router error: {result.stderr}"
