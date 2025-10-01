@@ -1,4 +1,4 @@
-# The "Tracer Bullet" MVP: file_creator
+# MVP: file_creator
 
 **Objective:** To create a foundational, end-to-end proof-of-concept for the Synapse System by re-implementing the `file-creator` agent as a complete microcosm of the target architecture.
 
@@ -17,10 +17,9 @@ This MVP will integrate four fundamental concepts from the system's philosophica
 
 ---
 
-## 2. MVP Implementation Plan (1-Week Sprint)
+## 2. MVP Implementation Plan 
 
-### Phase 1: The Foundation (Days 1-2)
-
+### Phase 1: The Foundation 
 This phase establishes the stable, abstract bedrock required for all subsequent development.
 
 *   **Task 1: Implement AI Abstraction Layer:**
@@ -31,7 +30,7 @@ This phase establishes the stable, abstract bedrock required for all subsequent 
     *   **Goal:** Ensure a perfectly reproducible development environment.
     *   **Action:** Finalize the "Monolithic Flake with Modular Structure" approach. The root `flake.nix` will provide a `devShell` with the Python environment and all dependencies required for the AI Abstraction Layer.
 
-### Phase 2: Building the Dual-Tract "Tracer Bullet" (Days 3-6)
+### Phase 2: Building the Dual-Tract "Tracer Bullet" 
 
 This phase implements the `file-creator` agent as a microcosm of the final system architecture.
 
@@ -61,7 +60,7 @@ This phase implements the `file-creator` agent as a microcosm of the final syste
         *   **RLE (Abstraction):** The `T_int` orchestrator itself serves as the RLE layer. A single call to it expands into a sequence of `T_ext` agent calls.
         *   **Huffman (Permissions):** The `registry.json` will define a minimal `permissions` list for each atomic agent (e.g., `file_writer` has only `[filesystem:write]`).
 
-### Phase 3: Integration & Review (Day 7)
+### Phase 3: Integration & Review 
 
 *   **Task 7: Nixify the Module:**
     *   **Goal:** Make the entire new `file-creator` system reproducible.
