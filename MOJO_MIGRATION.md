@@ -305,39 +305,36 @@ fn main():
 
 **Question**: Can Mojo load and run ML models like BGE-M3?
 
-**Answer**: Yes, **Mojo can run ML models like BGE-M3**, primarily through the **Modular AI Engine (MAX)**.
+**Answer**: Yes. After careful consideration of system requirements and project philosophy, the plan is to implement the BGE-M3 inference logic **natively in Mojo**, rather than relying on an external inference engine.
 
-You wouldn't typically load a model file directly in pure Mojo code. Instead, the intended workflow is to use the MAX Engine, which is a high-performance serving framework built with Mojo. MAX is designed to load and run models from popular formats and repositories like Hugging Face with industry-leading speed.
+This "Pure Mojo" approach was chosen for several key reasons:
+- **Minimal Dependencies**: It avoids adding a heavy dependency on the Modular MAX Engine, which aligns with our goal of a clean, self-contained, and portable system managed by Nix.
+- **Reduced Complexity**: It mitigates the risk of introducing complex system requirements (e.g., specific CUDA versions, drivers) that an external engine might demand.
+- **Full Control**: It gives us complete control over the implementation, optimization, and dependency graph.
 
 **Recommended Workflow**:
 
-1. **Serve the Model with MAX**: Use the `max serve` command to deploy the BGE-M3 model, which pulls it directly from Hugging Face and serves it via an OpenAI-compatible API endpoint.
-   ```bash
-   max serve --model BAAI/bge-m3
-   ```
+1.  **Native Mojo Implementation**: The core matrix multiplication and neural network layers for the BGE-M3 model will be implemented directly in a new Mojo module (`bge_m3_engine.mojo`).
+2.  **Performance Optimization**: This implementation will leverage Mojo's native SIMD and parallel programming features to ensure high-performance execution on CPU.
+3.  **FFI for Python Bridge**: The embedding generation function will be exposed via a C-compatible Foreign Function Interface (FFI), similar to the `pattern_search` library.
+4.  **Integration**: The existing Python `vector_engine.py` will be updated to call this compiled Mojo library via `ctypes` for a significant performance boost in embedding generation.
 
-2. **Call from Mojo (or Python)**: Your Mojo application can then make HTTP requests to this local MAX endpoint to get embeddings from the BGE-M3 model.
-
-This approach separates the model serving from your application logic, allowing the highly optimized MAX engine to handle the complex computations of inference.
-
-**Synapse Integration Strategy**:
-- Deploy MAX as separate service: `max serve --model BAAI/bge-m3 --port 8080`
-- Mojo code makes HTTP requests to local MAX endpoint
-- MAX handles model inference (optimized Mojo internally)
-- Synapse gets embeddings via REST API (language-agnostic)
+This strategy treats the embedding engine as another performance-critical component to be accelerated with Mojo, just like pattern search.
 
 **Architecture Update**:
 ```
 ┌─────────────────────────────────────────────────┐
 │           Synapse System                        │
 ├─────────────────────────────────────────────────┤
-│  Mojo Layer (Pattern Matching, Message Router) │
-│         ↓ HTTP                                  │
-│  MAX Engine (BGE-M3 Model Serving)             │
-│         ↓                                       │
+│  Mojo Layer                                     │
+│  (Pattern Matching, Message Router, Embeddings) │
+│         ↓ FFI                                   │
 │  Python Layer (Neo4j, Redis, Core Logic)       │
 └─────────────────────────────────────────────────┘
 ```
+
+**Future Consideration: MAX Engine**
+Using the Modular MAX Engine remains a viable option for a future iteration if the system's AI needs expand significantly (e.g., to include local LLM execution). At that point, the benefits of a general-purpose, pre-optimized inference engine might outweigh the costs of the added dependency.
 
 ---
 
@@ -359,66 +356,611 @@ This allows you to create reproducible, self-contained development environments 
 
 **Synapse Integration Strategy**:
 
-**Phase 1**: Create separate Mojo flake
+This section provides a complete implementation plan for packaging Synapse's Mojo components with Nix flakes, enabling reproducible builds and distribution.
+
+---
+
+#### Phase 1: Mojo Runtime Foundation Flake
+
+**Objective**: Create a reusable Mojo SDK flake that serves as the base for all Mojo components.
+
+**File**: `nix/flakes/mojo-runtime/flake.nix`
+
+**Complete Implementation**:
 ```nix
-# nix/flakes/mojo-runtime/flake.nix
 {
-  description = "Mojo runtime for Synapse System";
+  description = "Mojo SDK runtime for Synapse System";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
+    nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs }: {
-    packages.x86_64-linux.default =
+  outputs = { self, nixpkgs, flake-utils }:
+    flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs { system = "x86_64-linux"; };
-        mojoSdk = pkgs.fetchurl {
-          url = "https://dl.modular.com/mojo/v25.6/mojo-sdk-linux-x86_64.tar.gz";
-          sha256 = "...";  # Update with actual hash
-        };
-      in
-        pkgs.stdenv.mkDerivation {
-          name = "mojo-runtime";
-          src = mojoSdk;
+        pkgs = import nixpkgs { inherit system; };
+
+        # Note: Using local Mojo installation as src initially
+        # TODO: Migrate to fetchurl from Modular servers after validation
+        mojoVersion = "0.25.7";
+
+        mojoRuntime = pkgs.stdenv.mkDerivation {
+          pname = "mojo-runtime";
+          version = mojoVersion;
+
+          # Use existing local installation
+          src = /home/m0xu/.synapse-system/.venv/bin;
+
+          buildInputs = with pkgs; [
+            autoPatchelfHook
+            stdenv.cc.cc.lib
+            zlib
+          ];
+
+          dontBuild = true;
+
           installPhase = ''
-            mkdir -p $out
-            tar -xzf $src -C $out
+            mkdir -p $out/bin
+            cp -r $src/mojo $out/bin/
+            chmod +x $out/bin/mojo
+          '';
+
+          meta = with pkgs.lib; {
+            description = "Mojo programming language compiler and runtime";
+            homepage = "https://www.modular.com/mojo";
+            license = licenses.unfree;
+            platforms = [ "x86_64-linux" "aarch64-linux" ];
+          };
+        };
+
+      in {
+        packages = {
+          default = mojoRuntime;
+          mojo = mojoRuntime;
+        };
+
+        # Expose mojo path for dependent flakes
+        lib = {
+          mojoPath = "${mojoRuntime}/bin/mojo";
+        };
+
+        devShells.default = pkgs.mkShell {
+          buildInputs = [ mojoRuntime ];
+
+          shellHook = ''
+            echo "🔥 Mojo Runtime Environment"
+            echo "Mojo version: $(mojo --version 2>&1 | head -n1 || echo 'Not available')"
+            echo ""
+            echo "Available commands:"
+            echo "  mojo --version    - Check Mojo version"
+            echo "  mojo run <file>   - Run Mojo program"
+            echo "  mojo build <file> - Compile Mojo to binary/library"
           '';
         };
-  };
+      });
 }
 ```
 
-**Phase 2**: Integrate with root flake
+**Build Commands**:
+```bash
+# Test the runtime flake
+nix build .#mojo-runtime
+nix develop .#mojo-runtime
+```
+
+**Validation**:
+- [ ] `nix build .#mojo-runtime` succeeds
+- [ ] `nix develop .#mojo-runtime` provides working mojo command
+- [ ] `mojo --version` shows correct version (0.25.7+)
+
+---
+
+#### Phase 2: Mojo Library Flakes
+
+**Objective**: Create flakes that build the two production Mojo libraries using the runtime from Phase 1.
+
+##### Phase 2a: Pattern Search Library
+
+**File**: `nix/flakes/mojo-pattern-search/flake.nix`
+
+**Complete Implementation**:
 ```nix
-# Root flake.nix addition
+{
+  description = "Mojo-accelerated pattern search (13.1x speedup)";
+
+  inputs = {
+    nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
+    flake-utils.url = "github:numtide/flake-utils";
+    mojo-runtime = {
+      url = "path:../mojo-runtime";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, flake-utils, mojo-runtime }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+        mojoPath = mojo-runtime.lib.mojoPath;
+
+        libpattern_search = pkgs.stdenv.mkDerivation {
+          pname = "libpattern_search";
+          version = "0.1.0";
+
+          # Source from actual project location
+          src = ../../.synapse/neo4j;
+
+          buildInputs = [
+            mojo-runtime.packages.${system}.default
+          ];
+
+          buildPhase = ''
+            echo "Building pattern_search_mojo.mojo with Mojo compiler..."
+            ${mojoPath} build pattern_search_mojo.mojo -o libpattern_search.so
+
+            echo "Verifying FFI exports..."
+            ${pkgs.binutils}/bin/nm -D libpattern_search.so | grep pattern_search_ffi || {
+              echo "ERROR: FFI export 'pattern_search_ffi' not found!"
+              exit 1
+            }
+          '';
+
+          installPhase = ''
+            mkdir -p $out/lib
+            cp libpattern_search.so $out/lib/
+
+            echo "Installed to: $out/lib/libpattern_search.so"
+          '';
+
+          meta = {
+            description = "SIMD-optimized pattern search for Synapse Pattern Map";
+            performance = "13.1x speedup over Python baseline (0.62ms vs 8.12ms)";
+            homepage = "https://github.com/yourusername/synapse-system";
+          };
+        };
+
+      in {
+        packages = {
+          default = libpattern_search;
+          libpattern_search = libpattern_search;
+        };
+
+        devShells.default = pkgs.mkShell {
+          buildInputs = [
+            mojo-runtime.packages.${system}.default
+            pkgs.python312
+            pkgs.binutils  # For nm to check exports
+          ];
+
+          shellHook = ''
+            echo "🔍 Pattern Search Development Environment"
+            echo "Mojo: ${mojoPath}"
+            echo ""
+            echo "Commands:"
+            echo "  make build      - Compile pattern_search_mojo.mojo"
+            echo "  make verify     - Check FFI exports"
+            echo "  make test       - Run integration tests"
+            echo ""
+            echo "Source: .synapse/neo4j/pattern_search_mojo.mojo"
+            echo "Output: libpattern_search.so"
+
+            # Set library path for Python testing
+            export MOJO_LIB_PATH="$(pwd)/.synapse/neo4j"
+          '';
+        };
+      });
+}
+```
+
+##### Phase 2b: Message Router Library
+
+**File**: `nix/flakes/mojo-message-router/flake.nix`
+
+**Complete Implementation**:
+```nix
+{
+  description = "Mojo-accelerated cross-tract message router";
+
+  inputs = {
+    nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
+    flake-utils.url = "github:numtide/flake-utils";
+    mojo-runtime = {
+      url = "path:../mojo-runtime";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, flake-utils, mojo-runtime }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+        mojoPath = mojo-runtime.lib.mojoPath;
+
+        libmessage_router = pkgs.stdenv.mkDerivation {
+          pname = "libmessage_router";
+          version = "0.1.0";
+
+          src = ../../.synapse/corpus_callosum;
+
+          buildInputs = [
+            mojo-runtime.packages.${system}.default
+          ];
+
+          buildPhase = ''
+            echo "Building message_router.mojo with Mojo compiler..."
+            ${mojoPath} build message_router.mojo -o libmessage_router.so
+
+            echo "Verifying FFI exports..."
+            ${pkgs.binutils}/bin/nm -D libmessage_router.so | grep -E '(create_router|destroy_router|route_message_ffi)' || {
+              echo "ERROR: Expected FFI exports not found!"
+              exit 1
+            }
+          '';
+
+          installPhase = ''
+            mkdir -p $out/lib
+            cp libmessage_router.so $out/lib/
+
+            echo "Installed to: $out/lib/libmessage_router.so"
+          '';
+
+          meta = {
+            description = "SIMD-optimized message router for Corpus Callosum";
+            performance = "Target: 100x+ faster than Python ThreadPoolExecutor";
+            homepage = "https://github.com/yourusername/synapse-system";
+          };
+        };
+
+      in {
+        packages = {
+          default = libmessage_router;
+          libmessage_router = libmessage_router;
+        };
+
+        devShells.default = pkgs.mkShell {
+          buildInputs = [
+            mojo-runtime.packages.${system}.default
+            pkgs.python312
+            pkgs.binutils
+          ];
+
+          shellHook = ''
+            echo "📨 Message Router Development Environment"
+            echo "Mojo: ${mojoPath}"
+            echo ""
+            echo "Commands:"
+            echo "  make build      - Compile message_router.mojo"
+            echo "  make verify     - Check FFI exports"
+            echo "  make test       - Run unit tests"
+            echo ""
+            echo "Source: .synapse/corpus_callosum/message_router.mojo"
+            echo "Output: libmessage_router.so"
+
+            export MOJO_LIB_PATH="$(pwd)/.synapse/corpus_callosum"
+          '';
+        };
+      });
+}
+```
+
+**Build Commands**:
+```bash
+# Build both libraries
+nix build .#mojo-pattern-search
+nix build .#mojo-message-router
+
+# Or build from library-specific directories
+cd nix/flakes/mojo-pattern-search && nix build
+cd nix/flakes/mojo-message-router && nix build
+```
+
+**Validation**:
+- [ ] Both `nix build` commands succeed
+- [ ] `.so` files created with correct FFI exports (verify with `nm -D`)
+- [ ] File sizes reasonable (~15KB each)
+- [ ] No missing symbols or linker errors
+
+---
+
+#### Phase 3: Root Flake Integration
+
+**Objective**: Integrate all Mojo components into the main Synapse flake for unified builds.
+
+**File**: `flake.nix` (root - modifications)
+
+**Add to inputs section**:
+```nix
 inputs = {
-  # ... existing inputs ...
+  # ... existing inputs (nixpkgs, pip2nix, etc.) ...
+
+  # Mojo components
   mojo-runtime = {
     url = "path:./nix/flakes/mojo-runtime";
     inputs.nixpkgs.follows = "nixpkgs";
   };
+
+  mojo-pattern-search = {
+    url = "path:./nix/flakes/mojo-pattern-search";
+    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.mojo-runtime.follows = "mojo-runtime";
+  };
+
+  mojo-message-router = {
+    url = "path:./nix/flakes/mojo-message-router";
+    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.mojo-runtime.follows = "mojo-runtime";
+  };
 };
 ```
 
-**Phase 3**: Create Mojo agent flakes
+**Add to packages section**:
 ```nix
-# nix/flakes/mojo-pattern-search/flake.nix
-{
-  description = "Mojo-accelerated pattern search agent";
+packages = rec {
+  # ... existing packages ...
 
-  inputs = {
-    mojo-runtime.url = "path:../mojo-runtime";
+  # Mojo runtime and libraries
+  inherit (inputs.mojo-runtime.packages.${system}) mojo-runtime;
+  inherit (inputs.mojo-pattern-search.packages.${system}) libpattern_search;
+  inherit (inputs.mojo-message-router.packages.${system}) libmessage_router;
+
+  # Convenience package with all Mojo libraries
+  mojo-libraries = pkgs.buildEnv {
+    name = "synapse-mojo-libraries";
+    paths = [
+      inputs.mojo-pattern-search.packages.${system}.libpattern_search
+      inputs.mojo-message-router.packages.${system}.libmessage_router
+    ];
   };
 
-  outputs = { self, mojo-runtime }: {
-    packages.x86_64-linux.default =
-      # Build Mojo source to binary
-      # Package with runtime dependencies
+  # Add to default package if desired
+  default = pkgs.buildEnv {
+    name = "synapse-system";
+    paths = [
+      # ... existing paths ...
+      mojo-libraries
+    ];
   };
-}
+};
 ```
+
+**Update devShell to include Mojo**:
+```nix
+devShells.default = pkgs.mkShell {
+  buildInputs = [
+    pythonEnv
+    pip2nix.packages.${system}.default
+    inputs.mojo-runtime.packages.${system}.default  # Add Mojo compiler
+  ];
+
+  shellHook = ''
+    echo "🧠 Synapse Development Environment"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Python: $(python --version)"
+    echo "Mojo: $(mojo --version 2>&1 | head -n1 || echo 'Not available')"
+    echo ""
+    echo "Mojo libraries available:"
+    echo "  • libpattern_search.so (13.1x speedup)"
+    echo "  • libmessage_router.so (cross-tract routing)"
+    echo ""
+    echo "Commands:"
+    echo "  nix build .#mojo-libraries  - Build all Mojo components"
+    echo "  cd .synapse/neo4j && make   - Build pattern search locally"
+    echo "  synapse start               - Start Neo4j/Redis services"
+
+    # Set library path for Python to find Nix-built libraries
+    export MOJO_LIB_PATH="${inputs.mojo-pattern-search.packages.${system}.libpattern_search}/lib:${inputs.mojo-message-router.packages.${system}.libmessage_router}/lib"
+  '';
+};
+
+# Optional: Add dedicated Mojo development shell
+devShells.mojo-dev = pkgs.mkShell {
+  buildInputs = with pkgs; [
+    inputs.mojo-runtime.packages.${system}.default
+    python312
+    python312Packages.ctypes
+    gnumake
+    binutils
+    git
+  ];
+
+  shellHook = ''
+    echo "🔥 Mojo Development Environment for Synapse"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Mojo version: $(mojo --version 2>&1 | head -n1)"
+    echo ""
+    echo "Build commands:"
+    echo "  make -C .synapse/corpus_callosum  - Build message router"
+    echo "  make -C .synapse/neo4j            - Build pattern search"
+    echo "  nm -D <lib.so>                    - Check FFI exports"
+    echo ""
+    echo "Libraries:"
+    echo "  • .synapse/neo4j/libpattern_search.so"
+    echo "  • .synapse/corpus_callosum/libmessage_router.so"
+  '';
+};
+```
+
+**Build Commands**:
+```bash
+# From root directory
+nix build .#mojo-libraries          # Build all Mojo components
+nix build .#libpattern_search       # Build pattern search only
+nix build .#libmessage_router       # Build message router only
+
+nix develop                         # Standard dev shell with Mojo
+nix develop .#mojo-dev              # Dedicated Mojo dev shell
+
+nix flake check                     # Verify all flakes are valid
+```
+
+---
+
+#### Implementation Checklist
+
+**Phase 1: Mojo Runtime** (Week 1)
+- [ ] Create `nix/flakes/mojo-runtime/` directory
+- [ ] Write `flake.nix` with Mojo SDK derivation
+- [ ] Create `README.md` with usage docs
+- [ ] Test: `nix build .#mojo-runtime`
+- [ ] Test: `nix develop .#mojo-runtime` and verify `mojo --version`
+- [ ] Document any build issues/solutions
+
+**Phase 2: Library Flakes** (Week 2)
+- [ ] Create `nix/flakes/mojo-pattern-search/` directory
+- [ ] Write pattern search `flake.nix`
+- [ ] Test: `nix build .#mojo-pattern-search`
+- [ ] Verify: `nm -D result/lib/libpattern_search.so | grep pattern_search_ffi`
+- [ ] Create `nix/flakes/mojo-message-router/` directory
+- [ ] Write message router `flake.nix`
+- [ ] Test: `nix build .#mojo-message-router`
+- [ ] Verify: FFI exports present with `nm -D`
+
+**Phase 3: Root Integration** (Week 2-3)
+- [ ] Update root `flake.nix` with Mojo inputs
+- [ ] Add Mojo packages to outputs
+- [ ] Update default devShell
+- [ ] Create dedicated `mojo-dev` shell
+- [ ] Test: `nix build .#mojo-libraries`
+- [ ] Test: `nix develop` shows Mojo version
+- [ ] Test: `nix flake check` passes
+
+**Validation** (Week 3-4)
+- [ ] Python can load Nix-built libraries via ctypes
+- [ ] Pattern search maintains 13.1x speedup
+- [ ] Message router passes all unit tests
+- [ ] No performance regression vs local builds
+- [ ] Works on clean machine (reproducibility test)
+- [ ] Documentation complete and accurate
+
+---
+
+#### Python Integration with Nix-Built Libraries
+
+**Update**: `lib/runtime_adapter.py`
+
+Add library path resolution:
+```python
+import os
+from pathlib import Path
+
+def get_mojo_lib_path(lib_name: str) -> Path:
+    """Resolve Mojo library path (Nix-aware)"""
+
+    # Check if running in Nix environment
+    nix_lib_path = os.getenv('MOJO_LIB_PATH')
+    if nix_lib_path:
+        # MOJO_LIB_PATH may contain multiple paths (colon-separated)
+        for path in nix_lib_path.split(':'):
+            lib_file = Path(path) / lib_name
+            if lib_file.exists():
+                return lib_file
+
+    # Fall back to local build directory
+    local_paths = {
+        'libpattern_search.so': Path(__file__).parent.parent / '.synapse' / 'neo4j',
+        'libmessage_router.so': Path(__file__).parent.parent / '.synapse' / 'corpus_callosum',
+    }
+
+    if lib_name in local_paths:
+        return local_paths[lib_name] / lib_name
+
+    raise FileNotFoundError(f"Mojo library not found: {lib_name}")
+
+# Usage in pattern_search.py
+lib_path = get_mojo_lib_path('libpattern_search.so')
+lib = ctypes.CDLL(str(lib_path))
+```
+
+---
+
+#### Challenges and Solutions
+
+**Challenge 1: Mojo SDK Binary Distribution**
+
+**Problem**: Mojo SDK not in nixpkgs, requires proprietary binary
+
+**Solutions**:
+- ✅ **Current**: Use local Mojo installation (`/home/m0xu/.synapse-system/.venv/bin/mojo`)
+- 🔄 **Future**: Fetch from Modular servers with `fetchurl` (requires URL/hash)
+- 🔄 **Alternative**: Build minimal runtime from existing installation
+
+**Implementation**: Start with local installation (Phase 1), migrate to fetchurl after validation.
+
+**Challenge 2: Dynamic Library Dependencies**
+
+**Problem**: Mojo compiler and libraries have runtime dependencies (KGEN, LLVM, libstdc++)
+
+**Solution**: Use `autoPatchelfHook` to fix library paths:
+```nix
+buildInputs = [
+  autoPatchelfHook
+  stdenv.cc.cc.lib  # libstdc++
+  zlib
+];
+```
+
+**Challenge 3: Source Path References**
+
+**Problem**: Flakes in `nix/flakes/` need to reference source in `.synapse/`
+
+**Solution**: Use relative paths from flake location:
+```nix
+src = ../../.synapse/neo4j;  # From nix/flakes/mojo-pattern-search/
+```
+
+**Challenge 4: Multi-Architecture Support**
+
+**Problem**: Need to support x86_64-linux and potentially aarch64-linux
+
+**Solution**: Use `flake-utils.lib.eachDefaultSystem`:
+```nix
+outputs = { self, nixpkgs, flake-utils, ... }:
+  flake-utils.lib.eachDefaultSystem (system:
+    # Automatically builds for all supported systems
+  );
+```
+
+---
+
+#### Success Criteria
+
+**Build Success**:
+- ✅ `nix flake check` passes without errors
+- ✅ `nix build .#mojo-runtime` produces working Mojo compiler
+- ✅ `nix build .#mojo-pattern-search` produces valid `.so` with FFI exports
+- ✅ `nix build .#mojo-message-router` produces valid `.so` with FFI exports
+- ✅ `nix build .#mojo-libraries` bundles both libraries
+
+**Integration Success**:
+- ✅ Python loads Nix-built libraries via ctypes
+- ✅ Pattern search performs with 13.1x speedup (no regression)
+- ✅ Message router passes all unit tests
+- ✅ `MOJO_LIB_PATH` environment variable works correctly
+
+**Reproducibility Success**:
+- ✅ Clean machine can build from flake alone
+- ✅ Builds are deterministic (same hash on rebuild)
+- ✅ `nix develop` provides working environment
+- ✅ Documentation enables new contributors to build
+
+**Developer Experience Success**:
+- ✅ Clear error messages on build failures
+- ✅ Development shells have helpful prompts
+- ✅ Build times reasonable (<5 min for full build)
+- ✅ Easy to switch between local and Nix builds
+
+---
+
+#### Next Steps After Nix Integration
+
+Once Nix flakes are working (all success criteria met):
+
+1. **Update CI/CD**: Add Nix builds to GitHub Actions
+2. **Distribution**: Consider Cachix for binary caching
+3. **Documentation**: Write contributor guide for Nix workflow
+4. **Optimization**: Profile build times, optimize if needed
+5. **Multi-Arch Testing**: Validate on ARM64 if available
 
 ---
 
@@ -481,7 +1023,9 @@ After each phase, decide:
 
 ## Additional Integration Considerations
 
-### MAX Engine Deployment
+### Future Consideration: MAX Engine Deployment
+
+If the system evolves to require a general-purpose AI inference engine, the MAX Engine could be integrated as follows:
 
 **Service Architecture**:
 ```yaml
