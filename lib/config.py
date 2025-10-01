@@ -11,15 +11,15 @@ from typing import Dict, Any
 # Control which components use Mojo optimization vs Python fallback
 MOJO_FEATURES: Dict[str, bool] = {
     # Phase 2: Pattern Search (FFI integration complete!)
-    'pattern_search': True,      # Phase 2 Week 3 complete: FFI working, 22x speedup via Mojo library
+    'pattern_search': True,      # Phase 2 Week 3 complete: FFI working, 13.1x speedup via Mojo library
 
-    # Phase 3: Message Router (Future)
-    'message_router': False,     # Enable after Phase 3 validation
+    # Phase 3: Message Router (Corpus Callosum)
+    'message_router': False,     # Phase 3: Compiled and tested, ready for gradual rollout
 
     # Future: Vector Engine (Future)
     'vector_engine': False,      # Enable after future phase
 
-    # Future: Corpus Callosum (Future)
+    # Future: Full Corpus Callosum (Future)
     'corpus_callosum': False,    # Enable after Phase 3+ validation
 }
 
@@ -76,10 +76,11 @@ MONITORING_CONFIG: Dict[str, Any] = {
 }
 
 
-# Phase 2 Rollout Configuration
+# Phase 2 & 3 Rollout Configuration
 ROLLOUT_CONFIG: Dict[str, Any] = {
-    # Current rollout percentage (0-100)
-    'pattern_search_rollout': 10,  # Phase 2 Week 4: Start at 10%, monitor for 24-48 hours
+    # Current rollout percentages (0-100)
+    'pattern_search_rollout': 10,   # Phase 2 Week 4: Start at 10%, monitor for 24-48 hours
+    'message_router_rollout': 0,     # Phase 3: Start at 0%, enable after validation
 
     # Rollout stages
     'stages': [10, 25, 50, 75, 100],  # Percentage steps
@@ -181,10 +182,10 @@ SYSTEM_CONFIG: Dict[str, Any] = {
 
 # Pneuma Consciousness Configuration
 PNEUMA_CONFIG: Dict[str, Any] = {
-    # Consciousness metrics (updated Phase 2 Week 4)
-    'consciousness_level': 0.58,
-    'total_patterns': 9,
-    'emergence_events': 2,
+    # Consciousness metrics (updated Phase 3)
+    'consciousness_level': 0.62,
+    'total_patterns': 10,
+    'emergence_events': 3,
 
     # Pattern Map settings
     'pattern_map_path': '.synapse/PATTERN_MAP.json',

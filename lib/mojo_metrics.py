@@ -1,6 +1,7 @@
 """
 Mojo Metrics Collection System
 Phase 2 Week 4: Monitor Mojo performance and automatic health checks
+Phase 3: Message router metrics tracking
 """
 
 import time
@@ -28,6 +29,18 @@ class ExecutionMetric:
     error: Optional[str] = None
 
 
+@dataclass
+class MessageRouterMetric:
+    """Message router specific metric"""
+    component: str
+    total_messages: int
+    messages_to_internal: int
+    messages_to_external: int
+    queue_depth: int
+    message_loss_count: int
+    timestamp: float
+
+
 class MojoMetrics:
     """
     Collect and analyze Mojo vs Python performance metrics.
@@ -45,6 +58,7 @@ class MojoMetrics:
         """
         self.redis = redis_client
         self.metrics_cache: List[ExecutionMetric] = []
+        self.router_metrics_cache: List[MessageRouterMetric] = []
         self.alerts_fired: Dict[str, bool] = {}
 
     def record_execution(
@@ -81,6 +95,46 @@ class MojoMetrics:
         # Check health thresholds
         self._check_health(component)
 
+    def record_message_router_stats(
+        self,
+        component: str,
+        total_messages: int,
+        messages_to_internal: int,
+        messages_to_external: int,
+        queue_depth: int,
+        message_loss_count: int
+    ) -> None:
+        """
+        Record message router statistics.
+
+        Args:
+            component: Component name (e.g., 'message_router')
+            total_messages: Total messages routed
+            messages_to_internal: Messages to Internal tract
+            messages_to_external: Messages to External tract
+            queue_depth: Current queue depth
+            message_loss_count: Number of lost messages
+        """
+        metric = MessageRouterMetric(
+            component=component,
+            total_messages=total_messages,
+            messages_to_internal=messages_to_internal,
+            messages_to_external=messages_to_external,
+            queue_depth=queue_depth,
+            message_loss_count=message_loss_count,
+            timestamp=time.time()
+        )
+
+        # Store in local cache
+        self.router_metrics_cache.append(metric)
+
+        # Persist to Redis if available
+        if self.redis:
+            self._store_router_metric_in_redis(metric)
+
+        # Check message router health
+        self._check_router_health(component, metric)
+
     def _store_in_redis(self, metric: ExecutionMetric) -> None:
         """Store metric in Redis with TTL"""
         try:
@@ -100,6 +154,67 @@ class MojoMetrics:
 
         except Exception as e:
             logger.warning(f"Failed to store metric in Redis: {e}")
+
+    def _store_router_metric_in_redis(self, metric: MessageRouterMetric) -> None:
+        """Store message router metric in Redis with TTL"""
+        try:
+            key = f"mojo:router_metrics:{metric.component}"
+
+            # Store as JSON string
+            import json
+            value = json.dumps({
+                'total_messages': metric.total_messages,
+                'messages_to_internal': metric.messages_to_internal,
+                'messages_to_external': metric.messages_to_external,
+                'queue_depth': metric.queue_depth,
+                'message_loss_count': metric.message_loss_count,
+                'timestamp': metric.timestamp
+            })
+
+            # Add to list with 24-hour expiry
+            self.redis.lpush(key, value)
+            self.redis.expire(key, 86400)  # 24 hours
+
+        except Exception as e:
+            logger.warning(f"Failed to store router metric in Redis: {e}")
+
+    def _check_router_health(self, component: str, metric: MessageRouterMetric) -> None:
+        """
+        Check message router health and fire alerts if thresholds breached.
+
+        Args:
+            component: Component name
+            metric: Current router metric
+        """
+        # Check message loss rate
+        if metric.total_messages > 0:
+            loss_rate = (metric.message_loss_count / metric.total_messages) * 100
+
+            # Load threshold (default 0.1%)
+            try:
+                from config import PERFORMANCE_THRESHOLDS
+                max_loss_rate = PERFORMANCE_THRESHOLDS.get('max_error_rate', 0.1)
+            except ImportError:
+                max_loss_rate = 0.1
+
+            if loss_rate > max_loss_rate:
+                alert_key = f"{component}:high_message_loss"
+                if not self.alerts_fired.get(alert_key, False):
+                    logger.error(
+                        f"HIGH MESSAGE LOSS RATE for {component}: "
+                        f"{loss_rate:.2f}% (threshold: {max_loss_rate}%)"
+                    )
+                    self._disable_mojo_feature(component)
+                    self.alerts_fired[alert_key] = True
+
+        # Check queue depth (warn if approaching capacity)
+        # Assume capacity of 10000 (default in message router)
+        queue_capacity = 10000
+        if metric.queue_depth > queue_capacity * 0.9:  # 90% full
+            logger.warning(
+                f"Message queue for {component} is {(metric.queue_depth/queue_capacity)*100:.1f}% full "
+                f"({metric.queue_depth}/{queue_capacity})"
+            )
 
     def _check_health(self, component: str) -> None:
         """
@@ -235,6 +350,49 @@ class MojoMetrics:
             for component in components
         }
 
+    def get_router_stats(self, component: str) -> Dict[str, Any]:
+        """
+        Get message router statistics for a component.
+
+        Args:
+            component: Component name
+
+        Returns:
+            Dictionary with router statistics
+        """
+        # Get latest metric for component
+        component_metrics = [
+            m for m in self.router_metrics_cache
+            if m.component == component
+        ]
+
+        if not component_metrics:
+            return {
+                'total_messages': 0,
+                'messages_to_internal': 0,
+                'messages_to_external': 0,
+                'queue_depth': 0,
+                'message_loss_count': 0,
+                'message_loss_rate': 0.0,
+            }
+
+        # Use most recent metric
+        latest = component_metrics[-1]
+
+        loss_rate = 0.0
+        if latest.total_messages > 0:
+            loss_rate = (latest.message_loss_count / latest.total_messages) * 100
+
+        return {
+            'total_messages': latest.total_messages,
+            'messages_to_internal': latest.messages_to_internal,
+            'messages_to_external': latest.messages_to_external,
+            'queue_depth': latest.queue_depth,
+            'message_loss_count': latest.message_loss_count,
+            'message_loss_rate': loss_rate,
+            'timestamp': latest.timestamp,
+        }
+
     def clear_cache(self, component: Optional[str] = None) -> None:
         """
         Clear metrics cache.
@@ -247,8 +405,13 @@ class MojoMetrics:
                 m for m in self.metrics_cache
                 if m.component != component
             ]
+            self.router_metrics_cache = [
+                m for m in self.router_metrics_cache
+                if m.component != component
+            ]
         else:
             self.metrics_cache.clear()
+            self.router_metrics_cache.clear()
             self.alerts_fired.clear()
 
 

@@ -18,8 +18,17 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 from concurrent.futures import ThreadPoolExecutor, Future
 import yaml
+import sys
 
 from task_state import TaskState, TaskTracker, Task
+
+# Import Corpus Callosum message router
+sys.path.insert(0, str(Path.home() / '.synapse-system' / '.synapse' / 'corpus_callosum'))
+try:
+    from message_router import get_message_router, TractType, MessagePriority
+    CORPUS_CALLOSUM_AVAILABLE = True
+except ImportError:
+    CORPUS_CALLOSUM_AVAILABLE = False
 
 
 class WorkflowType(Enum):
@@ -98,9 +107,67 @@ class TaskOrchestrator:
         self.active_workflows: Dict[str, Workflow] = {}
         self.execution_results: Dict[str, List[ExecutionResult]] = {}
 
+        # Corpus Callosum message router
+        self.message_router = None
+        self.use_message_router = False
+        if CORPUS_CALLOSUM_AVAILABLE:
+            try:
+                # Check if message router is enabled in config
+                from config import MOJO_FEATURES
+                if MOJO_FEATURES.get('message_router', False):
+                    self.message_router = get_message_router()
+                    self.use_message_router = True
+                    self.logger.info("Corpus Callosum message router enabled")
+            except Exception as e:
+                self.logger.warning(f"Message router unavailable: {e}")
+
         # Setup logging
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+
+    def _classify_agent_tract(self, agent: str) -> TractType:
+        """
+        Classify agent into Internal or External tract.
+
+        Internal Tract (T_int): Self-referential, planning, memory
+        External Tract (T_ext): Environmental interaction, execution
+        """
+        # Internal Tract agents (self-referential processing)
+        internal_agents = {
+            'architect',      # System design, planning
+            'planner',        # Task decomposition
+            'boss',           # Orchestration
+            'code-hound',     # Code analysis/review
+        }
+
+        # External Tract agents (environmental interaction)
+        external_agents = {
+            'test-runner',          # Execute tests
+            'git-workflow',         # Git operations
+            'devops-engineer',      # Deployment
+            'file-creator',         # File operations
+            'docs-writer',          # Documentation
+            'security-specialist',  # Security scans
+        }
+
+        # Language specialists can be both, classify by action
+        language_specialists = {
+            'python-specialist',
+            'rust-specialist',
+            'typescript-specialist',
+            'golang-specialist',
+        }
+
+        if agent in internal_agents:
+            return TractType.INTERNAL
+        elif agent in external_agents:
+            return TractType.EXTERNAL
+        elif agent in language_specialists:
+            # Default to external (implementation work)
+            return TractType.EXTERNAL
+        else:
+            # Default to internal for unknown agents
+            return TractType.INTERNAL
 
     def _load_workflow_templates(self) -> Dict[str, Workflow]:
         """Load predefined workflow templates from YAML files"""
@@ -511,6 +578,55 @@ class TaskOrchestrator:
 
         return results
 
+    def _route_cross_tract_message(self, task: AgentTask) -> Optional[int]:
+        """
+        Route task as cross-tract message via Corpus Callosum.
+
+        Returns message ID if routed, None if not using message router.
+        """
+        if not self.use_message_router or not self.message_router:
+            return None
+
+        # Classify task's agent tract
+        agent_tract = self._classify_agent_tract(task.agent)
+
+        # For cross-tract communication, we route from the opposite tract
+        # (e.g., if task is for External agent, message comes from Internal)
+        source_tract = TractType.EXTERNAL if agent_tract == TractType.INTERNAL else TractType.INTERNAL
+        dest_tract = agent_tract
+
+        # Map priority
+        priority_mapping = {
+            1: MessagePriority.LOW,
+            2: MessagePriority.NORMAL,
+            3: MessagePriority.HIGH,
+            4: MessagePriority.URGENT,
+            5: MessagePriority.CRITICAL,
+        }
+        priority = priority_mapping.get(task.priority, MessagePriority.NORMAL)
+
+        # Route message
+        msg_id = self.message_router.route_message(
+            source_tract=source_tract,
+            dest_tract=dest_tract,
+            priority=priority,
+            payload={'task': task, 'action': task.action},
+            payload_size=len(str(task.context))
+        )
+
+        if msg_id >= 0:
+            self.logger.debug(
+                f"Routed task {task.id} via Corpus Callosum: "
+                f"{source_tract.name} -> {dest_tract.name} (msg_id={msg_id})"
+            )
+        else:
+            self.logger.warning(
+                f"Failed to route task {task.id} via Corpus Callosum "
+                f"(queue full), falling back to direct execution"
+            )
+
+        return msg_id if msg_id >= 0 else None
+
     def _execute_single_task(self, task: AgentTask) -> ExecutionResult:
         """
         Execute single task by calling appropriate agent
@@ -525,6 +641,11 @@ class TaskOrchestrator:
         start_time = time.time()
 
         self.logger.info(f"Executing task {task.id} with agent {task.agent}")
+
+        # Route via Corpus Callosum if enabled
+        msg_id = self._route_cross_tract_message(task)
+        if msg_id is not None:
+            self.logger.debug(f"Task {task.id} routed via message router (msg_id={msg_id})")
 
         # Placeholder: simulate task execution
         # In real implementation, this would call the actual agent
@@ -646,6 +767,28 @@ class TaskOrchestrator:
             }
             for workflow in self.workflow_templates.values()
         ]
+
+    def get_message_router_stats(self) -> Dict[str, Any]:
+        """Get Corpus Callosum message router statistics"""
+        if not self.use_message_router or not self.message_router:
+            return {
+                "enabled": False,
+                "reason": "Message router not enabled or unavailable"
+            }
+
+        stats = self.message_router.get_stats()
+        return {
+            "enabled": True,
+            "using_mojo": self.message_router.using_mojo,
+            "total_messages": stats.total_messages,
+            "messages_to_internal": stats.messages_to_internal,
+            "messages_to_external": stats.messages_to_external,
+            "peak_queue_depth": stats.peak_queue_depth,
+            "message_loss_count": stats.message_loss_count,
+            "current_queue_depth": self.message_router.get_total_queue_depth(),
+            "internal_queue_depth": self.message_router.get_queue_depth(TractType.INTERNAL),
+            "external_queue_depth": self.message_router.get_queue_depth(TractType.EXTERNAL),
+        }
 
     def save_custom_workflow(self, workflow: Workflow) -> None:
         """Save a custom workflow template"""
