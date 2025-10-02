@@ -7,14 +7,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/architect",
-        "type": "path"
+        "dir": "nix/flakes/architect",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/architect",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/architect",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "base-agent": {
       "inputs": {
@@ -24,14 +30,20 @@
         "permissions": "permissions"
       },
       "locked": {
-        "path": "./nix/flakes/base-agent",
-        "type": "path"
+        "dir": "nix/flakes/base-agent",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/base-agent",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/base-agent",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "boss": {
       "inputs": {
@@ -40,14 +52,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/boss",
-        "type": "path"
+        "dir": "nix/flakes/boss",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/boss",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/boss",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "clarity-judge": {
       "inputs": {
@@ -56,14 +74,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/clarity-judge",
-        "type": "path"
+        "dir": "nix/flakes/clarity-judge",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/clarity-judge",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/clarity-judge",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "code-hound": {
       "inputs": {
@@ -72,14 +96,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/code-hound",
-        "type": "path"
+        "dir": "nix/flakes/code-hound",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/code-hound",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/code-hound",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "devops-engineer": {
       "inputs": {
@@ -88,14 +118,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/devops-engineer",
-        "type": "path"
+        "dir": "nix/flakes/devops-engineer",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/devops-engineer",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/devops-engineer",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "docs-writer": {
       "inputs": {
@@ -104,14 +140,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/docs-writer",
-        "type": "path"
+        "dir": "nix/flakes/docs-writer",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/docs-writer",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/docs-writer",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "file-creator": {
       "inputs": {
@@ -120,14 +162,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/file-creator",
-        "type": "path"
+        "dir": "nix/flakes/file-creator",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/file-creator",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/file-creator",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "flake-utils": {
       "inputs": {
@@ -201,6 +249,24 @@
         "type": "github"
       }
     },
+    "flake-utils_5": {
+      "inputs": {
+        "systems": "systems_5"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "git-workflow": {
       "inputs": {
         "nixpkgs": [
@@ -208,14 +274,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/git-workflow",
-        "type": "path"
+        "dir": "nix/flakes/git-workflow",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/git-workflow",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/git-workflow",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "golang-specialist": {
       "inputs": {
@@ -224,36 +296,45 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/golang-specialist",
-        "type": "path"
+        "dir": "nix/flakes/golang-specialist",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/golang-specialist",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/golang-specialist",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
-    "mojo-message-router": {
+    "lean4-verification": {
       "inputs": {
         "flake-utils": "flake-utils_2",
-        "mojo-runtime": [
-          "mojo-runtime"
-        ],
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "path": "./nix/flakes/mojo-message-router",
-        "type": "path"
+        "dir": "nix/flakes/lean4-verification",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/mojo-message-router",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/lean4-verification",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
-    "mojo-pattern-search": {
+    "mojo-message-router": {
       "inputs": {
         "flake-utils": "flake-utils_3",
         "mojo-runtime": [
@@ -264,31 +345,69 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/mojo-pattern-search",
-        "type": "path"
+        "dir": "nix/flakes/mojo-message-router",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/mojo-pattern-search",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/mojo-message-router",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
-    "mojo-runtime": {
+    "mojo-pattern-search": {
       "inputs": {
         "flake-utils": "flake-utils_4",
+        "mojo-runtime": [
+          "mojo-runtime"
+        ],
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "path": "./nix/flakes/mojo-runtime",
-        "type": "path"
+        "dir": "nix/flakes/mojo-pattern-search",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/mojo-runtime",
-        "type": "path"
+        "dir": "nix/flakes/mojo-pattern-search",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
+    },
+    "mojo-runtime": {
+      "inputs": {
+        "flake-utils": "flake-utils_5",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
-      "parent": []
+      "locked": {
+        "dir": "nix/flakes/mojo-runtime",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
+      },
+      "original": {
+        "dir": "nix/flakes/mojo-runtime",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "nixpkgs": {
       "locked": {
@@ -353,14 +472,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/pneuma",
-        "type": "path"
+        "dir": "nix/flakes/pneuma",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/pneuma",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/pneuma",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "python-specialist": {
       "inputs": {
@@ -369,14 +494,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/python-specialist",
-        "type": "path"
+        "dir": "nix/flakes/python-specialist",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/python-specialist",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/python-specialist",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "root": {
       "inputs": {
@@ -391,6 +522,7 @@
         "flake-utils": "flake-utils",
         "git-workflow": "git-workflow",
         "golang-specialist": "golang-specialist",
+        "lean4-verification": "lean4-verification",
         "mojo-message-router": "mojo-message-router",
         "mojo-pattern-search": "mojo-pattern-search",
         "mojo-runtime": "mojo-runtime",
@@ -413,14 +545,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/rust-specialist",
-        "type": "path"
+        "dir": "nix/flakes/rust-specialist",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/rust-specialist",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/rust-specialist",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "security-specialist": {
       "inputs": {
@@ -429,14 +567,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/security-specialist",
-        "type": "path"
+        "dir": "nix/flakes/security-specialist",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/security-specialist",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/security-specialist",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "systems": {
       "locked": {
@@ -498,6 +642,21 @@
         "type": "github"
       }
     },
+    "systems_5": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
     "test-runner": {
       "inputs": {
         "nixpkgs": [
@@ -505,14 +664,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/test-runner",
-        "type": "path"
+        "dir": "nix/flakes/test-runner",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/test-runner",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/test-runner",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "tool-runner": {
       "inputs": {
@@ -521,14 +686,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/tool-runner",
-        "type": "path"
+        "dir": "nix/flakes/tool-runner",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/tool-runner",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/tool-runner",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "typescript-specialist": {
       "inputs": {
@@ -537,14 +708,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/typescript-specialist",
-        "type": "path"
+        "dir": "nix/flakes/typescript-specialist",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/typescript-specialist",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/typescript-specialist",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "ux-designer": {
       "inputs": {
@@ -553,14 +730,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/ux-designer",
-        "type": "path"
+        "dir": "nix/flakes/ux-designer",
+        "lastModified": 1759398701,
+        "narHash": "sha256-PAj8PURIkFBIGBn9AKYzIM+AvVYWBdoVXRldRn4tsZQ=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "a6aa1d667a26af739a8b7ac4751f621db8cf7c66",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/ux-designer",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/ux-designer",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     }
   },
   "root": "root",
