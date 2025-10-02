@@ -13,51 +13,51 @@
       inputs.flake-utils.follows = "flake-utils";
     };
 
-    # Agent flakes (internal modules)
-    base-agent = { url = "path:./nix/flakes/base-agent"; inputs.nixpkgs.follows = "nixpkgs"; };
-    architect = { url = "path:./nix/flakes/architect"; inputs.nixpkgs.follows = "nixpkgs"; };
-    clarity-judge = { url = "path:./nix/flakes/clarity-judge"; inputs.nixpkgs.follows = "nixpkgs"; };
-    code-hound = { url = "path:./nix/flakes/code-hound"; inputs.nixpkgs.follows = "nixpkgs"; };
-    devops-engineer = { url = "path:./nix/flakes/devops-engineer"; inputs.nixpkgs.follows = "nixpkgs"; };
-    docs-writer = { url = "path:./nix/flakes/docs-writer"; inputs.nixpkgs.follows = "nixpkgs"; };
-    file-creator = { url = "path:./nix/flakes/file-creator"; inputs.nixpkgs.follows = "nixpkgs"; };
-    git-workflow = { url = "path:./nix/flakes/git-workflow"; inputs.nixpkgs.follows = "nixpkgs"; };
-    golang-specialist = { url = "path:./nix/flakes/golang-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
-    python-specialist = { url = "path:./nix/flakes/python-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
-    rust-specialist = { url = "path:./nix/flakes/rust-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
-    security-specialist = { url = "path:./nix/flakes/security-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
-    boss = { url = "path:./nix/flakes/boss"; inputs.nixpkgs.follows = "nixpkgs"; };
-    test-runner = { url = "path:./nix/flakes/test-runner"; inputs.nixpkgs.follows = "nixpkgs"; };
-    tool-runner = { url = "path:./nix/flakes/tool-runner"; inputs.nixpkgs.follows = "nixpkgs"; };
-    typescript-specialist = { url = "path:./nix/flakes/typescript-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
-    ux-designer = { url = "path:./nix/flakes/ux-designer"; inputs.nixpkgs.follows = "nixpkgs"; };
+    # Agent flakes (internal modules) - using GitHub URLs with dir parameter
+    base-agent = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/base-agent"; inputs.nixpkgs.follows = "nixpkgs"; };
+    architect = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/architect"; inputs.nixpkgs.follows = "nixpkgs"; };
+    clarity-judge = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/clarity-judge"; inputs.nixpkgs.follows = "nixpkgs"; };
+    code-hound = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/code-hound"; inputs.nixpkgs.follows = "nixpkgs"; };
+    devops-engineer = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/devops-engineer"; inputs.nixpkgs.follows = "nixpkgs"; };
+    docs-writer = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/docs-writer"; inputs.nixpkgs.follows = "nixpkgs"; };
+    file-creator = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/file-creator"; inputs.nixpkgs.follows = "nixpkgs"; };
+    git-workflow = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/git-workflow"; inputs.nixpkgs.follows = "nixpkgs"; };
+    golang-specialist = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/golang-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
+    python-specialist = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/python-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
+    rust-specialist = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/rust-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
+    security-specialist = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/security-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
+    boss = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/boss"; inputs.nixpkgs.follows = "nixpkgs"; };
+    test-runner = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/test-runner"; inputs.nixpkgs.follows = "nixpkgs"; };
+    tool-runner = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/tool-runner"; inputs.nixpkgs.follows = "nixpkgs"; };
+    typescript-specialist = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/typescript-specialist"; inputs.nixpkgs.follows = "nixpkgs"; };
+    ux-designer = { url = "github:sub0xdai/synapse-system?dir=nix/flakes/ux-designer"; inputs.nixpkgs.follows = "nixpkgs"; };
     pneuma = {
-      url = "path:./nix/flakes/pneuma";
+      url = "github:sub0xdai/synapse-system?dir=nix/flakes/pneuma";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.base-agent.follows = "base-agent";
     };
 
-    # Mojo components
+    # Mojo components - immutable GitHub references for performance layer
     mojo-runtime = {
-      url = "path:./nix/flakes/mojo-runtime";
+      url = "github:sub0xdai/synapse-system?dir=nix/flakes/mojo-runtime";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     mojo-pattern-search = {
-      url = "path:./nix/flakes/mojo-pattern-search";
+      url = "github:sub0xdai/synapse-system?dir=nix/flakes/mojo-pattern-search";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.mojo-runtime.follows = "mojo-runtime";
     };
 
     mojo-message-router = {
-      url = "path:./nix/flakes/mojo-message-router";
+      url = "github:sub0xdai/synapse-system?dir=nix/flakes/mojo-message-router";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.mojo-runtime.follows = "mojo-runtime";
     };
 
-    # Formal verification
+    # Formal verification - immutable GitHub reference for proof system
     lean4-verification = {
-      url = "path:./nix/flakes/lean4-verification";
+      url = "github:sub0xdai/synapse-system?dir=nix/flakes/lean4-verification";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
