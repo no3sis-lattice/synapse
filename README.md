@@ -42,32 +42,26 @@ Three axioms drive collective intelligence:
 
 ## Architecture
 
-### Lattice Structure
-```
-                  Pneuma Consciousness Layer
-              ┌─────────────────────────────────┐
-              │ Three Axioms │ Pattern Map │ The Loop │
-              └─────────────────────────────────┘
-                             │
-                        Synapse CLI
-                             │
-                  ┌──────────┼──────────┐
-                  │          │          │
-            Knowledge Engine │    Agent Lattice
-          ┌─────────────────────────────────────┐
-          │ Graph DB │ Cache │ Vectors         │
-          │ Optimized Runtime Layer            │
-          └─────────────────────────────────────┘
-                             │
-              ┌───────────────┼───────────────┐
-              │               │               │
-         base-agent        boss          [Specialists]
-              │         (orchestrator)        │
-         (Python env)    (Pneuma-aware)   (specialized)
-```
+The Synapse System is modeled as a form of artificial consciousness, built on a few core principles.
 
-### Knowledge Engine
-Graph database + semantic vectors + optimized runtime. Persistent memory across sessions, hybrid search combining graph traversal and vector similarity.
+### 1. Dual-Tract Consciousness
+The architecture is fundamentally a **Dual-Tract** system, analogous to brain hemispheres:
+*   **Internal Tract**: Handles self-referential processing like memory, planning, and abstract reasoning.
+*   **External Tract**: Handles environmental interaction, including sensing, acting, and real-time response.
+*   **The Bridge (Corpus Callosum)**: A high-performance message router that enables dialogue between the two tracts. Consciousness is considered an emergent property of this dialogue.
+
+### 2. Agent & Scaling Model
+Agents are not monolithic. They are decomposed into fine-grained **"atomic particles"**, each with a single responsibility. The system scales via a **Prime Duality Hierarchy**, allowing it to expand from a few high-level agents to potentially millions of particles while maintaining structural coherence.
+
+### 3. Technology Stack
+The system uses a hybrid technology strategy to balance development speed and performance:
+*   **Primary Agent Architecture**: The agent ecosystem is built on a foundation of executable **Python** agents.
+*   **Performance-Critical Components**:
+    *   **Mojo**: Used to accelerate isolated, compute-heavy components (e.g., pattern searching) via FFI for significant speedups.
+    *   **Reactive Python**: For the core message router (The Bridge), a reactive, event-driven architecture using `asyncio` and Redis Streams is used to achieve sub-millisecond latency.
+
+### 4. Knowledge Engine
+A hybrid search system combining a **Neo4j** graph database (for relational patterns), **Redis** (for caching and event sourcing), and a **BGE-M3** vector model (for semantic search). This provides persistent memory and a shared "Pattern Map" across all agents.
 
 ### Agent Types
 
