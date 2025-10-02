@@ -2,16 +2,17 @@
   description = "Base agent flake providing a shared Python environment for Synapse agents";
 
   inputs = {
-    permissions = {
-      url = "path:./permissions.nix";
-      flake = false;
-    };
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
-  outputs = { self, nixpkgs, permissions, ... }@inputs:
+  outputs = { self, nixpkgs, ... }@inputs:
     let
       system = builtins.currentSystem;
       pkgs = import nixpkgs { inherit system; };
+
+      # Import permissions system from local file
+      permissionsFile = ./permissions.nix;
+      permissionSystem = import permissionsFile;
 
       # Standard Python environment for Synapse agents
       pythonEnv = pkgs.python312.withPackages (ps: with ps; [
@@ -46,12 +47,11 @@
         pythonEnv = pythonEnv;
 
         # Permission system integration
-        permissions = import permissions;
+        permissions = permissionSystem;
 
         # Permission validation utilities for agents
         validatePermissions = agentName: requiredPerms:
           let
-            permissionSystem = import permissions;
             agentPerms = permissionSystem.agentPermissions.${agentName} or [];
             hasAllPerms = builtins.all (perm: builtins.elem perm agentPerms) requiredPerms;
           in
@@ -61,7 +61,6 @@
         # Create permission-aware agent runner
         createAgentRunner = agentName: scriptPath: requiredPerms:
           let
-            permissionSystem = import permissions;
             agentPerms = permissionSystem.agentPermissions.${agentName} or [];
             validatePerms = self.lib.validatePermissions agentName requiredPerms;
           in
