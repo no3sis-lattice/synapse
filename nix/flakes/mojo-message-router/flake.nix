@@ -14,7 +14,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        mojoPath = mojo-runtime.lib.mojoPath;
+        mojoPath = mojo-runtime.lib.mojoPath system;
 
         libmessage_router = pkgs.stdenv.mkDerivation {
           pname = "libmessage_router";

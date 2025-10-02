@@ -54,6 +54,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.mojo-runtime.follows = "mojo-runtime";
     };
+
+    # Formal verification
+    lean4-verification = {
+      url = "path:./nix/flakes/lean4-verification";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, flake-utils, pip2nix, ... }@inputs:
@@ -61,6 +67,7 @@
       let
         pkgs = import nixpkgs {
           inherit system;
+          config.allowUnfree = true;
         };
 
         pythonEnv = pkgs.python3.withPackages (ps: with ps; [
@@ -95,9 +102,15 @@
           inherit (inputs.pneuma.packages.${system}) Pneuma;
 
           # Mojo runtime and libraries
-          inherit (inputs.mojo-runtime.packages.${system}) mojo-runtime;
+          mojo-runtime = inputs.mojo-runtime.packages.${system}.mojo;
           inherit (inputs.mojo-pattern-search.packages.${system}) libpattern_search;
           inherit (inputs.mojo-message-router.packages.${system}) libmessage_router;
+
+          # Lean4 formal verification
+          inherit (inputs.lean4-verification.packages.${system}) lean4-verification;
+          lean4-verification-test = inputs.lean4-verification.packages.${system}.lean4-verification-test;
+          lean4-verification-docs = inputs.lean4-verification.packages.${system}.lean4-verification-docs;
+          lean = inputs.lean4-verification.packages.${system}.lean;
 
           # Convenience package with all Mojo libraries
           mojo-libraries = pkgs.buildEnv {
@@ -114,6 +127,7 @@
             pythonEnv
             pip2nix.packages.${system}.default
             inputs.mojo-runtime.packages.${system}.default
+            inputs.lean4-verification.packages.${system}.lean
           ];
           packages = with pkgs; [
             bashInteractive
@@ -126,15 +140,22 @@
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "Python: $(python --version)"
             echo "Mojo: $(mojo --version 2>&1 | head -n1 || echo 'Not available')"
+            echo "Lean4: $(lean --version 2>&1 | head -n1 || echo 'Not available')"
             echo ""
             echo "Mojo libraries available:"
             echo "  • libpattern_search.so (13.1x speedup)"
             echo "  • libmessage_router.so (cross-tract routing)"
             echo ""
+            echo "Formal verification available:"
+            echo "  • Lean4 dual-tract proofs (formal/lean4/)"
+            echo "  • Corpus Callosum adjunction theorem"
+            echo ""
             echo "Commands:"
-            echo "  nix build .#mojo-libraries  - Build all Mojo components"
-            echo "  cd .synapse/neo4j && make   - Build pattern search locally"
-            echo "  synapse start               - Start Neo4j/Redis services"
+            echo "  nix build .#mojo-libraries         - Build all Mojo components"
+            echo "  nix run .#lean4-verification-test  - Run formal verification"
+            echo "  cd formal/lean4 && lake build      - Build Lean4 locally"
+            echo "  cd .synapse/neo4j && make          - Build pattern search locally"
+            echo "  synapse start                      - Start Neo4j/Redis services"
 
             # Set library path for Python to find Nix-built libraries
             export MOJO_LIB_PATH="${inputs.mojo-pattern-search.packages.${system}.libpattern_search}/lib:${inputs.mojo-message-router.packages.${system}.libmessage_router}/lib"
@@ -167,7 +188,17 @@
           '';
         };
 
+        devShells.lean4-dev = inputs.lean4-verification.devShells.${system}.default;
+
         defaultPackage = self.devShells.${system}.default;
+
+        # CI/CD checks
+        checks = {
+          # Existing checks...
+
+          # Add Lean4 verification check
+          lean4-verification = inputs.lean4-verification.packages.${system}.lean4-verification-test;
+        };
       }
     );
 }

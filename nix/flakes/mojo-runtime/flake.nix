@@ -7,7 +7,7 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+    (flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
 
@@ -20,20 +20,40 @@
           version = mojoVersion;
 
           # Use existing local installation
-          src = /home/m0xu/.synapse-system/.venv/bin;
+          src = /home/m0xu/.synapse-system/.venv;
 
-          buildInputs = with pkgs; [
+          nativeBuildInputs = with pkgs; [
             autoPatchelfHook
-            stdenv.cc.cc.lib
-            zlib
+            makeWrapper
           ];
 
+          buildInputs = with pkgs; [
+            stdenv.cc.cc.lib
+            zlib
+            python312
+          ];
+
+          dontUnpack = true;
           dontBuild = true;
 
           installPhase = ''
             mkdir -p $out/bin
-            cp -r $src/mojo $out/bin/
+            mkdir -p $out/lib/python3.12/site-packages
+
+            # Copy mojo binary
+            cp -r $src/bin/mojo $out/bin/
             chmod +x $out/bin/mojo
+
+            # Copy mojo Python package
+            cp -r $src/lib/python3.12/site-packages/mojo* $out/lib/python3.12/site-packages/
+          '';
+
+          # Fix interpreter paths and PYTHONPATH
+          postFixup = ''
+            patchShebangs $out/bin/mojo
+            wrapProgram $out/bin/mojo \
+              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.python312 ]} \
+              --prefix PYTHONPATH : $out/lib/python3.12/site-packages
           '';
 
           meta = with pkgs.lib; {
@@ -50,11 +70,6 @@
           mojo = mojoRuntime;
         };
 
-        # Expose mojo path for dependent flakes
-        lib = {
-          mojoPath = "${mojoRuntime}/bin/mojo";
-        };
-
         devShells.default = pkgs.mkShell {
           buildInputs = [ mojoRuntime ];
 
@@ -68,5 +83,10 @@
             echo "  mojo build <file> - Compile Mojo to binary/library"
           '';
         };
-      });
+      })) // {
+      # Expose lib at top level (not system-specific)
+      lib = {
+        mojoPath = system: "${self.packages.${system}.default}/bin/mojo";
+      };
+    };
 }

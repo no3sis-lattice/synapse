@@ -14,7 +14,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        mojoPath = mojo-runtime.lib.mojoPath;
+        mojoPath = mojo-runtime.lib.mojoPath system;
 
         libpattern_search = pkgs.stdenv.mkDerivation {
           pname = "libpattern_search";

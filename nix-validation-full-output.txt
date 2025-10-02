@@ -1,0 +1,385 @@
+[0;34mℹ[0m Nix version: nix (Nix) 2.31.2
+
+[0;34m═══════════════════════════════════════════════════════════[0m
+[0;34mPHASE 1: Mojo Runtime Foundation[0m
+[0;34m═══════════════════════════════════════════════════════════[0m
+
+[1;33m[TEST 1][0m nix build .#mojo-runtime
+warning: Git tree '/home/m0xu/.synapse-system' is dirty
+error: attribute 'mojo-runtime' missing
+       at /nix/store/6aggh94xwash6p22l03mcaqwjry9qyv5-source/flake.nix:98:60:
+           97|           # Mojo runtime and libraries
+           98|           inherit (inputs.mojo-runtime.packages.${system}) mojo-runtime;
+             |                                                            ^
+           99|           inherit (inputs.mojo-pattern-search.packages.${system}) libpattern_search;
+[0;32m✓ PASS[0m: mojo-runtime builds successfully
+[1;33m[TEST 2][0m nix develop .#mojo-runtime --command mojo --version
+warning: Git tree '/home/m0xu/.synapse-system' is dirty
+error: attribute 'mojo-runtime' missing
+       at /nix/store/6aggh94xwash6p22l03mcaqwjry9qyv5-source/flake.nix:98:60:
+           97|           # Mojo runtime and libraries
+           98|           inherit (inputs.mojo-runtime.packages.${system}) mojo-runtime;
+             |                                                            ^
+           99|           inherit (inputs.mojo-pattern-search.packages.${system}) libpattern_search;
+[0;32m✓ PASS[0m: mojo-runtime dev shell works and mojo is accessible
+[1;33m[TEST 3][0m Verify mojo executable in build output
+[0;31m✗ FAIL[0m: mojo executable not found or not executable
+
+[0;34m═══════════════════════════════════════════════════════════[0m
+[0;34mPHASE 2: Library Flakes[0m
+[0;34m═══════════════════════════════════════════════════════════[0m
+
+[1;33m[TEST 4][0m nix build path:./nix/flakes/mojo-pattern-search
+warning: Git tree '/home/m0xu/.synapse-system' is dirty
+unpacking 'github:meta-introspector/nixpkgs/26833ad1dad83826ef7cc52e0009ca9b7097c79f' into the Git cache...
+warning: creating lock file "/home/m0xu/.synapse-system/nix/flakes/mojo-pattern-search/flake.lock": 
+• Added input 'flake-utils':
+    'github:numtide/flake-utils/11707dc2f618dd54ca8739b309ec4fc024de578b?narHash=sha256-l0KFg5HjrsfsO/JpG%2Br7fRrqm12kzFHyUHqHCVpMMbI%3D' (2024-11-13)
+• Added input 'flake-utils/systems':
+    'github:nix-systems/default/da67096a3b9bf56a91d16901293e51ba5b49a27e?narHash=sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768%3D' (2023-04-09)
+• Added input 'mojo-runtime':
+    'path:../mojo-runtime'
+• Added input 'mojo-runtime/flake-utils':
+    'github:numtide/flake-utils/11707dc2f618dd54ca8739b309ec4fc024de578b?narHash=sha256-l0KFg5HjrsfsO/JpG%2Br7fRrqm12kzFHyUHqHCVpMMbI%3D' (2024-11-13)
+• Added input 'mojo-runtime/flake-utils/systems':
+    'github:nix-systems/default/da67096a3b9bf56a91d16901293e51ba5b49a27e?narHash=sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768%3D' (2023-04-09)
+• Added input 'mojo-runtime/nixpkgs':
+    follows 'nixpkgs'
+• Added input 'nixpkgs':
+    'github:meta-introspector/nixpkgs/26833ad1dad83826ef7cc52e0009ca9b7097c79f?narHash=sha256-1Z0KAfbySsHu/IoZbBJLrPgs3IqQGup0T8J9S1ffAkE%3D' (2025-09-15)
+error:
+       … while calling the 'derivationStrict' builtin
+         at <nix/derivation-internal.nix>:37:12:
+           36|
+           37|   strict = derivationStrict drvAttrs;
+             |            ^
+           38|
+
+       … while evaluating derivation 'libpattern_search-0.1.0'
+         whose name attribute is located at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:539:13
+
+       … while evaluating attribute 'buildInputs' of derivation 'libpattern_search-0.1.0'
+         at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:591:13:
+          590|             depsHostHost = elemAt (elemAt dependencies 1) 0;
+          591|             buildInputs = elemAt (elemAt dependencies 1) 1;
+             |             ^
+          592|             depsTargetTarget = elemAt (elemAt dependencies 2) 0;
+
+       (stack trace truncated; use '--show-trace' to show the full, detailed trace)
+
+       error: Package ‘mojo-runtime-0.25.7’ in /nix/store/6aggh94xwash6p22l03mcaqwjry9qyv5-source/nix/flakes/mojo-runtime/flake.nix:40 has an unfree license (‘unfree’), refusing to evaluate.
+
+       a) To temporarily allow unfree packages, you can use an environment variable
+          for a single invocation of the nix tools.
+
+            $ export NIXPKGS_ALLOW_UNFREE=1
+
+          Note: When using `nix shell`, `nix build`, `nix develop`, etc with a flake,
+                then pass `--impure` in order to allow use of environment variables.
+
+       b) For `nixos-rebuild` you can set
+         { nixpkgs.config.allowUnfree = true; }
+       in configuration.nix to override this.
+
+       Alternatively you can configure a predicate to allow specific packages:
+         { nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+             "mojo-runtime"
+           ];
+         }
+
+       c) For `nix-env`, `nix-build`, `nix-shell` or any other Nix command you can add
+         { allowUnfree = true; }
+       to ~/.config/nixpkgs/config.nix.
+[0;32m✓ PASS[0m: mojo-pattern-search builds successfully
+./scripts/validate-nix-flakes.sh: line 48: nix/validation-results.txt: No such file or directory
+./scripts/validate-nix-flakes.sh: line 49: nix/validation-results.txt: No such file or directory
+[1;33m[TEST 5][0m Verify pattern_search_ffi export
+./scripts/validate-nix-flakes.sh: line 42: nix/validation-results.txt: No such file or directory
+[0;31m✗ FAIL[0m: pattern_search_ffi export not found
+./scripts/validate-nix-flakes.sh: line 55: nix/validation-results.txt: No such file or directory
+./scripts/validate-nix-flakes.sh: line 56: nix/validation-results.txt: No such file or directory
+./scripts/validate-nix-flakes.sh: line 57: nix/validation-results.txt: No such file or directory
+[1;33m[TEST 6][0m nix build path:./nix/flakes/mojo-message-router
+warning: Git tree '/home/m0xu/.synapse-system' is dirty
+warning: creating lock file "/home/m0xu/.synapse-system/nix/flakes/mojo-message-router/flake.lock": 
+• Added input 'flake-utils':
+    'github:numtide/flake-utils/11707dc2f618dd54ca8739b309ec4fc024de578b?narHash=sha256-l0KFg5HjrsfsO/JpG%2Br7fRrqm12kzFHyUHqHCVpMMbI%3D' (2024-11-13)
+• Added input 'flake-utils/systems':
+    'github:nix-systems/default/da67096a3b9bf56a91d16901293e51ba5b49a27e?narHash=sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768%3D' (2023-04-09)
+• Added input 'mojo-runtime':
+    'path:../mojo-runtime'
+• Added input 'mojo-runtime/flake-utils':
+    'github:numtide/flake-utils/11707dc2f618dd54ca8739b309ec4fc024de578b?narHash=sha256-l0KFg5HjrsfsO/JpG%2Br7fRrqm12kzFHyUHqHCVpMMbI%3D' (2024-11-13)
+• Added input 'mojo-runtime/flake-utils/systems':
+    'github:nix-systems/default/da67096a3b9bf56a91d16901293e51ba5b49a27e?narHash=sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768%3D' (2023-04-09)
+• Added input 'mojo-runtime/nixpkgs':
+    follows 'nixpkgs'
+• Added input 'nixpkgs':
+    'github:meta-introspector/nixpkgs/26833ad1dad83826ef7cc52e0009ca9b7097c79f?narHash=sha256-1Z0KAfbySsHu/IoZbBJLrPgs3IqQGup0T8J9S1ffAkE%3D' (2025-09-15)
+error:
+       … while calling the 'derivationStrict' builtin
+         at <nix/derivation-internal.nix>:37:12:
+           36|
+           37|   strict = derivationStrict drvAttrs;
+             |            ^
+           38|
+
+       … while evaluating derivation 'libmessage_router-0.1.0'
+         whose name attribute is located at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:539:13
+
+       … while evaluating attribute 'buildInputs' of derivation 'libmessage_router-0.1.0'
+         at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:591:13:
+          590|             depsHostHost = elemAt (elemAt dependencies 1) 0;
+          591|             buildInputs = elemAt (elemAt dependencies 1) 1;
+             |             ^
+          592|             depsTargetTarget = elemAt (elemAt dependencies 2) 0;
+
+       (stack trace truncated; use '--show-trace' to show the full, detailed trace)
+
+       error: Package ‘mojo-runtime-0.25.7’ in /nix/store/3igfwzj67nb5mn5ps7i67ljbkbnjxj2g-source/nix/flakes/mojo-runtime/flake.nix:40 has an unfree license (‘unfree’), refusing to evaluate.
+
+       a) To temporarily allow unfree packages, you can use an environment variable
+          for a single invocation of the nix tools.
+
+            $ export NIXPKGS_ALLOW_UNFREE=1
+
+          Note: When using `nix shell`, `nix build`, `nix develop`, etc with a flake,
+                then pass `--impure` in order to allow use of environment variables.
+
+       b) For `nixos-rebuild` you can set
+         { nixpkgs.config.allowUnfree = true; }
+       in configuration.nix to override this.
+
+       Alternatively you can configure a predicate to allow specific packages:
+         { nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+             "mojo-runtime"
+           ];
+         }
+
+       c) For `nix-env`, `nix-build`, `nix-shell` or any other Nix command you can add
+         { allowUnfree = true; }
+       to ~/.config/nixpkgs/config.nix.
+[0;32m✓ PASS[0m: mojo-message-router builds successfully
+./scripts/validate-nix-flakes.sh: line 48: nix/validation-results.txt: No such file or directory
+./scripts/validate-nix-flakes.sh: line 49: nix/validation-results.txt: No such file or directory
+[1;33m[TEST 7][0m Verify message router FFI exports
+./scripts/validate-nix-flakes.sh: line 42: nix/validation-results.txt: No such file or directory
+[0;31m✗ FAIL[0m: Only 0/3 FFI exports found
+./scripts/validate-nix-flakes.sh: line 55: nix/validation-results.txt: No such file or directory
+./scripts/validate-nix-flakes.sh: line 56: nix/validation-results.txt: No such file or directory
+./scripts/validate-nix-flakes.sh: line 57: nix/validation-results.txt: No such file or directory
+
+[0;34m═══════════════════════════════════════════════════════════[0m
+[0;34mPHASE 3: Root Integration[0m
+[0;34m═══════════════════════════════════════════════════════════[0m
+
+[1;33m[TEST 8][0m nix build .#mojo-libraries
+warning: Git tree '/home/m0xu/.synapse-system' is dirty
+error:
+       … while calling the 'derivationStrict' builtin
+         at <nix/derivation-internal.nix>:37:12:
+           36|
+           37|   strict = derivationStrict drvAttrs;
+             |            ^
+           38|
+
+       … while evaluating derivation 'synapse-mojo-libraries'
+         whose name attribute is located at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:539:13
+
+       … while evaluating attribute 'passAsFile' of derivation 'synapse-mojo-libraries'
+         at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/build-support/trivial-builders/default.nix:81:9:
+           80|         inherit buildCommand name;
+           81|         passAsFile = [ "buildCommand" ] ++ (derivationArgs.passAsFile or [ ]);
+             |         ^
+           82|       }
+
+       (stack trace truncated; use '--show-trace' to show the full, detailed trace)
+
+       error: Package ‘mojo-runtime-0.25.7’ in /nix/store/f4aphn2bynrwsikdl84xmkb9l7mn627k-source/nix/flakes/mojo-runtime/flake.nix:40 has an unfree license (‘unfree’), refusing to evaluate.
+
+       a) To temporarily allow unfree packages, you can use an environment variable
+          for a single invocation of the nix tools.
+
+            $ export NIXPKGS_ALLOW_UNFREE=1
+
+          Note: When using `nix shell`, `nix build`, `nix develop`, etc with a flake,
+                then pass `--impure` in order to allow use of environment variables.
+
+       b) For `nixos-rebuild` you can set
+         { nixpkgs.config.allowUnfree = true; }
+       in configuration.nix to override this.
+
+       Alternatively you can configure a predicate to allow specific packages:
+         { nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+             "mojo-runtime"
+           ];
+         }
+
+       c) For `nix-env`, `nix-build`, `nix-shell` or any other Nix command you can add
+         { allowUnfree = true; }
+       to ~/.config/nixpkgs/config.nix.
+[0;32m✓ PASS[0m: mojo-libraries unified package builds successfully
+[1;33m[TEST 9][0m nix develop --command bash -c 'mojo --version'
+warning: Git tree '/home/m0xu/.synapse-system' is dirty
+error:
+       … while calling the 'derivationStrict' builtin
+         at <nix/derivation-internal.nix>:37:12:
+           36|
+           37|   strict = derivationStrict drvAttrs;
+             |            ^
+           38|
+
+       … while evaluating derivation 'nix-shell'
+         whose name attribute is located at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:539:13
+
+       … while evaluating attribute 'buildInputs' of derivation 'nix-shell'
+         at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:591:13:
+          590|             depsHostHost = elemAt (elemAt dependencies 1) 0;
+          591|             buildInputs = elemAt (elemAt dependencies 1) 1;
+             |             ^
+          592|             depsTargetTarget = elemAt (elemAt dependencies 2) 0;
+
+       (stack trace truncated; use '--show-trace' to show the full, detailed trace)
+
+       error: attribute 'python39' missing
+       at /nix/store/hgy037vxazrn2wzfns1ba5yjpdak9lpi-source/flake.nix:42:23:
+           41|             docs = packages.docs;
+           42|             default = packages.pip2nix.python39;
+             |                       ^
+           43|           };
+       Did you mean python27?
+[0;32m✓ PASS[0m: Default devShell works with Mojo accessible
+[1;33m[TEST 10][0m nix develop .#mojo-dev --command bash -c 'mojo --version'
+warning: Git tree '/home/m0xu/.synapse-system' is dirty
+error:
+       … while calling the 'derivationStrict' builtin
+         at <nix/derivation-internal.nix>:37:12:
+           36|
+           37|   strict = derivationStrict drvAttrs;
+             |            ^
+           38|
+
+       … while evaluating derivation 'nix-shell'
+         whose name attribute is located at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:539:13
+
+       … while evaluating attribute 'buildInputs' of derivation 'nix-shell'
+         at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:591:13:
+          590|             depsHostHost = elemAt (elemAt dependencies 1) 0;
+          591|             buildInputs = elemAt (elemAt dependencies 1) 1;
+             |             ^
+          592|             depsTargetTarget = elemAt (elemAt dependencies 2) 0;
+
+       (stack trace truncated; use '--show-trace' to show the full, detailed trace)
+
+       error: Package ‘mojo-runtime-0.25.7’ in /nix/store/f4aphn2bynrwsikdl84xmkb9l7mn627k-source/nix/flakes/mojo-runtime/flake.nix:40 has an unfree license (‘unfree’), refusing to evaluate.
+
+       a) To temporarily allow unfree packages, you can use an environment variable
+          for a single invocation of the nix tools.
+
+            $ export NIXPKGS_ALLOW_UNFREE=1
+
+          Note: When using `nix shell`, `nix build`, `nix develop`, etc with a flake,
+                then pass `--impure` in order to allow use of environment variables.
+
+       b) For `nixos-rebuild` you can set
+         { nixpkgs.config.allowUnfree = true; }
+       in configuration.nix to override this.
+
+       Alternatively you can configure a predicate to allow specific packages:
+         { nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+             "mojo-runtime"
+           ];
+         }
+
+       c) For `nix-env`, `nix-build`, `nix-shell` or any other Nix command you can add
+         { allowUnfree = true; }
+       to ~/.config/nixpkgs/config.nix.
+[0;32m✓ PASS[0m: Dedicated mojo-dev shell works
+[1;33m[TEST 11][0m Verify MOJO_LIB_PATH environment variable
+warning: Git tree '/home/m0xu/.synapse-system' is dirty
+error:
+       … while calling the 'derivationStrict' builtin
+         at <nix/derivation-internal.nix>:37:12:
+           36|
+           37|   strict = derivationStrict drvAttrs;
+             |            ^
+           38|
+
+       … while evaluating derivation 'nix-shell'
+         whose name attribute is located at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:539:13
+
+       … while evaluating attribute 'buildInputs' of derivation 'nix-shell'
+         at /nix/store/j3sna6r5nrrqj5b3pslyc520cycfa43m-source/pkgs/stdenv/generic/make-derivation.nix:591:13:
+          590|             depsHostHost = elemAt (elemAt dependencies 1) 0;
+          591|             buildInputs = elemAt (elemAt dependencies 1) 1;
+             |             ^
+          592|             depsTargetTarget = elemAt (elemAt dependencies 2) 0;
+
+       (stack trace truncated; use '--show-trace' to show the full, detailed trace)
+
+       error: attribute 'python39' missing
+       at /nix/store/hgy037vxazrn2wzfns1ba5yjpdak9lpi-source/flake.nix:42:23:
+           41|             docs = packages.docs;
+           42|             default = packages.pip2nix.python39;
+             |                       ^
+           43|           };
+       Did you mean python27?
+[0;31m✗ FAIL[0m: MOJO_LIB_PATH not set correctly
+[1;33m[TEST 12][0m nix flake check
+warning: Git tree '/home/m0xu/.synapse-system' is dirty
+evaluating flake...
+checking flake output 'packages'...
+checking derivation packages.x86_64-linux.architect...
+error:
+       … while checking flake output 'packages'
+         at /nix/store/01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source/lib.nix:43:9:
+           42|       // {
+           43|         ${key} = (attrs.${key} or { }) // {
+             |         ^
+           44|           ${system} = ret.${key};
+
+       … while checking the derivation 'packages.x86_64-linux.architect'
+         at /nix/store/f4aphn2bynrwsikdl84xmkb9l7mn627k-source/flake.nix:79:57:
+           78|
+           79|           inherit (inputs.architect.packages.${system}) architect;
+             |                                                         ^
+           80|           inherit (inputs.clarity-judge.packages.${system}) clarity-judge;
+
+       (stack trace truncated; use '--show-trace' to show the full, detailed trace)
+
+       error: attribute 'currentSystem' missing
+       at /nix/store/f4aphn2bynrwsikdl84xmkb9l7mn627k-source/nix/flakes/architect/flake.nix:6:16:
+            5|     let
+            6|       system = builtins.currentSystem;
+             |                ^
+            7|       pkgs = import nixpkgs { inherit system; };
+[0;32m✓ PASS[0m: All flakes are valid (nix flake check passed)
+
+[0;34m═══════════════════════════════════════════════════════════[0m
+[0;34mPHASE 4: Complete Validation[0m
+[0;34m═══════════════════════════════════════════════════════════[0m
+
+[1;33m[TEST 13][0m Verify library file sizes
+[0;31m✗ FAIL[0m: libpattern_search.so not found in result
+[1;33m[TEST 14][0m Verify FFI exports are defined symbols
+[0;31m✗ FAIL[0m: Some FFI exports may be undefined
+[1;33m[TEST 15][0m Verify build reproducibility
+[0;34mℹ[0m Testing deterministic builds...
+[0;31m✗ FAIL[0m: Build reproducibility test inconclusive
+[1;33m[TEST 16][0m Verify documentation exists
+[0;32m✓ PASS[0m: All 3 flakes have README.md documentation
+[1;33m[TEST 17][0m Verify flake metadata
+warning: Git tree '/home/m0xu/.synapse-system' is dirty
+[0;32m✓ PASS[0m: Flake metadata is correct
+
+[0;34m════════════════════════════════════════════════════════════[0m
+[0;34mVALIDATION SUMMARY[0m
+[0;34m════════════════════════════════════════════════════════════[0m
+
+Total Tests: 17
+[0;32mPassed: 10[0m
+[0;31mFailed: 7[0m
+
+[0;31m✗ 7 test(s) failed. Review results above.[0m
+
+Results saved to: nix/validation-results.txt
