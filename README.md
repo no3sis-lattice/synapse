@@ -10,7 +10,7 @@ AI agents with persistent memory and collective intelligence. Each agent operate
 curl -sSL https://raw.githubusercontent.com/your-repo/synapse-system/main/install.sh | bash
 ```
 
-That's it. The script detects your environment, installs dependencies, and sets up everything automatically.
+_Does not work but this is how it will work_
 
 ## Use (Immediately)
 
