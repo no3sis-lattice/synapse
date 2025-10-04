@@ -1,0 +1,144 @@
+{
+  "schema_version": "1.0",
+  "description": "Agent Registry for file_creator MVP - Dual-Tract Architecture with 8 T_ext particles",
+  "agents": {
+    "file_creator_orchestrator": {
+      "id": "file_creator_orchestrator",
+      "type": "orchestrator",
+      "tract": "INTERNAL",
+      "description": "T_int agent responsible for planning file creation workflows",
+      "frequency_rank": 1,
+      "permissions": [
+        "orchestration:plan",
+        "corpus_callosum:publish"
+      ],
+      "state_file": ".synapse/particles/file_creator_orchestrator_state.json",
+      "particle_class": "FileCreatorOrchestrator"
+    },
+    "file_writer": {
+      "id": "file_writer",
+      "type": "atomic_particle",
+      "tract": "EXTERNAL",
+      "description": "T_ext particle for writing content to files",
+      "frequency_rank": 2,
+      "permissions": [
+        "filesystem:write"
+      ],
+      "state_file": ".synapse/particles/file_writer_state.json",
+      "particle_class": "FileWriter"
+    },
+    "directory_creator": {
+      "id": "directory_creator",
+      "type": "atomic_particle",
+      "tract": "EXTERNAL",
+      "description": "T_ext particle for creating directory structures",
+      "frequency_rank": 3,
+      "permissions": [
+        "filesystem:mkdir"
+      ],
+      "state_file": ".synapse/particles/directory_creator_state.json",
+      "particle_class": "DirectoryCreator"
+    },
+    "file_reader": {
+      "id": "file_reader",
+      "type": "atomic_particle",
+      "tract": "EXTERNAL",
+      "description": "T_ext particle for reading file contents",
+      "frequency_rank": 4,
+      "permissions": [
+        "filesystem:read"
+      ],
+      "state_file": ".synapse/particles/file_reader_state.json",
+      "particle_class": "FileReader"
+    },
+    "file_deleter": {
+      "id": "file_deleter",
+      "type": "atomic_particle",
+      "tract": "EXTERNAL",
+      "description": "T_ext particle for deleting files",
+      "frequency_rank": 5,
+      "permissions": [
+        "filesystem:delete"
+      ],
+      "state_file": ".synapse/particles/file_deleter_state.json",
+      "particle_class": "FileDeleter"
+    },
+    "directory_deleter": {
+      "id": "directory_deleter",
+      "type": "atomic_particle",
+      "tract": "EXTERNAL",
+      "description": "T_ext particle for deleting directory structures",
+      "frequency_rank": 6,
+      "permissions": [
+        "filesystem:rmdir"
+      ],
+      "state_file": ".synapse/particles/directory_deleter_state.json",
+      "particle_class": "DirectoryDeleter"
+    },
+    "file_mover": {
+      "id": "file_mover",
+      "type": "atomic_particle",
+      "tract": "EXTERNAL",
+      "description": "T_ext particle for moving/renaming files",
+      "frequency_rank": 7,
+      "permissions": [
+        "filesystem:move"
+      ],
+      "state_file": ".synapse/particles/file_mover_state.json",
+      "particle_class": "FileMover"
+    },
+    "batch_file_creator": {
+      "id": "batch_file_creator",
+      "type": "atomic_particle",
+      "tract": "EXTERNAL",
+      "description": "T_ext particle for creating multiple files in batch",
+      "frequency_rank": 8,
+      "permissions": [
+        "filesystem:write",
+        "filesystem:batch"
+      ],
+      "state_file": ".synapse/particles/batch_file_creator_state.json",
+      "particle_class": "BatchFileCreator"
+    },
+    "template_applier": {
+      "id": "template_applier",
+      "type": "atomic_particle",
+      "tract": "EXTERNAL",
+      "description": "T_ext particle for applying templates with variable substitution",
+      "frequency_rank": 9,
+      "permissions": [
+        "filesystem:write",
+        "template:apply"
+      ],
+      "state_file": ".synapse/particles/template_applier_state.json",
+      "particle_class": "TemplateApplier"
+    }
+  },
+  "tract_classification": {
+    "INTERNAL": [
+      "file_creator_orchestrator"
+    ],
+    "EXTERNAL": [
+      "file_writer",
+      "directory_creator",
+      "file_reader",
+      "file_deleter",
+      "directory_deleter",
+      "file_mover",
+      "batch_file_creator",
+      "template_applier"
+    ]
+  },
+  "compression_mapping": {
+    "BWT": "Tract-based clustering (INTERNAL vs EXTERNAL)",
+    "MTF": "frequency_rank defines agent priority (1-9)",
+    "RLE": "Orchestrator abstracts sequences of atomic operations",
+    "Huffman": "permissions define access control priority"
+  },
+  "day_2_completion": {
+    "total_particles": 8,
+    "external_tract_particles": 8,
+    "internal_tract_orchestrators": 1,
+    "compression_depth": "Full T_ext decomposition achieved"
+  }
+}
