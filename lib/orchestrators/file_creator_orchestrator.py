@@ -36,6 +36,16 @@ from agent_consumer import AgentConsumer, AgentConfig
 sys.path.insert(0, str(Path.home() / '.synapse-system' / '.synapse' / 'corpus_callosum'))
 from reactive_message_router import TractType, MessagePriority
 
+# Import extracted SRP-compliant classes
+from planner import (
+    ExecutionPlanner,
+    OrchestratorRequest,
+    ExecutionPlan,
+    PlannedAction,
+    ActionType
+)
+from synthesizer import ResultSynthesizer
+
 # Day 3-4 imports
 try:
     from pattern_learner import create_pattern_learner, PatternLearner
@@ -49,55 +59,39 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class ActionType(Enum):
-    """Types of actions the orchestrator can plan"""
-    CREATE_DIRECTORY = "create_directory"
-    WRITE_FILE = "write_file"
-    READ_FILE = "read_file"
-    DELETE_FILE = "delete_file"
-    DELETE_DIRECTORY = "delete_directory"
-    MOVE_FILE = "move_file"
-    BATCH_CREATE_FILES = "batch_create_files"
-    APPLY_TEMPLATE = "apply_template"
+# ============================================================================
+# CONFIGURATION CONSTANTS
+# ============================================================================
 
+# Result Collection Configuration
+DEFAULT_RESULT_TIMEOUT_S = 5.0  # Timeout for particle result collection (seconds)
 
-@dataclass
-class PlannedAction:
-    """A single planned action in the execution plan"""
-    action_type: ActionType
-    target_particle: str  # e.g., "file_writer", "directory_creator"
-    payload: Dict[str, Any]
-    priority: MessagePriority = MessagePriority.NORMAL
-
-
-@dataclass
-class ExecutionPlan:
-    """A complete execution plan for a file creation request"""
-    plan_id: str
-    actions: List[PlannedAction] = field(default_factory=list)
-    created_at: float = field(default_factory=time.time)
-
-
-@dataclass
-class OrchestratorRequest:
-    """High-level request to the orchestrator"""
-    request_type: str  # e.g., "create_component", "scaffold_module"
-    parameters: Dict[str, Any]
+# ============================================================================
+# Note: ActionType, PlannedAction, ExecutionPlan, OrchestratorRequest
+# are now imported from planner.py (SRP compliance)
+# ============================================================================
 
 
 class FileCreatorOrchestrator(AgentConsumer):
     """
-    Internal Tract orchestrator for file creation workflows.
+    Internal Tract orchestrator for file creation workflows (SRP-compliant).
 
-    Receives high-level requests and decomposes them into atomic operations
-    for External Tract particles.
+    This orchestrator is a COORDINATOR that delegates to specialized components:
+    - ExecutionPlanner: Generates execution plans (planning logic)
+    - ResultSynthesizer: Synthesizes results and detects patterns (synthesis logic)
+    - Self: Handles routing, result collection, state management (orchestration logic)
 
-    Pneuma Consciousness:
-    - Implements the Macro-Loop for abstract planning
-    - Bridges T_int (planning) and T_ext (execution) via Corpus Callosum
-    - Learns optimal planning strategies through execution feedback
-    - Adapts particle priorities based on usage (MTF ranking)
-    - Discovers emergent patterns in execution history
+    Reduced from 8 responsibilities to 4 to maintain Single Responsibility Principle.
+
+    Responsibilities:
+    1. Message routing via Corpus Callosum
+    2. Result collection with timeout handling
+    3. State persistence (execution statistics)
+    4. Integration of pattern learning and MTF ranking
+
+    Delegated Responsibilities (extracted to maintain SRP):
+    - Planning → ExecutionPlanner
+    - Synthesis → ResultSynthesizer
     """
 
     def __init__(
@@ -114,7 +108,11 @@ class FileCreatorOrchestrator(AgentConsumer):
         self.state = self._load_state()
         self._pending_results: Dict[str, asyncio.Queue] = {}
         self._result_lock = asyncio.Lock()
-        self._result_timeout = 5.0  # seconds
+        self._result_timeout = DEFAULT_RESULT_TIMEOUT_S
+
+        # SRP-compliant extracted components
+        self.planner = ExecutionPlanner()
+        self.synthesizer = ResultSynthesizer()
 
         # Day 3-4 features
         self.enable_pattern_learning = enable_pattern_learning and ADVANCED_FEATURES_AVAILABLE
@@ -193,6 +191,8 @@ class FileCreatorOrchestrator(AgentConsumer):
         """
         Execute the Macro-Loop: Plan → Route → Collect → Synthesize
 
+        SRP-Compliant: Delegates planning and synthesis to extracted components.
+
         Day 3-4 Enhanced with:
         - Pattern-based optimization recommendations
         - Parallel result collection
@@ -201,8 +201,8 @@ class FileCreatorOrchestrator(AgentConsumer):
         """
         start_time = time.time()
 
-        # 1. PLAN: Generate execution plan (with pattern optimization)
-        plan = await self.plan(request)
+        # 1. PLAN: Delegate to ExecutionPlanner (SRP)
+        plan = self.planner.plan(request)
 
         # 2. ROUTE & COLLECT: Dispatch actions (parallel or sequential)
         if self.enable_parallel_execution:
@@ -210,8 +210,8 @@ class FileCreatorOrchestrator(AgentConsumer):
         else:
             results = await self.route_and_collect(plan)
 
-        # 3. SYNTHESIZE: Combine results and discover patterns
-        synthesis = await self.synthesize(plan, results)
+        # 3. SYNTHESIZE: Delegate to ResultSynthesizer (SRP)
+        synthesis = self.synthesizer.synthesize(plan.plan_id, plan.actions, results)
 
         # 4. UPDATE STATE & LEARN
         execution_time = time.time() - start_time
@@ -244,172 +244,9 @@ class FileCreatorOrchestrator(AgentConsumer):
 
         return synthesis
 
-    async def plan(self, request: OrchestratorRequest) -> ExecutionPlan:
-        """
-        Stage 1: Generate execution plan
-
-        Day 3-4: Enhanced with pattern-based optimization recommendations
-        """
-        plan_id = f"plan_{int(time.time() * 1000)}"
-        plan = ExecutionPlan(plan_id=plan_id)
-
-        request_type = request.request_type
-        params = request.parameters
-
-        # Simple single-particle operations
-        if request_type == "create_file":
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.WRITE_FILE,
-                target_particle="file_writer",
-                payload={
-                    "file_path": params.get("file_path"),
-                    "content": params.get("content", ""),
-                    "mode": params.get("mode", "w")
-                }
-            ))
-
-        elif request_type == "create_directory":
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.CREATE_DIRECTORY,
-                target_particle="directory_creator",
-                payload={
-                    "directory_path": params.get("directory_path"),
-                    "parents": params.get("parents", True)
-                }
-            ))
-
-        elif request_type == "read_file":
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.READ_FILE,
-                target_particle="file_reader",
-                payload={
-                    "file_path": params.get("file_path"),
-                    "encoding": params.get("encoding", "utf-8")
-                }
-            ))
-
-        elif request_type == "delete_file":
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.DELETE_FILE,
-                target_particle="file_deleter",
-                payload={
-                    "file_path": params.get("file_path")
-                }
-            ))
-
-        elif request_type == "delete_directory":
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.DELETE_DIRECTORY,
-                target_particle="directory_deleter",
-                payload={
-                    "directory_path": params.get("directory_path"),
-                    "recursive": params.get("recursive", False)
-                }
-            ))
-
-        elif request_type == "move_file":
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.MOVE_FILE,
-                target_particle="file_mover",
-                payload={
-                    "source_path": params.get("source_path"),
-                    "dest_path": params.get("dest_path")
-                }
-            ))
-
-        elif request_type == "batch_create_files":
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.BATCH_CREATE_FILES,
-                target_particle="batch_file_creator",
-                payload={
-                    "files": params.get("files", [])
-                }
-            ))
-
-        elif request_type == "apply_template":
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.APPLY_TEMPLATE,
-                target_particle="template_applier",
-                payload={
-                    "template_name": params.get("template_name"),
-                    "template_content": params.get("template_content"),
-                    "output_path": params.get("output_path"),
-                    "variables": params.get("variables", {}),
-                    "encoding": params.get("encoding", "utf-8")
-                }
-            ))
-
-        # Complex multi-particle operations
-        elif request_type == "create_component":
-            component_name = params.get("component_name")
-            base_path = params.get("base_path", "/tmp")
-            component_path = f"{base_path}/{component_name}"
-
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.CREATE_DIRECTORY,
-                target_particle="directory_creator",
-                payload={
-                    "directory_path": component_path,
-                    "parents": True
-                },
-                priority=MessagePriority.HIGH
-            ))
-
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.WRITE_FILE,
-                target_particle="file_writer",
-                payload={
-                    "file_path": f"{component_path}/__init__.py",
-                    "content": f'"""\n{component_name} component\n"""\n'
-                }
-            ))
-
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.WRITE_FILE,
-                target_particle="file_writer",
-                payload={
-                    "file_path": f"{component_path}/{component_name}.py",
-                    "content": f'"""\n{component_name} module\n"""\n\n\nclass {component_name.title()}:\n    pass\n'
-                }
-            ))
-
-        elif request_type == "scaffold_module":
-            module_name = params.get("module_name")
-            base_path = params.get("base_path", "/tmp")
-            language = params.get("language", "python")
-
-            template_name = "python_module" if language == "python" else "rust_module"
-
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.CREATE_DIRECTORY,
-                target_particle="directory_creator",
-                payload={
-                    "directory_path": base_path,
-                    "parents": True
-                }
-            ))
-
-            plan.actions.append(PlannedAction(
-                action_type=ActionType.APPLY_TEMPLATE,
-                target_particle="template_applier",
-                payload={
-                    "template_name": template_name,
-                    "output_path": f"{base_path}/{module_name}.py" if language == "python" else f"{base_path}/{module_name}.rs",
-                    "variables": {
-                        "description": f"{module_name} module",
-                        "class_name": module_name.title(),
-                        "class_description": f"{module_name.title()} class",
-                        "struct_name": module_name.title(),
-                        "imports": ""
-                    }
-                }
-            ))
-
-        else:
-            raise ValueError(f"Unknown request type: {request_type}")
-
-        logger.info(f"[orchestrator] Generated plan {plan_id} with {len(plan.actions)} actions")
-        return plan
+    # ==================================================================
+    # NOTE: plan() method REMOVED - now delegated to ExecutionPlanner (SRP)
+    # ==================================================================
 
     async def route_and_collect(self, plan: ExecutionPlan) -> List[Dict[str, Any]]:
         """
@@ -581,54 +418,9 @@ class FileCreatorOrchestrator(AgentConsumer):
                     f"[orchestrator] Received result for unknown action: {action_id}"
                 )
 
-    async def synthesize(self, plan: ExecutionPlan, results: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Stage 3: Synthesize results into final output
-
-        Day 3-4: Enhanced with advanced pattern learning
-        """
-        total_actions = len(results)
-        completed_actions = sum(1 for r in results if r.get('status') == 'completed')
-        timeout_actions = sum(1 for r in results if r.get('status') == 'timeout')
-        failed_actions = sum(1 for r in results if r.get('status') == 'failed')
-
-        synthesis = {
-            "success": failed_actions == 0 and timeout_actions == 0,
-            "total_actions": total_actions,
-            "completed_actions": completed_actions,
-            "timeout_actions": timeout_actions,
-            "failed_actions": failed_actions,
-            "results": results,
-            "emergent_patterns": []
-        }
-
-        # Basic pattern detection (Day 2)
-        if completed_actions > 0:
-            batch_actions = [r for r in results if r.get('action_type') == 'batch_create_files']
-            if batch_actions:
-                synthesis["emergent_patterns"].append({
-                    "pattern": "batch_optimization",
-                    "description": "Multiple file operations compressed into single batch",
-                    "efficiency_gain": "O(n) → O(1) for n files"
-                })
-
-            template_actions = [r for r in results if r.get('action_type') == 'apply_template']
-            if template_actions:
-                synthesis["emergent_patterns"].append({
-                    "pattern": "template_abstraction",
-                    "description": "Reusable patterns applied via templates",
-                    "abstraction_level": "high"
-                })
-
-            dir_actions = [r for r in results if r.get('action_type') == 'create_directory']
-            if dir_actions:
-                synthesis["emergent_patterns"].append({
-                    "pattern": "structural_hierarchy",
-                    "description": "Organized directory structure created",
-                    "depth": len(dir_actions)
-                })
-
-        return synthesis
+    # ==================================================================
+    # NOTE: synthesize() method REMOVED - now delegated to ResultSynthesizer (SRP)
+    # ==================================================================
 
     def get_advanced_stats(self) -> Dict[str, Any]:
         """Get orchestrator statistics including Day 3-4 features"""

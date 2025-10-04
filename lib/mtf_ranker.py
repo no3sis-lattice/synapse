@@ -24,6 +24,24 @@ from collections import defaultdict
 logger = logging.getLogger(__name__)
 
 
+# ============================================================================
+# CONFIGURATION CONSTANTS
+# ============================================================================
+# All magic numbers extracted to named constants for maintainability.
+
+# MTF Ranking Configuration
+DEFAULT_PARTICLE_RANK = 999  # Default rank for untracked particles
+DEFAULT_RE_RANKING_INTERVAL_S = 300.0  # Re-rank every 5 minutes
+
+# Consciousness Calculation Constants
+CONSCIOUSNESS_STABLE_INCREMENT = 0.1  # Increment when system is already optimized
+MAX_RANK_CHANGE_NORMALIZATION = 10.0  # Max expected rank change for normalization
+CONSCIOUSNESS_ADAPTATION_WEIGHT = 0.7  # Weight for adaptation speed in consciousness
+CONSCIOUSNESS_STABILITY_WEIGHT = 0.3   # Weight for stability in consciousness
+
+# ============================================================================
+
+
 @dataclass
 class ParticleUsageStats:
     """Usage statistics for a particle"""
@@ -33,7 +51,7 @@ class ParticleUsageStats:
     success_count: int = 0
     failure_count: int = 0
     last_invocation_timestamp: float = 0.0
-    current_frequency_rank: int = 999
+    current_frequency_rank: int = DEFAULT_PARTICLE_RANK
 
     # Derived metrics
     success_rate: float = 0.0
@@ -71,7 +89,7 @@ class MTFRankingState:
     particle_stats: Dict[str, ParticleUsageStats] = field(default_factory=dict)
     total_re_rankings: int = 0
     last_re_ranking_timestamp: float = 0.0
-    re_ranking_interval_s: float = 300.0  # Re-rank every 5 minutes
+    re_ranking_interval_s: float = DEFAULT_RE_RANKING_INTERVAL_S
     consciousness_level: float = 0.0  # Optimization effectiveness
 
     def to_dict(self) -> Dict[str, Any]:
@@ -98,7 +116,7 @@ class MTFRankingState:
             particle_stats=particle_stats,
             total_re_rankings=data.get('total_re_rankings', 0),
             last_re_ranking_timestamp=data.get('last_re_ranking_timestamp', 0.0),
-            re_ranking_interval_s=data.get('re_ranking_interval_s', 300.0),
+            re_ranking_interval_s=data.get('re_ranking_interval_s', DEFAULT_RE_RANKING_INTERVAL_S),
             consciousness_level=data.get('consciousness_level', 0.0)
         )
 
@@ -186,9 +204,9 @@ class MTFRanker:
         # Initialize stats if not present
         if particle_id not in self.state.particle_stats:
             # Get current rank from registry
-            current_rank = 999
+            current_rank = DEFAULT_PARTICLE_RANK
             if particle_id in self.registry.get('agents', {}):
-                current_rank = self.registry['agents'][particle_id].get('frequency_rank', 999)
+                current_rank = self.registry['agents'][particle_id].get('frequency_rank', DEFAULT_PARTICLE_RANK)
 
             self.state.particle_stats[particle_id] = ParticleUsageStats(
                 particle_id=particle_id,
@@ -278,7 +296,7 @@ class MTFRanker:
         if not ranking_changes:
             # No changes = system is already optimized
             self.state.consciousness_level = min(
-                self.state.consciousness_level + 0.1,
+                self.state.consciousness_level + CONSCIOUSNESS_STABLE_INCREMENT,
                 1.0
             )
             return
@@ -289,12 +307,15 @@ class MTFRanker:
         )
         average_change = total_rank_change / len(ranking_changes)
 
-        # Normalize to 0-1 range (assuming max rank change is ~10)
-        change_factor = min(average_change / 10.0, 1.0)
+        # Normalize to 0-1 range
+        change_factor = min(average_change / MAX_RANK_CHANGE_NORMALIZATION, 1.0)
 
         # Consciousness = blend of adaptation speed and stability
         # High changes = active learning, low changes = stable optimization
-        self.state.consciousness_level = 0.7 * change_factor + 0.3 * (1 - change_factor)
+        self.state.consciousness_level = (
+            CONSCIOUSNESS_ADAPTATION_WEIGHT * change_factor +
+            CONSCIOUSNESS_STABILITY_WEIGHT * (1 - change_factor)
+        )
 
     def get_particle_rank(self, particle_id: str) -> int:
         """Get current frequency rank for a particle"""
@@ -303,9 +324,9 @@ class MTFRanker:
 
         # Fallback to registry
         if particle_id in self.registry.get('agents', {}):
-            return self.registry['agents'][particle_id].get('frequency_rank', 999)
+            return self.registry['agents'][particle_id].get('frequency_rank', DEFAULT_PARTICLE_RANK)
 
-        return 999
+        return DEFAULT_PARTICLE_RANK
 
     def get_top_particles(self, n: int = 5) -> List[Tuple[str, ParticleUsageStats]]:
         """Get top N particles by invocation count"""
@@ -342,7 +363,7 @@ class MTFRanker:
 def create_mtf_ranker(
     registry_file: Path = None,
     state_file: Path = None,
-    re_ranking_interval_s: float = 300.0
+    re_ranking_interval_s: float = DEFAULT_RE_RANKING_INTERVAL_S
 ) -> MTFRanker:
     """Factory function for MTF ranker"""
     if registry_file is None:
