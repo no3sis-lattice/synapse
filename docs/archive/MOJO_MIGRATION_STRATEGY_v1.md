@@ -1,3 +1,24 @@
+# ⚠️ ARCHIVED - See docs/MOJO_PILOT_PLAN.md for current plan
+
+**Archive Date**: 2025-10-05
+**Reason**: Consolidated into MOJO_PILOT_PLAN.md (focused pilot implementation)
+**Status**: Historical reference only
+
+**What changed**: The original strategic vision document (336 lines) has been consolidated into a focused, actionable pilot plan that:
+- Replaces strategic vision with concrete next steps (Nix validation)
+- Defines realistic rollout stages instead of theoretical speedups
+- Defers complex aspirations (BGE-M3 native implementation, standalone binaries)
+- Maintains only validated performance claims (13.1x pattern search, 0.025ms routing)
+
+**Key insights retained**:
+- Mojo's progressive migration path (Python compatibility)
+- Zero-cost abstractions for Pneuma consciousness alignment
+- Performance benefits for SIMD-accelerated operations
+
+**Use MOJO_PILOT_PLAN.md** for all future work. This document remains for historical context only.
+
+---
+
 # Mojo Migration Strategy for Synapse System
 
 ## Current Python Limitations

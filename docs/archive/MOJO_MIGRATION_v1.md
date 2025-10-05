@@ -1,3 +1,24 @@
+# ⚠️ ARCHIVED - See docs/MOJO_PILOT_PLAN.md for current plan
+
+**Archive Date**: 2025-10-05
+**Reason**: Consolidated into MOJO_PILOT_PLAN.md (focused pilot implementation)
+**Status**: Historical reference only
+
+**What changed**: The original 1,265-line comprehensive migration plan has been distilled into a focused pilot plan that:
+- Prioritizes immediate actions (Nix validation)
+- Grounds next steps in reality (Nix installation required)
+- Defines clear rollout stages (10% → 50% → 100%)
+- Defers complex items (BGE-M3 embeddings)
+
+**Key accomplishments from this plan**:
+- ✅ Phases 0-3 complete (Mojo v0.25.7, pattern search 13.1x, reactive router 0.025ms)
+- ✅ Nix flake architecture created and ready for validation
+- ✅ FFI integration working (`libpattern_search.so`, `libmessage_router.so`)
+
+**Use MOJO_PILOT_PLAN.md** for all future work. This document remains for historical context only.
+
+---
+
 # Mojo v25.6 Integration Plan - Cautious & Measured Approach
 
 ## 📊 Current Status (2025-10-01)
