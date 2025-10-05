@@ -339,7 +339,7 @@ class TestRoundTripSerialization:
 # DATACLASS_TO_DICT_WITH_ENUMS TESTS
 # ============================================================================
 
-class TestDataclassToDict WithEnums:
+class TestDataclassToDictWithEnums:
     """Test suite for dataclass_to_dict_with_enums()"""
 
     def test_simple_dataclass_no_enums(self):

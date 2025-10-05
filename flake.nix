@@ -60,6 +60,12 @@
       url = "github:sub0xdai/synapse-system?dir=nix/flakes/lean4-verification";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Synapse Core - local flake for core orchestration framework
+    synapse-core = {
+      url = "path:./nix/flakes/synapse-core";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, flake-utils, pip2nix, ... }@inputs:
@@ -120,6 +126,10 @@
               inputs.mojo-message-router.packages.${system}.libmessage_router
             ];
           };
+
+          # Synapse Core - orchestration framework
+          inherit (inputs.synapse-core.packages.${system}) synapse-core;
+          synapse-cli = inputs.synapse-core.packages.${system}.synapse-core;
         };
 
         devShells.default = pkgs.mkShell {
@@ -128,6 +138,7 @@
             pip2nix.packages.${system}.default
             inputs.mojo-runtime.packages.${system}.default
             inputs.lean4-verification.packages.${system}.lean
+            inputs.synapse-core.packages.${system}.synapse-core
           ];
           packages = with pkgs; [
             bashInteractive
@@ -150,7 +161,13 @@
             echo "  • Lean4 dual-tract proofs (formal/lean4/)"
             echo "  • Corpus Callosum adjunction theorem"
             echo ""
+            echo "Synapse Core:"
+            echo "  • Template system with JSON Schema validation"
+            echo "  • GMP quality gates (bootstrap: 65% coverage)"
+            echo "  • CLI: synapse template list|info|validate"
+            echo ""
             echo "Commands:"
+            echo "  nix build .#synapse-core           - Build core framework"
             echo "  nix build .#mojo-libraries         - Build all Mojo components"
             echo "  nix run .#lean4-verification-test  - Run formal verification"
             echo "  cd formal/lean4 && lake build      - Build Lean4 locally"

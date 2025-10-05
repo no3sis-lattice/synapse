@@ -1,0 +1,291 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://synapse-system.org/schemas/template-v1.json",
+  "title": "Synapse Template Metadata Schema",
+  "description": "JSON Schema for validating Synapse System template metadata files",
+  "type": "object",
+  "required": ["$schema", "schema_version", "template", "architecture", "orchestrator", "particles"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema",
+      "const": "https://synapse-system.org/schemas/template-v1.json"
+    },
+    "schema_version": {
+      "type": "string",
+      "description": "Version of this schema",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "template": {
+      "type": "object",
+      "required": ["name", "version", "description"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Template identifier (lowercase, underscores allowed)"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable template name"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version (MAJOR.MINOR.PATCH)"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Detailed template description"
+        },
+        "author": {
+          "type": "string"
+        },
+        "license": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "architecture": {
+      "type": "object",
+      "required": ["type", "orchestrator_tract", "particle_tract"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["dual-tract", "single-tract", "multi-tract"]
+        },
+        "orchestrator_tract": {
+          "type": "string",
+          "enum": ["INTERNAL", "EXTERNAL", "BRIDGE"]
+        },
+        "particle_tract": {
+          "type": "string",
+          "enum": ["INTERNAL", "EXTERNAL", "BRIDGE"]
+        },
+        "communication_protocol": {
+          "type": "string",
+          "enum": ["corpus_callosum", "direct", "hybrid"]
+        },
+        "pattern_learning": {
+          "type": "boolean"
+        },
+        "mtf_ranking": {
+          "type": "boolean"
+        },
+        "circuit_breaker": {
+          "type": "boolean"
+        }
+      }
+    },
+    "orchestrator": {
+      "type": "object",
+      "required": ["class_name", "module", "tract"],
+      "properties": {
+        "class_name": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Za-z0-9]*$",
+          "description": "Python class name (PascalCase)"
+        },
+        "module": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_.]*$",
+          "description": "Python module path"
+        },
+        "tract": {
+          "type": "string",
+          "enum": ["INTERNAL", "EXTERNAL", "BRIDGE"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "configuration": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "particles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "class_name", "module", "tract"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Particle identifier (snake_case)"
+          },
+          "class_name": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Za-z0-9]*$",
+            "description": "Python class name (PascalCase)"
+          },
+          "module": {
+            "type": "string",
+            "pattern": "^[a-z_][a-z0-9_.]*$",
+            "description": "Python module path"
+          },
+          "tract": {
+            "type": "string",
+            "enum": ["INTERNAL", "EXTERNAL", "BRIDGE"]
+          },
+          "description": {
+            "type": "string"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "payload_schema": {
+            "type": "object",
+            "description": "JSON Schema for particle payload validation"
+          },
+          "metrics": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Custom metrics tracked by this particle"
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "properties": {
+        "python": {
+          "type": "string",
+          "pattern": "^>=?\\d+\\.\\d+(\\.\\d+)?$"
+        },
+        "core": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        },
+        "orchestration": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        },
+        "corpus_callosum": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        },
+        "external_packages": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "operations": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "features": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "consciousness": {
+          "type": "object",
+          "properties": {
+            "pattern_types": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "entropy_reduction": {"type": "boolean"},
+            "self_optimization": {"type": "boolean"},
+            "emergence_detection": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "testing": {
+      "type": "object",
+      "properties": {
+        "test_module": {"type": "string"},
+        "test_coverage": {
+          "type": "object",
+          "properties": {
+            "target": {"type": "integer", "minimum": 0, "maximum": 100},
+            "current": {"type": "integer", "minimum": 0, "maximum": 100}
+          }
+        },
+        "test_results": {
+          "type": "object",
+          "properties": {
+            "total": {"type": "integer", "minimum": 0},
+            "passing": {"type": "integer", "minimum": 0},
+            "failing": {"type": "integer", "minimum": 0},
+            "pass_rate": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "properties": {
+        "state_dir": {"type": "string"},
+        "particle_state_dir": {"type": "string"},
+        "requires_corpus_callosum": {"type": "boolean"},
+        "min_particles": {"type": "integer", "minimum": 1},
+        "max_concurrent_operations": {"type": "integer", "minimum": 1}
+      }
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "request"],
+        "properties": {
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "request": {"type": "object"}
+        }
+      }
+    },
+    "roadmap": {
+      "type": "object",
+      "properties": {
+        "completed": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "planned": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "performance": {
+      "type": "object",
+      "properties": {
+        "benchmarks": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        },
+        "scalability": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

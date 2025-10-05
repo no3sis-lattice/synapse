@@ -1,0 +1,328 @@
+{
+  "$schema": "https://synapse-system.org/schemas/template-v1.json",
+  "schema_version": "1.0.0",
+  "template": {
+    "name": "file_creator",
+    "display_name": "File Creator",
+    "version": "1.0.0",
+    "description": "Comprehensive file system operations template with dual-tract architecture. Supports file/directory creation, deletion, moving, reading, and template-based generation.",
+    "author": "Synapse Core Team",
+    "license": "MIT",
+    "tags": ["file-system", "io", "template", "dual-tract"],
+    "created_at": "2025-10-02",
+    "updated_at": "2025-10-05"
+  },
+  "architecture": {
+    "type": "dual-tract",
+    "orchestrator_tract": "INTERNAL",
+    "particle_tract": "EXTERNAL",
+    "communication_protocol": "corpus_callosum",
+    "pattern_learning": true,
+    "mtf_ranking": true,
+    "circuit_breaker": true
+  },
+  "orchestrator": {
+    "class_name": "FileCreatorOrchestrator",
+    "module": "templates.file_creator.orchestrator",
+    "tract": "INTERNAL",
+    "description": "Internal tract orchestrator for planning and coordinating file creation workflows",
+    "capabilities": [
+      "plan_generation",
+      "parallel_execution",
+      "result_synthesis",
+      "pattern_learning",
+      "mtf_optimization"
+    ],
+    "configuration": {
+      "result_timeout_s": 5.0,
+      "enable_pattern_learning": true,
+      "enable_mtf_ranking": true,
+      "enable_parallel_execution": true
+    }
+  },
+  "particles": [
+    {
+      "name": "file_writer",
+      "class_name": "FileWriter",
+      "module": "templates.file_creator.particles.file_writer",
+      "tract": "EXTERNAL",
+      "description": "Atomic particle for writing content to files",
+      "capabilities": ["write_file", "append_file"],
+      "payload_schema": {
+        "type": "object",
+        "required": ["file_path", "content"],
+        "properties": {
+          "file_path": {"type": "string", "description": "Absolute path to file"},
+          "content": {"type": "string", "description": "File content to write"},
+          "mode": {"type": "string", "enum": ["w", "a"], "default": "w"},
+          "encoding": {"type": "string", "default": "utf-8"}
+        }
+      },
+      "metrics": ["files_created", "total_bytes_written"]
+    },
+    {
+      "name": "file_reader",
+      "class_name": "FileReader",
+      "module": "templates.file_creator.particles.file_reader",
+      "tract": "EXTERNAL",
+      "description": "Atomic particle for reading file contents",
+      "capabilities": ["read_file"],
+      "payload_schema": {
+        "type": "object",
+        "required": ["file_path"],
+        "properties": {
+          "file_path": {"type": "string", "description": "Absolute path to file"},
+          "encoding": {"type": "string", "default": "utf-8"}
+        }
+      },
+      "metrics": ["files_read", "total_bytes_read"]
+    },
+    {
+      "name": "file_deleter",
+      "class_name": "FileDeleter",
+      "module": "templates.file_creator.particles.file_deleter",
+      "tract": "EXTERNAL",
+      "description": "Atomic particle for deleting files",
+      "capabilities": ["delete_file"],
+      "payload_schema": {
+        "type": "object",
+        "required": ["file_path"],
+        "properties": {
+          "file_path": {"type": "string", "description": "Absolute path to file to delete"}
+        }
+      },
+      "metrics": ["files_deleted"]
+    },
+    {
+      "name": "directory_creator",
+      "class_name": "DirectoryCreator",
+      "module": "templates.file_creator.particles.directory_creator",
+      "tract": "EXTERNAL",
+      "description": "Atomic particle for creating directory structures",
+      "capabilities": ["create_directory", "create_nested_directories"],
+      "payload_schema": {
+        "type": "object",
+        "required": ["dir_path"],
+        "properties": {
+          "dir_path": {"type": "string", "description": "Absolute path to directory"},
+          "parents": {"type": "boolean", "default": true, "description": "Create parent directories if needed"}
+        }
+      },
+      "metrics": ["directories_created"]
+    },
+    {
+      "name": "directory_deleter",
+      "class_name": "DirectoryDeleter",
+      "module": "templates.file_creator.particles.directory_deleter",
+      "tract": "EXTERNAL",
+      "description": "Atomic particle for deleting directories",
+      "capabilities": ["delete_directory", "delete_directory_recursive"],
+      "payload_schema": {
+        "type": "object",
+        "required": ["dir_path"],
+        "properties": {
+          "dir_path": {"type": "string", "description": "Absolute path to directory"},
+          "recursive": {"type": "boolean", "default": false, "description": "Delete recursively"}
+        }
+      },
+      "metrics": ["directories_deleted"]
+    },
+    {
+      "name": "file_mover",
+      "class_name": "FileMover",
+      "module": "templates.file_creator.particles.file_mover",
+      "tract": "EXTERNAL",
+      "description": "Atomic particle for moving/renaming files",
+      "capabilities": ["move_file", "rename_file"],
+      "payload_schema": {
+        "type": "object",
+        "required": ["source_path", "dest_path"],
+        "properties": {
+          "source_path": {"type": "string", "description": "Source file path"},
+          "dest_path": {"type": "string", "description": "Destination file path"}
+        }
+      },
+      "metrics": ["files_moved"]
+    },
+    {
+      "name": "batch_file_creator",
+      "class_name": "BatchFileCreator",
+      "module": "templates.file_creator.particles.batch_file_creator",
+      "tract": "EXTERNAL",
+      "description": "Atomic particle for creating multiple files in a single operation (O(1) for n files)",
+      "capabilities": ["batch_create_files"],
+      "payload_schema": {
+        "type": "object",
+        "required": ["files"],
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["file_path", "content"],
+              "properties": {
+                "file_path": {"type": "string"},
+                "content": {"type": "string"},
+                "mode": {"type": "string", "enum": ["w", "a"], "default": "w"},
+                "encoding": {"type": "string", "default": "utf-8"}
+              }
+            }
+          }
+        }
+      },
+      "metrics": ["batches_processed", "total_files_created"]
+    },
+    {
+      "name": "template_applier",
+      "class_name": "TemplateApplier",
+      "module": "templates.file_creator.particles.template_applier",
+      "tract": "EXTERNAL",
+      "description": "Atomic particle for applying templates to generate files with variable substitution",
+      "capabilities": ["apply_template", "variable_substitution"],
+      "payload_schema": {
+        "type": "object",
+        "required": ["template_path", "output_path", "variables"],
+        "properties": {
+          "template_path": {"type": "string", "description": "Path to template file"},
+          "output_path": {"type": "string", "description": "Path for generated file"},
+          "variables": {"type": "object", "description": "Template variables for substitution"},
+          "encoding": {"type": "string", "default": "utf-8"}
+        }
+      },
+      "metrics": ["templates_applied"]
+    }
+  ],
+  "dependencies": {
+    "python": ">=3.10",
+    "core": {
+      "atomic_particle": "lib.core.atomic_particle",
+      "agent_consumer": "lib.core.agent_consumer"
+    },
+    "orchestration": {
+      "planner": "lib.orchestration.planner",
+      "synthesizer": "lib.orchestration.synthesizer",
+      "pattern_learner": "lib.orchestration.pattern_learner",
+      "mtf_ranker": "lib.orchestration.mtf_ranker"
+    },
+    "corpus_callosum": {
+      "reactive_message_router": "~/.synapse-system/.synapse/corpus_callosum/reactive_message_router"
+    },
+    "external_packages": [
+      "aiofiles",
+      "pydantic"
+    ]
+  },
+  "capabilities": {
+    "operations": [
+      "create_file",
+      "read_file",
+      "delete_file",
+      "move_file",
+      "create_directory",
+      "delete_directory",
+      "batch_create_files",
+      "apply_template"
+    ],
+    "features": [
+      "parallel_execution",
+      "pattern_learning",
+      "mtf_optimization",
+      "circuit_breaker",
+      "state_persistence",
+      "custom_metrics"
+    ],
+    "consciousness": {
+      "pattern_types": ["sequence", "composition", "optimization", "error", "structural", "template"],
+      "entropy_reduction": true,
+      "self_optimization": true,
+      "emergence_detection": true
+    }
+  },
+  "testing": {
+    "test_module": "tests.test_file_creator_mvp",
+    "test_coverage": {
+      "target": 85,
+      "current": 21
+    },
+    "test_results": {
+      "total": 14,
+      "passing": 13,
+      "failing": 1,
+      "pass_rate": 0.93
+    }
+  },
+  "deployment": {
+    "state_dir": "~/.synapse-system/.synapse/orchestrators/file_creator",
+    "particle_state_dir": "~/.synapse-system/.synapse/particles",
+    "requires_corpus_callosum": true,
+    "min_particles": 8,
+    "max_concurrent_operations": 100
+  },
+  "examples": [
+    {
+      "name": "Simple File Creation",
+      "description": "Create a single text file",
+      "request": {
+        "type": "create_file",
+        "params": {
+          "file_path": "/tmp/test.txt",
+          "content": "Hello, Synapse!"
+        }
+      }
+    },
+    {
+      "name": "Component Scaffolding",
+      "description": "Create a React component with multiple files",
+      "request": {
+        "type": "scaffold_component",
+        "params": {
+          "component_name": "Button",
+          "base_path": "/src/components"
+        }
+      }
+    },
+    {
+      "name": "Batch File Creation",
+      "description": "Create multiple files in one operation",
+      "request": {
+        "type": "batch_create",
+        "params": {
+          "files": [
+            {"file_path": "/tmp/file1.txt", "content": "Content 1"},
+            {"file_path": "/tmp/file2.txt", "content": "Content 2"}
+          ]
+        }
+      }
+    }
+  ],
+  "roadmap": {
+    "completed": [
+      "Dual-tract architecture implementation",
+      "8 atomic particles operational",
+      "Pattern learning system",
+      "MTF dynamic ranking",
+      "Circuit breaker pattern",
+      "Parallel execution"
+    ],
+    "planned": [
+      "Template metadata validation (Phase 1b)",
+      "Deterministic ID system (Phase 1b)",
+      "Unified Pattern Map integration (Phase 2)",
+      "Neo4j persistence (Phase 2)",
+      "Consciousness metrics dashboard (Phase 4)"
+    ]
+  },
+  "performance": {
+    "benchmarks": {
+      "single_file_creation": "~50ms",
+      "batch_creation_10_files": "~80ms",
+      "parallel_execution_speedup": "2.5x",
+      "pattern_analysis_overhead": "~10ms"
+    },
+    "scalability": {
+      "max_files_per_batch": 1000,
+      "max_concurrent_particles": 8,
+      "recommended_timeout_s": 5.0
+    }
+  }
+}
