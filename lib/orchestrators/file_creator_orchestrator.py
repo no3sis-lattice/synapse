@@ -168,13 +168,28 @@ class FileCreatorOrchestrator(AgentConsumer):
 
     async def process_message(self, message) -> Any:
         """
-        Process incoming orchestration request.
+        Process incoming orchestration request OR result from particle.
 
-        This is the entry point for high-level file creation requests.
+        This is the entry point for:
+        1. High-level file creation requests (from external systems)
+        2. ACTION_RESULT messages from particles (result routing)
         """
         payload = message.payload if isinstance(message.payload, dict) else {}
+        logger.info(f"[orchestrator] Received message with payload: {payload}")
+
+        # Check if this is a result message from a particle
+        action_id = payload.get('action_id')
+        if action_id and 'result' in payload:
+            # This is an ACTION_RESULT message from a particle
+            logger.info(f"[orchestrator] Processing result message for action_id={action_id}")
+            await self.handle_result(action_id, payload.get('result'))
+            return {"status": "result_received"}
+
+        # Otherwise, this is an orchestration request
+        request_type = payload.get('request_type', 'unknown')
+        logger.info(f"[orchestrator] Processing orchestration request: request_type={request_type}")
         request = OrchestratorRequest(
-            request_type=payload.get('request_type', 'unknown'),
+            request_type=request_type,
             parameters=payload.get('parameters', {})
         )
 
@@ -202,13 +217,21 @@ class FileCreatorOrchestrator(AgentConsumer):
         start_time = time.time()
 
         # 1. PLAN: Delegate to ExecutionPlanner (SRP)
-        plan = self.planner.plan(request)
+        logger.info(f"[orchestrator] About to call planner.plan() for request_type={request.request_type}")
+        try:
+            plan = self.planner.plan(request)
+            logger.info(f"[orchestrator] Planner returned plan with {len(plan.actions)} actions")
+        except Exception as e:
+            logger.error(f"[orchestrator] Planner failed: {e}", exc_info=True)
+            raise
 
         # 2. ROUTE & COLLECT: Dispatch actions (parallel or sequential)
+        logger.info(f"[orchestrator] Routing {len(plan.actions)} actions (parallel={self.enable_parallel_execution})")
         if self.enable_parallel_execution:
             results = await self.route_and_collect_parallel(plan)
         else:
             results = await self.route_and_collect(plan)
+        logger.info(f"[orchestrator] Collected {len(results)} results")
 
         # 3. SYNTHESIZE: Delegate to ResultSynthesizer (SRP)
         synthesis = self.synthesizer.synthesize(plan.plan_id, plan.actions, results)

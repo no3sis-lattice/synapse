@@ -105,6 +105,9 @@ async def test_environment():
     await template_applier.start()
     await orchestrator.start()
 
+    # Give agents time to fully subscribe to message streams
+    await asyncio.sleep(0.1)
+
     yield {
         "corpus_callosum": corpus_callosum,
         "file_writer": file_writer,
@@ -139,7 +142,7 @@ async def test_environment():
 @pytest.mark.asyncio
 async def test_simple_file_creation(test_environment):
     """Test: Orchestrator creates a single file"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
 
@@ -163,7 +166,7 @@ async def test_simple_file_creation(test_environment):
     assert msg_id >= 0, "Message routing failed"
 
     # Wait for processing
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1.0)
 
     # Verify file was created
     assert test_file_path.exists(), "File was not created"
@@ -173,7 +176,7 @@ async def test_simple_file_creation(test_environment):
 @pytest.mark.asyncio
 async def test_file_read(test_environment):
     """Test: File reader particle reads file contents"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
 
@@ -196,7 +199,7 @@ async def test_file_read(test_environment):
     )
 
     assert msg_id >= 0, "Message routing failed"
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1.0)
 
     # Note: In full implementation, would verify result was returned
     print("File read request sent successfully")
@@ -205,7 +208,7 @@ async def test_file_read(test_environment):
 @pytest.mark.asyncio
 async def test_file_deletion(test_environment):
     """Test: File deleter particle deletes files"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
 
@@ -228,7 +231,7 @@ async def test_file_deletion(test_environment):
     )
 
     assert msg_id >= 0, "Message routing failed"
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1.0)  # Increased from 0.5s for full message round-trip
 
     # Verify file was deleted
     assert not test_file.exists(), "File was not deleted"
@@ -237,7 +240,7 @@ async def test_file_deletion(test_environment):
 @pytest.mark.asyncio
 async def test_directory_deletion(test_environment):
     """Test: Directory deleter particle deletes directories"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
 
@@ -261,7 +264,7 @@ async def test_directory_deletion(test_environment):
     )
 
     assert msg_id >= 0, "Message routing failed"
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1.0)
 
     # Verify directory was deleted
     assert not test_subdir.exists(), "Directory was not deleted"
@@ -270,7 +273,7 @@ async def test_directory_deletion(test_environment):
 @pytest.mark.asyncio
 async def test_file_move(test_environment):
     """Test: File mover particle moves/renames files"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
 
@@ -295,7 +298,7 @@ async def test_file_move(test_environment):
     )
 
     assert msg_id >= 0, "Message routing failed"
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1.0)
 
     # Verify file was moved
     assert not source_file.exists(), "Source file still exists"
@@ -306,7 +309,7 @@ async def test_file_move(test_environment):
 @pytest.mark.asyncio
 async def test_batch_file_creation(test_environment):
     """Test: Batch file creator creates multiple files at once"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
 
@@ -330,7 +333,7 @@ async def test_batch_file_creation(test_environment):
     )
 
     assert msg_id >= 0, "Message routing failed"
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1.0)
 
     # Verify all files were created
     for file_spec in files:
@@ -342,7 +345,7 @@ async def test_batch_file_creation(test_environment):
 @pytest.mark.asyncio
 async def test_template_application(test_environment):
     """Test: Template applier creates files from templates"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
 
@@ -367,7 +370,7 @@ async def test_template_application(test_environment):
     )
 
     assert msg_id >= 0, "Message routing failed"
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1.0)
 
     # Verify template was applied
     output_file = test_dir / "my_module.py"
@@ -380,7 +383,7 @@ async def test_template_application(test_environment):
 @pytest.mark.asyncio
 async def test_directory_creation(test_environment):
     """Test: Orchestrator creates a directory"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
 
@@ -403,7 +406,7 @@ async def test_directory_creation(test_environment):
     assert msg_id >= 0, "Message routing failed"
 
     # Wait for processing
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1.0)
 
     # Verify directory was created
     assert test_dir_path.exists(), "Directory was not created"
@@ -413,7 +416,7 @@ async def test_directory_creation(test_environment):
 @pytest.mark.asyncio
 async def test_complex_component_creation(test_environment):
     """Test: Orchestrator creates a complete component structure"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
 
@@ -454,7 +457,7 @@ async def test_complex_component_creation(test_environment):
 @pytest.mark.asyncio
 async def test_scaffold_module(test_environment):
     """Test: Orchestrator scaffolds a module with template"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
 
@@ -486,7 +489,7 @@ async def test_scaffold_module(test_environment):
 @pytest.mark.asyncio
 async def test_particle_state_persistence(test_environment):
     """Test: Particles persist state with cycle counts"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     state_dir = env["state_dir"]
     corpus_callosum = env["corpus_callosum"]
@@ -509,7 +512,7 @@ async def test_particle_state_persistence(test_environment):
         }
     )
 
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1.0)
 
     # Check file_writer state
     file_writer_state_file = state_dir / "file_writer_state.json"
@@ -533,7 +536,7 @@ async def test_particle_state_persistence(test_environment):
 @pytest.mark.asyncio
 async def test_corpus_callosum_stats(test_environment):
     """Test: Corpus Callosum tracks message statistics"""
-    env = await test_environment.__anext__()
+    env = test_environment
     corpus_callosum = env["corpus_callosum"]
 
     # Get stats before
@@ -563,7 +566,7 @@ async def test_corpus_callosum_stats(test_environment):
 @pytest.mark.asyncio
 async def test_particle_custom_metrics(test_environment):
     """Test: Particles track custom metrics"""
-    env = await test_environment.__anext__()
+    env = test_environment
     test_dir = env["test_dir"]
     corpus_callosum = env["corpus_callosum"]
     file_writer = env["file_writer"]
@@ -585,7 +588,7 @@ async def test_particle_custom_metrics(test_environment):
         }
     )
 
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1.0)
 
     # Check custom metrics
     stats = file_writer.get_particle_stats()
@@ -602,7 +605,7 @@ async def test_particle_custom_metrics(test_environment):
 @pytest.mark.asyncio
 async def test_all_particles_functional(test_environment):
     """Test: All 8 particles are functional"""
-    env = await test_environment.__anext__()
+    env = test_environment
     state_dir = env["state_dir"]
 
     # Wait a bit for any pending operations

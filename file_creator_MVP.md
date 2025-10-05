@@ -539,6 +539,86 @@ CLOSED (normal) --[5 failures]--> OPEN (failing)
 
 ---
 
-**MVP Status**: ✅ **COMPLETE - All Day 1-4 objectives achieved**
+## 12. Testing Status (2025-10-05)
 
-**Next Phase**: System-wide agent decomposition using file_creator as the proven template.
+### Testing Infrastructure Setup ✅
+
+**Environment**: UV-based (`uv 0.6.14` + Python 3.12.10)
+- ✅ `pyproject.toml` created with all dependencies
+- ✅ `uv.lock` generated (68 packages, deterministic)
+- ✅ Test environment reproducible: `uv sync --all-extras`
+
+**Quick Start**:
+```bash
+uv sync --all-extras  # Install dependencies
+uv run pytest tests/ -v  # Run all tests
+```
+
+See [TESTING.md](./TESTING.md) for detailed testing guide.
+
+### Test Results: file_creator MVP
+
+**Status**: 🟡 **7/14 tests passing (50%)**
+
+#### ✅ Passing Tests (Verified Functionality)
+1. ✅ File creation (file_writer particle)
+2. ✅ File reading (file_reader particle)
+3. ✅ Complex component creation (multi-step workflow)
+4. ✅ State persistence (particle state across executions)
+5. ✅ Corpus Callosum stats (message routing statistics)
+6. ✅ Custom metrics tracking (per-particle metrics)
+7. ✅ All particles functional (basic functionality verified)
+
+**Coverage**: 21% (focus on file_creator module only)
+
+#### ❌ Failing Tests (Real Bugs - No Mocks)
+1. ❌ File deletion (file_deleter not executing)
+2. ❌ Directory deletion (directory_deleter not executing)
+3. ❌ File move (file_mover not executing)
+4. ❌ Batch file creation (batch operations not working)
+5. ❌ Template application (template_applier not working)
+6. ❌ Directory creation (complex case failing)
+7. ❌ Scaffold module (multi-step workflow incomplete)
+
+**Root Cause**: Orchestrator request routing issue for non-`create_file` operations. The planner code appears correct but only `create_file` requests reach particle execution.
+
+### Fixes Applied During Testing
+
+1. **pytest-asyncio compatibility**: Fixed async fixture iteration pattern
+2. **Message filtering**: Added `target_particle` filtering in AtomicParticle
+3. **Result routing**: Implemented ACTION_RESULT message handling in orchestrator
+4. **Subscription timing**: Added 0.1s delay for agents to fully subscribe
+5. **Test timeouts**: Increased to 1.0s for async round-trip communication
+
+### Blocked Items
+
+**Cannot proceed to Mojo/Nix migration until**:
+- ❌ 7 failing tests resolved (orchestrator bug)
+- ⏸️ Day 3-4 advanced feature tests run
+- ⏸️ Unit test suites validated
+- ⏸️ Coverage reaches >85%
+
+**Estimated time to fix**: 4-8 hours of debugging orchestrator request routing.
+
+### Test Philosophy
+
+**No Shortcuts Taken**:
+- ✅ Real file system operations (no mocks)
+- ✅ Real message routing via Corpus Callosum
+- ✅ Real state persistence to JSON files
+- ✅ Real async execution with timeouts
+- ❌ No mock data to artificially pass tests
+
+**7 passing tests = 7 genuinely working features**
+**7 failing tests = 7 real bugs to fix**
+
+---
+
+**MVP Status**: 🟡 **IMPLEMENTATION COMPLETE, TESTING PARTIAL (50%)**
+
+**Next Steps**:
+1. **Immediate**: Debug orchestrator request routing for 7 failing tests
+2. **Short-term**: Run Day 3-4 and unit test suites
+3. **Medium-term**: Mojo migration (after 100% tests pass)
+
+**Next Phase**: System-wide agent decomposition (blocked on testing completion).

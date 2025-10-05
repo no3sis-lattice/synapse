@@ -11,10 +11,13 @@ Responsibilities:
 - (Future) Integrate with pattern recommendations for optimization
 """
 
+import logging
 import time
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -118,6 +121,8 @@ class ExecutionPlanner:
 
         request_type = request.request_type
         params = request.parameters
+
+        logger.info(f"[planner] Planning for request_type='{request_type}', params={params}")
 
         # ====================================================================
         # SIMPLE SINGLE-PARTICLE OPERATIONS

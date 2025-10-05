@@ -26,7 +26,7 @@ from enum import Enum
 from agent_consumer import AgentConsumer, AgentConfig
 import sys
 sys.path.insert(0, str(Path.home() / '.synapse-system' / '.synapse' / 'corpus_callosum'))
-from reactive_message_router import TractType, Message
+from reactive_message_router import TractType, Message, MessagePriority
 
 logger = logging.getLogger(__name__)
 
@@ -185,6 +185,14 @@ class AtomicParticle(AgentConsumer):
 
         Day 3-4: Enhanced with circuit breaker check.
         """
+        # Filter: Only process messages targeted to this particle
+        payload = message.payload if isinstance(message.payload, dict) else {}
+        target_particle = payload.get('target_particle')
+
+        # If target_particle is specified and doesn't match, skip this message
+        if target_particle and target_particle != self.config.agent_id:
+            return None  # Not for us, skip silently
+
         # Day 3-4: Check circuit breaker state
         async with self._circuit_breaker_lock:
             circuit_state = await self._check_circuit_breaker()
@@ -211,6 +219,22 @@ class AtomicParticle(AgentConsumer):
 
         # 4. MEMORIZE: Update and persist state (with circuit breaker logic)
         await self.memorize(result)
+
+        # 5. SEND RESULT BACK: If this was an action from orchestrator, send result back
+        action_id = payload.get('action_id')
+        if action_id:
+            # Send result message back to orchestrator (T_ext → T_int)
+            await self.corpus_callosum.route_message(
+                source_tract=TractType.EXTERNAL,
+                dest_tract=TractType.INTERNAL,
+                priority=MessagePriority.NORMAL,
+                payload={
+                    "action_id": action_id,
+                    "result": result.output,
+                    "status": "success" if result.success else "failed",
+                    "particle": self.config.agent_id
+                }
+            )
 
         return result.output
 
