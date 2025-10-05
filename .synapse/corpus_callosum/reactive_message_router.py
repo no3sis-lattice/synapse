@@ -204,7 +204,17 @@ class ReactiveMessageStream:
                 logger.info(f"Subscriber {subscriber_id} left stream for {self.tract}")
 
     async def _distribute_messages(self):
-        """Distribute messages to subscribers (respects backpressure)"""
+        """
+        Distribute messages to subscribers (broadcast mode with backpressure).
+
+        FIXED (Day 5): Changed from round-robin to broadcast.
+        - EXTERNAL tract: Broadcast to all subscribers (particles filter by target_particle)
+        - INTERNAL tract: Broadcast to all subscribers (orchestrators process all)
+
+        Root cause: Round-robin delivery meant only ONE subscriber received each message.
+        When file_writer received a message for file_deleter, it filtered and dropped it.
+        Now all subscribers receive all messages and filter themselves.
+        """
         while True:
             try:
                 await asyncio.sleep(0.01)  # 10ms poll interval
@@ -213,23 +223,35 @@ class ReactiveMessageStream:
                     if not self.pending_messages or not self.subscribers:
                         continue
 
-                    # Distribute messages round-robin to subscribers
-                    distributed = 0
-                    while self.pending_messages and distributed < len(self.subscribers) * 10:
-                        message = self.pending_messages.popleft()
+                    # Process messages from queue
+                    messages_to_process = []
+                    while self.pending_messages and len(messages_to_process) < 100:
+                        messages_to_process.append(self.pending_messages.popleft())
 
-                        # Try to deliver to any subscriber with capacity
-                        delivered = False
-                        for sub in self.subscribers.values():
+                    # Broadcast each message to ALL subscribers with capacity
+                    for message in messages_to_process:
+                        delivered_to_any = False
+                        failed_subscribers = []
+
+                        # Try to deliver to all active subscribers
+                        for subscriber_id, sub in self.subscribers.items():
+                            if not sub.active:
+                                continue
+
                             if await sub.push(message):
-                                delivered = True
-                                distributed += 1
-                                break
+                                delivered_to_any = True
+                            else:
+                                # Subscriber doesn't have capacity
+                                failed_subscribers.append(subscriber_id)
 
-                        if not delivered:
-                            # No subscriber has capacity, put message back
+                        if not delivered_to_any:
+                            # No subscriber had capacity, put message back
                             self.pending_messages.appendleft(message)
-                            break
+                            logger.debug(
+                                f"Message {message.id} queued (no subscriber capacity): "
+                                f"{failed_subscribers}"
+                            )
+                            break  # Stop processing, wait for capacity
 
             except asyncio.CancelledError:
                 break
