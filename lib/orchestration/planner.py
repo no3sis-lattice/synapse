@@ -388,6 +388,9 @@ class ExecutionPlanner:
             ))
 
             # Apply template
+            # Convert module_name to PascalCase (e.g., "data_processor" -> "DataProcessor")
+            class_name = ''.join(word.capitalize() for word in module_name.split('_'))
+
             template_action_data = {
                 "action_type": "apply_template",
                 "target_particle": "template_applier",
@@ -396,9 +399,9 @@ class ExecutionPlanner:
                     "output_path": f"{base_path}/{module_name}.py" if language == "python" else f"{base_path}/{module_name}.rs",
                     "variables": {
                         "description": f"{module_name} module",
-                        "class_name": module_name.title(),
-                        "class_description": f"{module_name.title()} class",
-                        "struct_name": module_name.title(),
+                        "class_name": class_name,
+                        "class_description": f"{class_name} class",
+                        "struct_name": class_name,
                         "imports": ""
                     }
                 }
@@ -412,9 +415,9 @@ class ExecutionPlanner:
                     "output_path": f"{base_path}/{module_name}.py" if language == "python" else f"{base_path}/{module_name}.rs",
                     "variables": {
                         "description": f"{module_name} module",
-                        "class_name": module_name.title(),
-                        "class_description": f"{module_name.title()} class",
-                        "struct_name": module_name.title(),
+                        "class_name": class_name,
+                        "class_description": f"{class_name} class",
+                        "struct_name": class_name,
                         "imports": ""
                     }
                 }
