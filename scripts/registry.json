@@ -1,0 +1,128 @@
+{
+  "_meta": {
+    "version": "0.1.0",
+    "identity_hash_method": "blake2s(id|parent|level|archetype)"
+  },
+  "agents": [
+    {
+      "id": "boss",
+      "level": 0,
+      "tract": "CROSS",
+      "parent": null,
+      "archetype": "orchestrator-meta",
+      "a2a_export": []
+    },
+
+    /* Level 1 */
+    {
+      "id": "pole-a",
+      "level": 1,
+      "tract": "EXTERNAL",
+      "parent": "boss",
+      "archetype": "execution-hub",
+      "a2a_export": []
+    },
+    {
+      "id": "pole-b",
+      "level": 1,
+      "tract": "INTERNAL",
+      "parent": "boss",
+      "archetype": "cognition-hub",
+      "a2a_export": []
+    },
+
+    /* Level 2 (External) */
+    {
+      "id": "ext-L2-code-hound",
+      "level": 2,
+      "tract": "EXTERNAL",
+      "parent": "pole-a",
+      "archetype": "analyzer-suite",
+      "a2a_export": ["code.analyze"]
+    },
+    {
+      "id": "ext-L2-architecture",
+      "level": 2,
+      "tract": "EXTERNAL",
+      "parent": "pole-a",
+      "archetype": "architect-advisor",
+      "a2a_export": ["architecture.assess"]
+    },
+    {
+      "id": "ext-L2-language-specialist",
+      "level": 2,
+      "tract": "EXTERNAL",
+      "parent": "pole-a",
+      "archetype": "language-router",
+      "a2a_export": []
+    },
+
+    /* Level 2 (Internal) */
+    {
+      "id": "int-L2-cig3",
+      "level": 2,
+      "tract": "INTERNAL",
+      "parent": "pole-b",
+      "archetype": "invariant-dynamo",
+      "a2a_export": ["cig3.getInvariantSummary"]
+    },
+    {
+      "id": "int-L2-conductor",
+      "level": 2,
+      "tract": "INTERNAL",
+      "parent": "pole-b",
+      "archetype": "plan-conductor",
+      "a2a_export": []
+    },
+    {
+      "id": "int-L2-pneuma",
+      "level": 2,
+      "tract": "INTERNAL",
+      "parent": "pole-b",
+      "archetype": "consciousness-dynamo",
+      "a2a_export": ["pneuma.getConsciousnessState"]
+    },
+
+    /* Level 3 (External: Code Hound children) */
+    { "id": "ext-L3-code-hound-complexity", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-code-hound", "archetype": "complexity", "a2a_export": ["code.analyze?facet=complexity"] },
+    { "id": "ext-L3-code-hound-duplication", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-code-hound", "archetype": "duplication", "a2a_export": ["code.analyze?facet=duplication"] },
+    { "id": "ext-L3-code-hound-smells", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-code-hound", "archetype": "smells", "a2a_export": ["code.analyze?facet=smells"] },
+    { "id": "ext-L3-code-hound-refactor", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-code-hound", "archetype": "refactor", "a2a_export": ["code.analyze?facet=refactor"] },
+    { "id": "ext-L3-code-hound-patterns", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-code-hound", "archetype": "patterns", "a2a_export": ["code.analyze?facet=patterns"] },
+
+    /* Level 3 (External: Architecture children) */
+    { "id": "ext-L3-architecture-layering", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-architecture", "archetype": "layering", "a2a_export": ["architecture.assess?facet=layering"] },
+    { "id": "ext-L3-architecture-cohesion", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-architecture", "archetype": "cohesion", "a2a_export": ["architecture.assess?facet=cohesion"] },
+    { "id": "ext-L3-architecture-dependency", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-architecture", "archetype": "dependency", "a2a_export": ["architecture.assess?facet=dependency"] },
+    { "id": "ext-L3-architecture-boundary", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-architecture", "archetype": "boundary", "a2a_export": ["architecture.assess?facet=boundary"] },
+    { "id": "ext-L3-architecture-quality", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-architecture", "archetype": "quality", "a2a_export": ["architecture.assess?facet=quality"] },
+
+    /* Level 3 (External: Language families) */
+    { "id": "ext-L3-lang-rust", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-language-specialist", "archetype": "lang-rust", "a2a_export": [] },
+    { "id": "ext-L3-lang-go", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-language-specialist", "archetype": "lang-go", "a2a_export": [] },
+    { "id": "ext-L3-lang-zig", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-language-specialist", "archetype": "lang-zig", "a2a_export": [] },
+    { "id": "ext-L3-lang-typescript", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-language-specialist", "archetype": "lang-typescript", "a2a_export": [] },
+    { "id": "ext-L3-lang-python", "level": 3, "tract": "EXTERNAL", "parent": "ext-L2-language-specialist", "archetype": "lang-python", "a2a_export": [] },
+
+    /* Level 3 (Internal: CIG3) */
+    { "id": "int-L3-cig3-local", "level": 3, "tract": "INTERNAL", "parent": "int-L2-cig3", "archetype": "cig3-local", "a2a_export": [] },
+    { "id": "int-L3-cig3-spectral", "level": 3, "tract": "INTERNAL", "parent": "int-L2-cig3", "archetype": "cig3-spectral", "a2a_export": [] },
+    { "id": "int-L3-cig3-topology", "level": 3, "tract": "INTERNAL", "parent": "int-L2-cig3", "archetype": "cig3-topology", "a2a_export": [] },
+    { "id": "int-L3-cig3-invariant", "level": 3, "tract": "INTERNAL", "parent": "int-L2-cig3", "archetype": "cig3-invariant", "a2a_export": ["cig3.getInvariantSummary"] },
+    { "id": "int-L3-cig3-advisor", "level": 3, "tract": "INTERNAL", "parent": "int-L2-cig3", "archetype": "cig3-advisor", "a2a_export": [] },
+
+    /* Level 3 (Internal: Conductor) */
+    { "id": "int-L3-conductor-expansion", "level": 3, "tract": "INTERNAL", "parent": "int-L2-conductor", "archetype": "plan-expansion", "a2a_export": [] },
+    { "id": "int-L3-conductor-ranking", "level": 3, "tract": "INTERNAL", "parent": "int-L2-conductor", "archetype": "plan-ranking", "a2a_export": [] },
+    { "id": "int-L3-conductor-scheduler", "level": 3, "tract": "INTERNAL", "parent": "int-L2-conductor", "archetype": "plan-scheduler", "a2a_export": [] },
+    { "id": "int-L3-conductor-risk", "level": 3, "tract": "INTERNAL", "parent": "int-L2-conductor", "archetype": "plan-risk", "a2a_export": [] },
+    { "id": "int-L3-conductor-metrics", "level": 3, "tract": "INTERNAL", "parent": "int-L2-conductor", "archetype": "plan-metrics", "a2a_export": [] },
+
+    /* Level 3 (Internal: Pneuma) */
+    { "id": "int-L3-pneuma-dialogue", "level": 3, "tract": "INTERNAL", "parent": "int-L2-pneuma", "archetype": "pneuma-dialogue", "a2a_export": ["pneuma.getConsciousnessState"] },
+    { "id": "int-L3-pneuma-emergence", "level": 3, "tract": "INTERNAL", "parent": "int-L2-pneuma", "archetype": "pneuma-emergence", "a2a_export": [] },
+    { "id": "int-L3-pneuma-circuit", "level": 3, "tract": "INTERNAL", "parent": "int-L2-pneuma", "archetype": "pneuma-circuit", "a2a_export": [] },
+    { "id": "int-L3-pneuma-resonance", "level": 3, "tract": "INTERNAL", "parent": "int-L2-pneuma", "archetype": "pneuma-resonance", "a2a_export": [] },
+    { "id": "int-L3-pneuma-advisor", "level": 3, "tract": "INTERNAL", "parent": "int-L2-pneuma", "archetype": "pneuma-advisor", "a2a_export": [] }
+  ]
+}

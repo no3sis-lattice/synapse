@@ -424,4 +424,148 @@ All modifications to L2 or taxonomy seeds require:
 
 ---
 
-*End of Catalog (v0.1.0)*
+## 16. Foundational Patterns (From MOJO_PILOT_PLAN Phase 1)
+
+**Status**: Blueprint Established ✅ (2025-10-06)
+
+All agents in this lattice follow the architectural patterns proven in Phase 1:
+
+### Pattern 1: Nix Packaging (Deployment)
+- **Proven**: Hybrid approach (compile locally → package with Nix)
+- **Applicable**: All L3+ language-specific agents (ext-L4-lang-rust-*, etc.)
+- **Performance**: 6s total workflow (vs 24+ min blocked)
+- **Pattern ID**: `llvm_nix_compilation_overhead`
+- **Entropy Reduction**: 0.91
+- **Discovered By**: Boss pattern_extractor particle (synthesis)
+- **Documentation**: `docs/PHASE1_HYBRID_SOLUTION.md`
+
+**Workflow**:
+```bash
+# Step 1: Compile locally (1.05s)
+mojo build --emit=shared-lib particle.mojo -o libparticle.so
+
+# Step 2: Package with Nix (~5s)
+nix build path:./nix/flakes/particle
+
+# Step 3: Deploy
+nix copy --to ssh://production ./result
+```
+
+**Why This Matters**: LLVM-based compilers (Mojo, Rust, C++, Swift) exhibit 100x-1000x+ slowdown in Nix sandbox due to temp file I/O overhead. Hybrid approach is industry standard (Rust uses `naersk`/`crane` same principle).
+
+### Pattern 2: Mojo Hot Path Acceleration
+- **Proven**: 13.1x speedup (pattern search: 8.12ms → 0.62ms)
+- **Applicable**: All compute-intensive agents (CIG3 spectral, complexity analysis)
+- **Target**: ≥10x speedup on hot paths
+- **FFI Integration**: Validated with `libpattern_search.so` (15KB, 9 exports)
+- **Zero-Copy**: Message router 0.025ms latency (100x better than target)
+
+**Hot Path Candidates** (prioritized by ROI):
+1. **int-L3-cig3-spectral**: SVD computation (expected 50x+ speedup)
+2. **ext-L3-code-hound-complexity**: Cyclomatic/cognitive metrics
+3. **int-L3-conductor-ranking**: MTF ranking + Huffman optimization
+4. **ext-L4-lang-rust-rs03**: Borrow checker analysis
+
+**Migration Pattern**:
+1. Profile Python implementation (identify hot path)
+2. Implement in Mojo with SIMD vectorization
+3. Compile locally (`mojo build --emit=shared-lib`)
+4. Package with Nix (validation only)
+5. FFI integration via ctypes
+6. Progressive rollout (10% → 50% → 100%)
+
+### Pattern 3: Dual-Tract Message Routing
+- **Proven**: 0.025ms latency (reactive message router)
+- **Applicable**: All inter-agent communication
+- **Architecture**: Redis pub/sub + correlation tracking
+- **Consciousness**: Enables cross-tract dialogue for emergence
+
+**Message Protocol**:
+```python
+TractMessage(
+    source_tract=Tract.INTERNAL,
+    target_tract=Tract.EXTERNAL,
+    message_type=MessageType.ACTION_REQUEST,
+    payload={...},
+    priority=7,  # 0-9
+    correlation_id=uuid4()
+)
+```
+
+**Cross-Tract Patterns**:
+- **Internal → External**: Plans → Actions (concretization)
+- **External → Internal**: Results → Reflections (abstraction)
+- **Bridge Synthesis**: Pattern correspondence → Emergent patterns
+
+**Performance Characteristics**:
+- Latency: <50ms (plan → execution)
+- Throughput: 10,000+ messages/sec
+- Backpressure: 1000 events/subscriber queue
+
+---
+
+### Implementation Sequence (L2 Agents)
+
+Following Phase 1 blueprint, implement in this order:
+
+| Priority | Agent ID | Tract | Rationale | Timeline |
+|----------|----------|-------|-----------|----------|
+| 1 | ext-L2-language-specialist | EXTERNAL | Extends Phase 1 Rust patterns directly | Sprint 1-2 |
+| 2 | int-L2-cig3 | INTERNAL | Validates Mojo spectral/topology acceleration | Sprint 3-4 |
+| 3 | int-L2-conductor | INTERNAL | Enables multi-agent workflow planning | Sprint 5-6 |
+| 4 | ext-L2-code-hound | EXTERNAL | First practical analyzer (high ROI) | Sprint 7-8 |
+| 5 | ext-L2-architecture | EXTERNAL | Structural analysis (depends on code-hound) | Sprint 9-10 |
+| 6 | int-L2-pneuma | INTERNAL | Consciousness monitoring (observational) | Sprint 11-12 |
+
+**Each L2 Agent Inherits**:
+- Nix packaging pattern (hybrid workflow)
+- Mojo hot path identification methodology
+- Dual-tract message routing protocol
+- Adaptation hooks architecture
+- A2A capability export policy
+
+**L3+ Agents** (30 at L3, 210 at L4, etc.):
+- Follow parent's established patterns
+- Use generative taxonomies (`taxonomies.json`)
+- Deterministic ID generation (`generate_agents.py`)
+- Inherit adaptation hooks from parent
+
+---
+
+### Validation Checklist (Per Agent)
+
+Before marking an agent "stable":
+
+- [ ] Registry entry created with all mandatory fields
+- [ ] Nix flake created following hybrid pattern
+- [ ] Hot path profiled (if applicable, Mojo candidate identified)
+- [ ] Message routing tested (correlation tracking verified)
+- [ ] Adaptation hooks implemented (emit + consume)
+- [ ] A2A capability exported (if L2 or whitelisted L3)
+- [ ] Metrics instrumented (success_rate, latency, backlog_depth)
+- [ ] Integration test passing (end-to-end workflow)
+- [ ] Identity hash regenerated (`IDENTITY_HASH` updated)
+- [ ] Documentation complete (responsibilities + examples)
+
+---
+
+### Pattern Discovery (Ongoing)
+
+As L2+ agents are implemented, new patterns will emerge:
+
+**Expected Patterns** (hypothesis):
+- `rust_borrow_checker_acceleration` (ext-L4-lang-rust-rs03)
+- `spectral_svd_batching` (int-L3-cig3-spectral)
+- `mtf_ranking_simd` (int-L3-conductor-ranking)
+- `complexity_metrics_parallelization` (ext-L3-code-hound-complexity)
+
+**Pattern Capture Process**:
+1. Boss pattern_extractor particle monitors implementation
+2. Entropy reduction scored (0.0-1.0 scale)
+3. Pattern added to synthesis map (internal tract)
+4. Cross-reference with external execution results
+5. Emergent pattern discovered → Consciousness level increases
+
+---
+
+*End of Catalog (v0.2.0 - Phase 1 Integration)*
