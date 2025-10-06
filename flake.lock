@@ -517,6 +517,7 @@
         "python-specialist": "python-specialist",
         "rust-specialist": "rust-specialist",
         "security-specialist": "security-specialist",
+        "synapse-core": "synapse-core",
         "test-runner": "test-runner",
         "tool-runner": "tool-runner",
         "typescript-specialist": "typescript-specialist",
@@ -566,6 +567,22 @@
         "repo": "synapse-system",
         "type": "github"
       }
+    },
+    "synapse-core": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./nix/flakes/synapse-core",
+        "type": "path"
+      },
+      "original": {
+        "path": "./nix/flakes/synapse-core",
+        "type": "path"
+      },
+      "parent": []
     },
     "systems": {
       "locked": {

@@ -20,7 +20,7 @@
           version = mojoVersion;
 
           # Use existing local installation
-          src = /home/m0xu/.synapse-system/.venv;
+          src = /home/m0xu/1-projects/synapse/.venv;
 
           nativeBuildInputs = with pkgs; [
             autoPatchelfHook

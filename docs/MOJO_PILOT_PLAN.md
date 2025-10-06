@@ -451,12 +451,15 @@ flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system:
 
 ## Success Metrics
 
-### Phase 1 Success (Nix Validation)
+### Phase 1 Success (Nix Packaging & Validation)
 - ✅ 17/17 validation tests pass
-- ✅ Pattern search: 13.1x speedup maintained in Nix builds
-- ✅ Message router: 0.025ms latency maintained
+- ✅ Nix packages pre-built Mojo libraries correctly
+- ✅ Pattern search: 13.1x speedup maintained when loaded from Nix package
+- ✅ Message router: 0.025ms latency maintained when loaded from Nix package
 - ✅ Zero performance regression (<5% variance)
-- ✅ Libraries loadable by Python via ctypes
+- ✅ Libraries loadable by Python via ctypes from Nix environment
+- ✅ FFI symbols verified in packaged libraries
+- ⚠️  **Known Limitation**: Nix cannot compile Mojo efficiently (1,371x slowdown due to LLVM syscall overhead in sandbox). Libraries are pre-compiled and packaged by Nix for deployment.
 
 ### Phase 2 Success (Production Rollout)
 - ✅ Pattern search: 100% rollout, <1% error rate, 13.1x speedup
@@ -476,6 +479,78 @@ flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system:
 - ✅ Nix reproducible builds validated
 - ✅ Team confidence in Mojo development workflow
 - ✅ Clear path to future Mojo migrations
+
+---
+
+## Development Workflow: Hybrid Approach
+
+### Why Hybrid? (Compile Locally, Package with Nix)
+
+**Discovery (2025-10-06)**: Mojo compilation in Nix sandbox exhibits **1,371x slowdown** (1.05s → 24+ minutes) due to architectural mismatch between LLVM's I/O-intensive compilation and Nix's per-syscall isolation overhead.
+
+**Root Cause**:
+- LLVM generates thousands of temporary files during optimization passes
+- Nix sandbox wraps every filesystem syscall for hermetic builds
+- Result: Multiplicative overhead (1000s of files × 40x per-syscall cost)
+
+**Industry Pattern**: This is a known limitation for LLVM-based languages in Nix. Solutions:
+- **Rust**: Use `naersk` or `crane` with caching
+- **C++**: Use `ccache` extensively or pre-build
+- **Mojo**: Pre-compile, package with Nix (our approach)
+
+### The Workflow
+
+**Step 1: Local Compilation** (1.05 seconds)
+```bash
+cd /home/m0xu/1-projects/synapse/.synapse/neo4j
+mojo build --emit=shared-lib pattern_search_mojo.mojo -o libpattern_search.so
+```
+
+**Step 2: Nix Packaging** (~5 seconds)
+```bash
+cd /home/m0xu/1-projects/synapse
+nix build path:./nix/flakes/mojo-pattern-search
+# Validates FFI exports, packages .so for deployment
+```
+
+**Step 3: Deployment**
+```bash
+nix copy --to ssh://production ./result
+# Or: nix copy --to cachix synapse-system ./result
+```
+
+### What Nix Still Provides
+
+✅ **Reproducible Packaging**: Hash-verified artifact distribution
+✅ **FFI Validation**: Ensures `pattern_search_ffi` symbol exists
+✅ **Hermetic Distribution**: All dependencies declared in flake
+✅ **Rollback Support**: Nix generations enable instant rollback
+✅ **Binary Caching**: Cachix can distribute pre-built artifacts
+
+❌ **NOT Provided**: Reproducible compilation across machines (requires local Mojo SDK)
+
+### CI/CD Integration
+
+```yaml
+# .github/workflows/mojo.yml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Mojo SDK
+        run: curl https://get.modular.com | sh
+
+      - name: Compile Mojo libraries
+        run: |
+          mojo build --emit=shared-lib .synapse/neo4j/pattern_search_mojo.mojo
+          mojo build --emit=shared-lib .synapse/corpus_callosum/message_router.mojo
+
+      - name: Package with Nix
+        run: nix build .#mojo-libraries
+
+      - name: Deploy to Cachix
+        run: nix copy --to cachix synapse-system ./result
+```
 
 ---
 

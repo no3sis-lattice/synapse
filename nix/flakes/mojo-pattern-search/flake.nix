@@ -16,26 +16,74 @@
         pkgs = import nixpkgs { inherit system; };
         mojoPath = mojo-runtime.lib.mojoPath system;
 
+        # Pre-built library (compiled outside Nix due to 1,371x slowdown in sandbox)
+        # Use absolute path to force Nix to copy the .so into its store
+        prebuiltLib = /home/m0xu/1-projects/synapse/.synapse/neo4j/libpattern_search.so;
+
         libpattern_search = pkgs.stdenv.mkDerivation {
           pname = "libpattern_search";
           version = "0.1.0";
 
-          # Source from actual project location (three levels up: nix/flakes/mojo-pattern-search -> project root)
+          # Source: Mojo source file only
           src = ../../../.synapse/neo4j;
 
           buildInputs = [
             mojo-runtime.packages.${system}.default
           ];
 
-          buildPhase = ''
-            echo "Building pattern_search_mojo.mojo with Mojo compiler..."
-            ${mojoPath} build pattern_search_mojo.mojo -o libpattern_search.so
+          # NOTE: Mojo compilation exhibits 1,371x slowdown in Nix sandbox due to
+          # LLVM syscall overhead. We package pre-built artifacts instead.
+          # See: nix/flakes/mojo-pattern-search/README.md for workflow details
 
-            echo "Verifying FFI exports..."
-            ${pkgs.binutils}/bin/nm -D libpattern_search.so | grep pattern_search_ffi || {
-              echo "ERROR: FFI export 'pattern_search_ffi' not found!"
+          unpackPhase = ''
+            runHook preUnpack
+
+            # Copy source directory
+            cp -r $src source-tmp
+            chmod -R u+w source-tmp
+
+            # Copy pre-built .so file into source
+            cp ${prebuiltLib} source-tmp/libpattern_search.so
+            chmod u+w source-tmp/libpattern_search.so
+
+            # Set source root
+            export sourceRoot=$PWD/source-tmp
+            cd $sourceRoot
+
+            runHook postUnpack
+          '';
+
+          buildPhase = ''
+            echo "Validating pre-built Mojo library..."
+
+            # Check if pre-built library exists
+            if [ ! -f libpattern_search.so ]; then
+              echo "ERROR: Pre-built libpattern_search.so not found in source"
+              echo ""
+              echo "Build it first with:"
+              echo "  cd ${../../../.synapse/neo4j}"
+              echo "  mojo build --emit=shared-lib pattern_search_mojo.mojo -o libpattern_search.so"
+              echo ""
+              echo "Expected location: .synapse/neo4j/libpattern_search.so"
+              exit 1
+            fi
+
+            echo "✅ Found pre-built library: libpattern_search.so"
+
+            # Verify it's a valid ELF shared library
+            file libpattern_search.so | grep "ELF.*shared object" || {
+              echo "ERROR: libpattern_search.so is not a valid ELF shared library"
               exit 1
             }
+            echo "✅ Valid ELF shared object"
+
+            # Verify FFI exports
+            ${pkgs.binutils}/bin/nm -D libpattern_search.so | grep pattern_search_ffi || {
+              echo "ERROR: FFI export 'pattern_search_ffi' not found!"
+              echo "Library may not be compiled correctly."
+              exit 1
+            }
+            echo "✅ FFI exports verified: pattern_search_ffi found"
           '';
 
           installPhase = ''

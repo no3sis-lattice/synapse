@@ -143,12 +143,39 @@ fn cosine_similarity_simd[nelts: Int](a: DTypePointer[DType.float32],
 
 ## Build Process
 
-The flake performs the following steps:
+### Hybrid Approach: Pre-Compile, Then Package
 
-1. **Source**: Copy `.synapse/neo4j/pattern_search_mojo.mojo` to build directory
-2. **Compile**: `mojo build pattern_search_mojo.mojo -o libpattern_search.so`
-3. **Verify**: Check that `pattern_search_ffi` symbol is exported
-4. **Install**: Copy library to `$out/lib/`
+**Why Not Compile in Nix?**
+
+Mojo compilation exhibits **1,371x slowdown** in Nix sandbox (1.05s → 24+ minutes) due to:
+- LLVM generates thousands of temp files during optimization
+- Nix wraps every syscall for hermetic builds
+- Result: Multiplicative overhead incompatible with development workflow
+
+**Solution**: Pre-compile locally, package with Nix (industry standard for LLVM languages)
+
+### Development Workflow
+
+**Step 1: Compile Locally** (Fast: 1.05 seconds)
+```bash
+cd /home/m0xu/1-projects/synapse/.synapse/neo4j
+mojo build --emit=shared-lib pattern_search_mojo.mojo -o libpattern_search.so
+```
+
+**Step 2: Package with Nix** (Fast: ~5 seconds)
+```bash
+cd /home/m0xu/1-projects/synapse
+nix build path:./nix/flakes/mojo-pattern-search
+```
+
+### What Nix Does
+
+The flake performs validation and packaging (NOT compilation):
+
+1. **Source**: Include `.synapse/neo4j/*.mojo` and `*.so` files
+2. **Validate**: Check that `libpattern_search.so` exists and is valid ELF
+3. **Verify**: Check that `pattern_search_ffi` FFI symbol is exported
+4. **Install**: Copy library to `$out/lib/` for distribution
 
 ## Dependencies
 

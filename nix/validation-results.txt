@@ -1,34 +1,24 @@
-Nix Flakes Validation Results - Thu Oct  2 12:28:49 PM AEST 2025
-=========================================
+[0;34mℹ[0m Nix version: nix (Nix) 2.31.2
 
-Nix version: nix (Nix) 2.31.2
+[0;34m═══════════════════════════════════════════════════════════[0m
+[0;34mPHASE 1: Mojo Runtime Foundation[0m
+[0;34m═══════════════════════════════════════════════════════════[0m
 
-PHASE 1: Mojo Runtime Foundation
------------------------------------------------------------
-[TEST 1] nix build .#mojo-runtime
-warning: Git tree '/home/m0xu/.synapse-system' is dirty
-✓ PASS: nix build .#mojo-runtime succeeded
+[1;33m[TEST 1][0m nix build .#mojo-runtime
+warning: Git tree '/home/m0xu/1-projects/synapse' is dirty
+[0;32m✓ PASS[0m: nix build .#mojo-runtime succeeded
+[1;33m[TEST 2][0m nix develop .#mojo-runtime --command mojo --version
+warning: Git tree '/home/m0xu/1-projects/synapse' is dirty
+Mojo 0.25.7.0.dev2025100505 (cc8b3709)
+[0;32m✓ PASS[0m: nix develop .#mojo-runtime --command mojo --version succeeded
+[1;33m[TEST 3][0m Verify mojo executable in build output
+[0;32m✓ PASS[0m: mojo executable found and is executable
 
-[TEST 2] nix develop .#mojo-runtime --command mojo --version
-Mojo 0.25.7.0.dev2025092905 (b3691e9f)
-✓ PASS: nix develop .#mojo-runtime --command mojo --version succeeded
+[0;34m═══════════════════════════════════════════════════════════[0m
+[0;34mPHASE 2: Library Flakes[0m
+[0;34m═══════════════════════════════════════════════════════════[0m
 
-[TEST 3] Verify mojo executable in build output
-✓ PASS: mojo executable found and is executable
-
-PHASE 2: Library Flakes
------------------------------------------------------------
-[TEST 4] nix build path:./nix/flakes/mojo-pattern-search
-warning: Git tree '/home/m0xu/.synapse-system' is dirty
-this derivation will be built:
-  /nix/store/krqzp7dbg9vw8k1j787s63z7ssv7by21-libpattern_search-0.1.0.drv
-building '/nix/store/krqzp7dbg9vw8k1j787s63z7ssv7by21-libpattern_search-0.1.0.drv'...
-libpattern_search> Running phase: unpackPhase
-libpattern_search> unpacking source archive /nix/store/3rvyjdv31z0569973g5vfhqrxh6dcfdw-neo4j
-libpattern_search> source root is neo4j
-libpattern_search> Running phase: patchPhase
-libpattern_search> Running phase: updateAutotoolsGnuConfigScriptsPhase
-libpattern_search> Running phase: configurePhase
-libpattern_search> no configure script, doing nothing
-libpattern_search> Running phase: buildPhase
-libpattern_search> Building pattern_search_mojo.mojo with Mojo compiler...
+[1;33m[TEST 4][0m nix build path:./nix/flakes/mojo-pattern-search
+warning: Git tree '/home/m0xu/1-projects/synapse' is dirty
+[0;32m✓ PASS[0m: mojo-pattern-search builds successfully
+./scripts/validate-nix-flakes.sh: line 153: nix/validation-results.txt: No such file or directory
