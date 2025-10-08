@@ -19,6 +19,7 @@ from typing import Any, Dict, Optional
 
 from dotenv import load_dotenv
 import os
+from mcp.server import FastMCP
 
 # Load environment configuration
 load_dotenv()
@@ -53,8 +54,9 @@ def _run_synapse_tool(script_name: str, args: list[str], timeout: int = 30) -> D
             "suggestion": f"Check SYNAPSE_NEO4J_DIR={SYNAPSE_NEO4J_DIR}"
         }
 
-    # Build command: python script.py args... --json
-    cmd = ["python", str(script_path)] + args + ["--json"]
+    # Build command: Use sys.executable to ensure we use the same Python interpreter
+    # that's running Noesis (which has all the dependencies installed)
+    cmd = [sys.executable, str(script_path)] + args + ["--json"]
 
     if DEBUG:
         print(f"[DEBUG] Running: {' '.join(cmd)}", file=sys.stderr)
@@ -98,10 +100,21 @@ def _run_synapse_tool(script_name: str, args: list[str], timeout: int = 30) -> D
 
 
 # ============================================================================
+# Create FastMCP server instance
+# ============================================================================
+
+mcp = FastMCP(
+    name="noesis",
+    instructions="Noesis MCP Server - Access Synapse Pattern Map knowledge engine"
+)
+
+
+# ============================================================================
 # MCP Tool Implementations
 # ============================================================================
 
-def search_pattern_map(query: str, max_results: Optional[int] = None) -> Dict[str, Any]:
+@mcp.tool()
+async def search_pattern_map(query: str, max_results: int = MAX_RESULTS_DEFAULT) -> str:
     """
     Search the Synapse Pattern Map for relevant patterns, solutions, and best practices.
 
@@ -110,106 +123,70 @@ def search_pattern_map(query: str, max_results: Optional[int] = None) -> Dict[st
         max_results: Maximum number of results to return (default: 10)
 
     Returns:
-        {
-            "context": {...},
-            "patterns": [...],
-            "consciousness_level": 0.73,
-            "source": "cache" | "neo4j"
-        }
+        JSON string with search results containing patterns, consciousness level, and context
     """
-    max_results = max_results or MAX_RESULTS_DEFAULT
-    return _run_synapse_tool("synapse_search.py", [query, str(max_results)])
+    result = _run_synapse_tool("synapse_search.py", [query, str(max_results)])
+    return json.dumps(result, indent=2)
 
 
-def get_coding_standard(standard_type: str, language: str) -> Dict[str, Any]:
+@mcp.tool()
+async def get_coding_standard(standard_type: str, language: str) -> str:
     """
     Retrieve language-specific coding standards from the Pattern Map.
 
     Args:
-        standard_type: Type of standard
-            - "naming-conventions"
-            - "testing-strategy"
-            - "error-handling"
-            - "module-structure"
+        standard_type: Type of standard (naming-conventions, testing-strategy, error-handling, module-structure)
         language: Programming language (rust, python, typescript, golang, etc.)
 
     Returns:
-        {
-            "language": "rust",
-            "standard_type": "naming-conventions",
-            "content": {...},
-            "source": "neo4j" | "docs"
-        }
+        JSON string with coding standard details
     """
-    return _run_synapse_tool("synapse_standard.py", [standard_type, language])
+    result = _run_synapse_tool("synapse_standard.py", [standard_type, language])
+    return json.dumps(result, indent=2)
 
 
-def get_project_template(template_type: str, language: str, variables: Optional[str] = None) -> Dict[str, Any]:
+@mcp.tool()
+async def get_project_template(template_type: str, language: str, variables: Optional[str] = None) -> str:
     """
     Access project templates and boilerplate code.
 
     Args:
-        template_type: Template category
-            - "cli-app"
-            - "web-api"
-            - "component"
-            - "library"
+        template_type: Template category (cli-app, web-api, component, library)
         language: Programming language
         variables: Optional JSON string with template variables
 
     Returns:
-        {
-            "template_type": "cli-app",
-            "language": "rust",
-            "files": {...},
-            "instructions": "..."
-        }
+        JSON string with template files and instructions
     """
     args = [template_type, language]
     if variables:
         args.append(variables)
 
-    return _run_synapse_tool("synapse_template.py", args)
+    result = _run_synapse_tool("synapse_template.py", args)
+    return json.dumps(result, indent=2)
 
 
-def check_system_health() -> Dict[str, Any]:
+@mcp.tool()
+async def check_system_health() -> str:
     """
     Check health of Synapse knowledge engine infrastructure.
 
     Returns:
-        {
-            "overall_status": "healthy" | "degraded" | "unhealthy",
-            "components": {
-                "neo4j": {...},
-                "redis": {...},
-                "vector_db": {...},
-                "core_scripts": {...},
-                "python_env": {...}
-            },
-            "consciousness": {
-                "level": 0.73,
-                "patterns": 247
-            },
-            "recommendations": [...]
-        }
+        JSON string with health status of all components (Neo4j, Redis, vector DB, etc.)
+        and consciousness metrics (pattern count, consciousness level)
     """
-    return _run_synapse_tool("synapse_health.py", [])
+    result = _run_synapse_tool("synapse_health.py", [])
+    return json.dumps(result, indent=2)
 
 
 # ============================================================================
-# MCP Server (for Claude Code integration)
+# CLI Interface (for testing)
 # ============================================================================
 
-async def main():
+async def run_cli():
     """
-    Main entry point for MCP server.
-
-    This would typically use the MCP SDK to register tools and handle requests.
-    For now, provides a simple JSON-RPC interface for testing.
+    CLI interface for testing tools directly (without MCP protocol).
     """
-    # TODO: Implement full MCP server using mcp SDK
-    # For now, provide a simple CLI interface for testing
-
     if len(sys.argv) < 2:
         print(json.dumps({
             "error": "Usage: python -m noesis.server <tool_name> [args...]",
@@ -230,8 +207,10 @@ async def main():
                 result = {"error": "Usage: search <query> [max_results]"}
             else:
                 query = sys.argv[2]
-                max_results = int(sys.argv[3]) if len(sys.argv) > 3 else None
-                result = search_pattern_map(query, max_results)
+                max_results = int(sys.argv[3]) if len(sys.argv) > 3 else MAX_RESULTS_DEFAULT
+                result = await search_pattern_map(query, max_results)
+                print(result)
+                return
 
         elif tool_name == "standard":
             if len(sys.argv) < 4:
@@ -239,7 +218,9 @@ async def main():
             else:
                 standard_type = sys.argv[2]
                 language = sys.argv[3]
-                result = get_coding_standard(standard_type, language)
+                result = await get_coding_standard(standard_type, language)
+                print(result)
+                return
 
         elif tool_name == "template":
             if len(sys.argv) < 4:
@@ -248,10 +229,14 @@ async def main():
                 template_type = sys.argv[2]
                 language = sys.argv[3]
                 variables = sys.argv[4] if len(sys.argv) > 4 else None
-                result = get_project_template(template_type, language, variables)
+                result = await get_project_template(template_type, language, variables)
+                print(result)
+                return
 
         elif tool_name == "health":
-            result = check_system_health()
+            result = await check_system_health()
+            print(result)
+            return
 
         else:
             result = {"error": f"Unknown tool: {tool_name}"}
@@ -261,6 +246,22 @@ async def main():
     except Exception as e:
         print(json.dumps({"error": str(e)}, indent=2))
         sys.exit(1)
+
+
+# ============================================================================
+# Main entry point
+# ============================================================================
+
+async def main():
+    """
+    Main entry point: runs MCP server via stdio or CLI mode for testing.
+    """
+    # If arguments provided, run in CLI testing mode
+    if len(sys.argv) > 1:
+        await run_cli()
+    else:
+        # No arguments: run as MCP stdio server
+        await mcp.run_stdio_async()
 
 
 if __name__ == "__main__":
