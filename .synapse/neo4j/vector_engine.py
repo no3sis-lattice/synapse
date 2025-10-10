@@ -173,14 +173,14 @@ class VectorEngine:
                 progress_thread.daemon = True
                 progress_thread.start()
             else:
-                print(f"📦 Loading cached BGE-M3 model...")
+                print(f"📦 Loading cached BGE-M3 model...", file=sys.stderr)
 
             self.transformer_model = SentenceTransformer(self.embedding_model)
 
             if not model_exists:
-                print("\n✅ BGE-M3 model downloaded and loaded successfully!")
+                print("\n✅ BGE-M3 model downloaded and loaded successfully!", file=sys.stderr)
             else:
-                print("✅ BGE-M3 model loaded from cache.")
+                print("✅ BGE-M3 model loaded from cache.", file=sys.stderr)
 
         except ImportError:
             print("❌ sentence-transformers not installed")
