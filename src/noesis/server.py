@@ -28,24 +28,36 @@ SYNAPSE_NEO4J_DIR = os.getenv(
     "SYNAPSE_NEO4J_DIR",
     str(Path.home() / ".synapse-system" / ".synapse" / "neo4j")
 )
+SYNAPSE_PYTHON = os.getenv(
+    "SYNAPSE_PYTHON",
+    sys.executable  # Fallback to current Python if not specified
+)
 MAX_RESULTS_DEFAULT = int(os.getenv("MAX_RESULTS_DEFAULT", "10"))
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 
-def _run_synapse_tool(script_name: str, args: list[str], timeout: int = 30) -> Dict[str, Any]:
+def _run_synapse_tool(script_name: str, args: list[str], timeout: int = 60) -> Dict[str, Any]:
     """
     Execute a Synapse tool via subprocess and return parsed JSON result.
 
     Args:
         script_name: Name of the Python script (e.g., "synapse_search.py")
         args: Command-line arguments for the script
-        timeout: Timeout in seconds
+        timeout: Timeout in seconds (default: 60s for BGE-M3 cold start)
 
     Returns:
         Parsed JSON result from the tool
     """
     synapse_dir = Path(SYNAPSE_NEO4J_DIR)
     script_path = synapse_dir / script_name
+
+    # Validate directory exists before checking script
+    if not synapse_dir.exists():
+        return {
+            "error": f"Synapse directory not found: {SYNAPSE_NEO4J_DIR}",
+            "suggestion": "Check SYNAPSE_NEO4J_DIR in noesis/.env",
+            "expected_files": ["synapse_search.py", "synapse_health.py", "context_manager.py", "vector_engine.py"]
+        }
 
     if not script_path.exists():
         return {
@@ -54,9 +66,9 @@ def _run_synapse_tool(script_name: str, args: list[str], timeout: int = 30) -> D
             "suggestion": f"Check SYNAPSE_NEO4J_DIR={SYNAPSE_NEO4J_DIR}"
         }
 
-    # Build command: Use sys.executable to ensure we use the same Python interpreter
-    # that's running Noesis (which has all the dependencies installed)
-    cmd = [sys.executable, str(script_path)] + args + ["--json"]
+    # Build command: Use SYNAPSE_PYTHON to ensure we use the Synapse venv Python
+    # (which has ML dependencies like numpy, torch, sentence-transformers)
+    cmd = [SYNAPSE_PYTHON, str(script_path)] + args + ["--json"]
 
     if DEBUG:
         print(f"[DEBUG] Running: {' '.join(cmd)}", file=sys.stderr)
