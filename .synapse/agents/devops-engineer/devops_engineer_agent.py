@@ -20,20 +20,21 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 # Claude Code SDK imports (with fallback)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -89,7 +90,15 @@ class ReportArgs(TypedDict):
 
 # Agent tools with decorators
 
-@tool
+@tool(
+    "docker_operations",
+    "Manage Docker containers - build, run, stop, inspect",
+    {
+        "action": str,
+        "container_name": str,
+        "options": dict
+    }
+)
 async def docker_operations(args: ContainerArgs) -> dict[str, Any]:
     """Manage Docker containers - build, run, stop, inspect."""
     return await manage_containers(
@@ -98,7 +107,15 @@ async def docker_operations(args: ContainerArgs) -> dict[str, Any]:
         args.get("options", {})
     )
 
-@tool
+@tool(
+    "setup_ci_cd_pipeline",
+    "Set up CI/CD pipeline for the project",
+    {
+        "project_path": str,
+        "ci_platform": str,
+        "deployment_targets": list
+    }
+)
 async def setup_ci_cd_pipeline(args: CICDArgs) -> dict[str, Any]:
     """Generate and configure CI/CD pipelines for various platforms."""
     return await configure_ci_cd(
@@ -106,7 +123,16 @@ async def setup_ci_cd_pipeline(args: CICDArgs) -> dict[str, Any]:
         args.get("config", {})
     )
 
-@tool
+@tool(
+    "deploy_application",
+    "Deploy services to specified environments with various strategies",
+    {
+        "service_name": str,
+        "image": str,
+        "environment": str,
+        "options": dict
+    }
+)
 async def deploy_application(args: DeploymentArgs) -> dict[str, Any]:
     """Deploy services to specified environments with various strategies."""
     return await deploy_services(
@@ -115,7 +141,14 @@ async def deploy_application(args: DeploymentArgs) -> dict[str, Any]:
         args.get("options", {})
     )
 
-@tool
+@tool(
+    "setup_service_monitoring",
+    "Configure comprehensive monitoring for services",
+    {
+        "services": list,
+        "config": dict
+    }
+)
 async def setup_service_monitoring(args: MonitoringArgs) -> dict[str, Any]:
     """Configure comprehensive monitoring for services."""
     return await setup_monitoring(
@@ -123,7 +156,14 @@ async def setup_service_monitoring(args: MonitoringArgs) -> dict[str, Any]:
         args.get("config", {})
     )
 
-@tool
+@tool(
+    "health_check_services",
+    "Perform health checks on running services",
+    {
+        "services": list,
+        "config": dict
+    }
+)
 async def health_check_services(args: MonitoringArgs) -> dict[str, Any]:
     """Perform health checks on running services."""
     return await check_service_health(
@@ -131,7 +171,14 @@ async def health_check_services(args: MonitoringArgs) -> dict[str, Any]:
         args.get("config", {})
     )
 
-@tool
+@tool(
+    "security_scan_infrastructure",
+    "Scan infrastructure for security vulnerabilities",
+    {
+        "target": str,
+        "scan_type": str
+    }
+)
 async def security_scan_infrastructure(args: SecurityArgs) -> dict[str, Any]:
     """Scan infrastructure components for security vulnerabilities."""
     return await scan_infrastructure(
@@ -139,7 +186,14 @@ async def security_scan_infrastructure(args: SecurityArgs) -> dict[str, Any]:
         args.get("scan_type", "security")
     )
 
-@tool
+@tool(
+    "generate_devops_report",
+    "Generate comprehensive DevOps reports (performance, availability, etc.)",
+    {
+        "report_type": str,
+        "config": dict
+    }
+)
 async def generate_devops_report(args: ReportArgs) -> dict[str, Any]:
     """Generate comprehensive DevOps reports (performance, availability, etc.)."""
     return await generate_reports(
@@ -147,7 +201,17 @@ async def generate_devops_report(args: ReportArgs) -> dict[str, Any]:
         args.get("config", {})
     )
 
-@tool
+@tool(
+    "create_container_image",
+    "Create optimized Dockerfile and build container images",
+    {
+        "language": str,
+        "options": dict,
+        "build": bool,
+        "dockerfile_path": str,
+        "image_name": str
+    }
+)
 async def create_container_image(args: dict) -> dict[str, Any]:
     """Create optimized Dockerfile and build container images."""
     if "language" in args:
@@ -185,7 +249,15 @@ async def create_container_image(args: dict) -> dict[str, Any]:
         "error": "Must provide either 'language' for Dockerfile generation or 'dockerfile_path' and 'image_name' for building"
     }
 
-@tool
+@tool(
+    "manage_application_secrets",
+    "Manage application secrets and configuration",
+    {
+        "action": str,
+        "secret_name": str,
+        "options": dict
+    }
+)
 async def manage_application_secrets(args: dict) -> dict[str, Any]:
     """Manage application secrets and configuration."""
     return await manage_secrets(
@@ -194,7 +266,15 @@ async def manage_application_secrets(args: dict) -> dict[str, Any]:
         args.get("options", {})
     )
 
-@tool
+@tool(
+    "validate_service_deployment",
+    "Validate deployment with comprehensive testing",
+    {
+        "service_name": str,
+        "environment": str,
+        "checks": dict
+    }
+)
 async def validate_service_deployment(args: dict) -> dict[str, Any]:
     """Validate deployment with comprehensive testing."""
     return await validate_deployment(
@@ -203,7 +283,14 @@ async def validate_service_deployment(args: dict) -> dict[str, Any]:
         args.get("checks", {})
     )
 
-@tool
+@tool(
+    "analyze_system_logs",
+    "Analyze logs for patterns, errors, and performance insights",
+    {
+        "log_source": str,
+        "config": dict
+    }
+)
 async def analyze_system_logs(args: dict) -> dict[str, Any]:
     """Analyze logs for patterns, errors, and performance insights."""
     return await analyze_logs(
@@ -211,7 +298,14 @@ async def analyze_system_logs(args: dict) -> dict[str, Any]:
         args.get("config", {})
     )
 
-@tool
+@tool(
+    "setup_alerting_system",
+    "Create monitoring alerts with notification channels",
+    {
+        "alert_rules": list,
+        "config": dict
+    }
+)
 async def setup_alerting_system(args: dict) -> dict[str, Any]:
     """Create monitoring alerts with notification channels."""
     return await create_alerts(
@@ -219,7 +313,15 @@ async def setup_alerting_system(args: dict) -> dict[str, Any]:
         args.get("config", {})
     )
 
-@tool
+@tool(
+    "provision_cloud_resources",
+    "Provision cloud infrastructure using Infrastructure as Code",
+    {
+        "provider": str,
+        "resources": list,
+        "options": dict
+    }
+)
 async def provision_cloud_resources(args: dict) -> dict[str, Any]:
     """Provision cloud infrastructure using Infrastructure as Code."""
     return await provision_resources(
@@ -228,7 +330,14 @@ async def provision_cloud_resources(args: dict) -> dict[str, Any]:
         args.get("options", {})
     )
 
-@tool
+@tool(
+    "search_devops_knowledge",
+    "Search Synapse knowledge graph for DevOps best practices and patterns",
+    {
+        "query": str,
+        "context_type": str
+    }
+)
 async def search_devops_knowledge(args: dict) -> dict[str, Any]:
     """Search Synapse knowledge graph for DevOps best practices and patterns."""
     return await query_synapse_devops(
@@ -236,7 +345,14 @@ async def search_devops_knowledge(args: dict) -> dict[str, Any]:
         args.get("context_type", "devops")
     )
 
-@tool
+@tool(
+    "find_deployment_patterns",
+    "Find deployment patterns and implementation guides",
+    {
+        "deployment_type": str,
+        "technology": str
+    }
+)
 async def find_deployment_patterns(args: dict) -> dict[str, Any]:
     """Find deployment patterns and implementation guides."""
     return await search_deployment_patterns(
@@ -277,7 +393,7 @@ async def create_mcp_server():
         tools=tools
     )
 
-async def devops_agent_prompt() -> AsyncGenerator[ClaudeCodeSdkMessage, None]:
+async def devops_agent_prompt() -> AsyncGenerator[ClaudeAgentOptions, None]:
     """Generate the DevOps agent system prompt."""
     prompt = """You are a DevOps Engineer Agent, specializing in infrastructure automation, deployment strategies, and operational excellence.
 

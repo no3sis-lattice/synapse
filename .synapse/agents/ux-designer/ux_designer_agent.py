@@ -14,21 +14,21 @@ from typing import Any, AsyncGenerator, TypedDict, List, Dict
 # Add tools to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Claude Code SDK imports (with fallback to mock)
+# Claude Agent SDK imports (with fallback to mock)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    print("⚠️  Claude Code SDK not available, using mock implementations")
+    print("⚠️  Claude Agent SDK not available, using mock implementations")
     from tools.mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -81,7 +81,16 @@ class PrototypeArgs(TypedDict):
     fidelity_level: str
 
 
-@tool
+@tool(
+    "comprehensive_usability_analysis",
+    "Perform comprehensive usability analysis including accessibility and heuristics",
+    {
+        "interface_files": list,
+        "user_flow_data": dict,
+        "accessibility_focus": bool,
+        "heuristic_evaluation": bool
+    }
+)
 async def comprehensive_usability_analysis(
     interface_files: List[str] = None,
     user_flow_data: Dict[str, Any] = None,
@@ -175,10 +184,23 @@ async def comprehensive_usability_analysis(
 
     console.print(f"[green]✅ Usability analysis complete. Overall score: {usability_results.get('overall_score', 'N/A')}/100")
 
-    return analysis_results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(analysis_results)
+        }]
+    }
 
 
-@tool
+@tool(
+    "comprehensive_design_evaluation",
+    "Evaluate visual design including hierarchy, color, typography, and layout",
+    {
+        "design_assets": list,
+        "style_guide": dict,
+        "evaluation_focus": list
+    }
+)
 async def comprehensive_design_evaluation(
     design_assets: List[str] = None,
     style_guide: Dict[str, Any] = None,
@@ -275,10 +297,24 @@ async def comprehensive_design_evaluation(
 
     console.print(f"[green]✅ Design evaluation complete. Overall design score: {overall_score:.1f}/100")
 
-    return evaluation_results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(evaluation_results)
+        }]
+    }
 
 
-@tool
+@tool(
+    "user_research_and_personas",
+    "Conduct user research analysis and create detailed user personas",
+    {
+        "research_type": str,
+        "target_audience": str,
+        "research_goals": list,
+        "create_personas": bool
+    }
+)
 async def user_research_and_personas(
     research_type: str = "user_interview",
     target_audience: str = "general_users",
@@ -358,10 +394,23 @@ async def user_research_and_personas(
 
     console.print("[green]✅ User research analysis complete")
 
-    return research_results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(research_results)
+        }]
+    }
 
 
-@tool
+@tool(
+    "design_system_creation",
+    "Create comprehensive design system with components and guidelines",
+    {
+        "brand_guidelines": dict,
+        "technical_constraints": dict,
+        "component_scope": list
+    }
+)
 async def design_system_creation(
     brand_guidelines: Dict[str, Any] = None,
     technical_constraints: Dict[str, Any] = None,
@@ -451,10 +500,24 @@ async def design_system_creation(
 
     console.print("[green]✅ Design system creation complete")
 
-    return design_system_results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(design_system_results)
+        }]
+    }
 
 
-@tool
+@tool(
+    "prototype_and_wireframe_generation",
+    "Generate wireframes, prototypes, and user stories from requirements",
+    {
+        "user_requirements": list,
+        "page_type": str,
+        "fidelity_level": str,
+        "include_user_stories": bool
+    }
+)
 async def prototype_and_wireframe_generation(
     user_requirements: List[str],
     page_type: str = "web_page",
@@ -544,10 +607,23 @@ async def prototype_and_wireframe_generation(
 
     console.print("[green]✅ Prototype and wireframe generation complete")
 
-    return prototype_results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(prototype_results)
+        }]
+    }
 
 
-@tool
+@tool(
+    "competitive_analysis_and_benchmarking",
+    "Analyze competitive landscape and benchmark UX approaches",
+    {
+        "competitors": list,
+        "analysis_dimensions": list,
+        "benchmarking_criteria": list
+    }
+)
 async def competitive_analysis_and_benchmarking(
     competitors: List[str],
     analysis_dimensions: List[str] = None,
@@ -650,10 +726,23 @@ async def competitive_analysis_and_benchmarking(
 
     console.print("[green]✅ Competitive analysis complete")
 
-    return competitive_results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(competitive_results)
+        }]
+    }
 
 
-@tool
+@tool(
+    "query_design_knowledge",
+    "Query Synapse knowledge base for design patterns and UX best practices",
+    {
+        "design_query": str,
+        "knowledge_domain": str,
+        "include_patterns": bool
+    }
+)
 async def query_design_knowledge(
     design_query: str,
     knowledge_domain: str = "ux_design",
@@ -715,7 +804,12 @@ async def query_design_knowledge(
 
     console.print("[green]✅ Design knowledge query complete")
 
-    return results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(results)
+        }]
+    }
 
 
 async def main():
@@ -741,6 +835,7 @@ async def main():
     # Create MCP server
     server = create_sdk_mcp_server(
         name="ux_designer_tools",
+            version="1.0.0",
         tools=tools
     )
 

@@ -14,23 +14,23 @@ from typing import Any, AsyncGenerator, TypedDict
 # Add tools to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Claude Code SDK imports (with fallback)
+# Claude Agent SDK imports (with fallback)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    # Use the mock SDK from Pneuma
-    sys.path.insert(0, str(Path(__file__).parent.parent / "Pneuma" / "tools"))
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
     from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import assess_readability, compare_clarity, generate_clarity_report
@@ -57,34 +57,72 @@ class ClarityReportArgs(TypedDict):
     include_suggestions: bool
 
 # Agent tools
-@tool
+@tool(
+    "judge_clarity",
+    "Assess the readability and maintainability of code",
+    {
+        "code": str,
+        "language": str
+    }
+)
 async def judge_clarity(args: ClarityAssessmentArgs) -> dict[str, Any]:
     """Assess the readability and maintainability of code."""
-    return await assess_readability(
+    result = await assess_readability(
         args["code"],
         args.get("language", "python")
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
-@tool
+@tool(
+    "compare_code_clarity",
+    "Compare clarity between original and transformed code",
+    {
+        "original_code": str,
+        "transformed_code": str,
+        "language": str
+    }
+)
 async def compare_code_clarity(args: ClarityComparisonArgs) -> dict[str, Any]:
     """Compare clarity between original and transformed code."""
-    return await compare_clarity(
+    result = await compare_clarity(
         args["original_code"],
         args["transformed_code"],
         args.get("language", "python")
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
-@tool
+@tool(
+    "create_clarity_report",
+    "Generate comprehensive clarity report with recommendations",
+    {
+        "code": str,
+        "language": str,
+        "include_suggestions": bool
+    }
+)
 async def create_clarity_report(args: ClarityReportArgs) -> dict[str, Any]:
     """Generate comprehensive clarity report with recommendations."""
-    return await generate_clarity_report(
+    result = await generate_clarity_report(
         args["code"],
         args.get("language", "python"),
         args.get("include_suggestions", True)
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 # System prompt generator
-async def generate_prompt(user_message: str) -> AsyncGenerator[ClaudeCodeSdkMessage, None]:
+async def generate_prompt(user_message: str) -> AsyncGenerator[ClaudeAgentOptions, None]:
     """Generate prompt with clarity judge instructions."""
 
     # Load system prompt

@@ -16,293 +16,428 @@ import os
 import sys
 from pathlib import Path
 import yaml
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator
 
 # Add the parent directory to the Python path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
-    from claude_code_sdk import create_sdk_mcp_server, tool, query
+    from claude_agent_sdk import create_sdk_mcp_server, tool, query, ClaudeAgentOptions
 except ImportError:
-    # Fallback to mock implementation for development
-    print("⚠️  Claude Code SDK not available, using mock implementation")
-    from tools.mock_sdk import create_sdk_mcp_server, tool, query
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeAgentOptions
+    )
 
 # Import tool modules
-from tools import (
-    go_analysis_tools,
-    concurrency_tools,
-    interface_tools,
-    testing_tools,
-    module_tools,
-    synapse_integration
+from tools import go_analysis_tools, concurrency_tools, interface_tools, testing_tools, module_tools
+
+# Load configuration
+def _load_config() -> Dict[str, Any]:
+    """Load agent configuration."""
+    config_path = Path(__file__).parent / "golang_specialist_config.yml"
+    try:
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        print(f"⚠️  Config file not found: {config_path}")
+        return {}
+
+CONFIG = _load_config()
+
+# Tool functions
+
+@tool(
+    "analyze_go_code",
+    "Analyze Go source code for patterns, idioms, and potential issues",
+    {
+        "file_path": str,
+        "analysis_type": str
+    }
 )
+async def analyze_go_code(args: dict) -> Dict[str, Any]:
+    """Analyze Go source code for patterns, idioms, and potential issues."""
+    result = go_analysis_tools.analyze_go_code(
+        args["file_path"],
+        args.get("analysis_type", "comprehensive"),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
+@tool(
+    "check_go_conventions",
+    "Check Go code against standard conventions and style guidelines",
+    {
+        "file_path": str,
+        "strict_mode": bool
+    }
+)
+async def check_go_conventions(args: dict) -> Dict[str, Any]:
+    """Check Go code against standard conventions and style guidelines."""
+    result = go_analysis_tools.check_go_conventions(
+        args["file_path"],
+        args.get("strict_mode", False),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-class GolangSpecialistAgent:
-    """Main agent class for Golang language specialist."""
+@tool(
+    "suggest_improvements",
+    "Suggest improvements for Go code quality and performance",
+    {
+        "file_path": str,
+        "focus_area": str
+    }
+)
+async def suggest_improvements(args: dict) -> Dict[str, Any]:
+    """Suggest improvements for Go code quality and performance."""
+    result = go_analysis_tools.suggest_improvements(
+        args["file_path"],
+        args.get("focus_area", "all"),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-    def __init__(self, config_path: str = None):
-        self.config_path = config_path or str(Path(__file__).parent / "golang_specialist_config.yml")
-        self.config = self._load_config()
-        self.server = create_sdk_mcp_server("golang-specialist")
-        self._register_tools()
+@tool(
+    "analyze_goroutines",
+    "Analyze goroutine usage patterns and potential issues",
+    {
+        "file_path": str,
+        "check_leaks": bool
+    }
+)
+async def analyze_goroutines(args: dict) -> Dict[str, Any]:
+    """Analyze goroutine usage patterns and potential issues."""
+    result = concurrency_tools.analyze_goroutines(
+        args["file_path"],
+        args.get("check_leaks", True),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-    def _load_config(self) -> Dict[str, Any]:
-        """Load agent configuration."""
-        try:
-            with open(self.config_path, 'r') as f:
-                return yaml.safe_load(f)
-        except FileNotFoundError:
-            print(f"⚠️  Config file not found: {self.config_path}")
-            return {}
+@tool(
+    "check_channel_patterns",
+    "Analyze channel usage patterns and detect common anti-patterns",
+    {
+        "file_path": str,
+        "pattern_type": str
+    }
+)
+async def check_channel_patterns(args: dict) -> Dict[str, Any]:
+    """Analyze channel usage patterns and detect common anti-patterns."""
+    result = concurrency_tools.check_channel_patterns(
+        args["file_path"],
+        args.get("pattern_type", "all"),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-    def _register_tools(self):
-        """Register all tools with the MCP server."""
-        tools = [
-            self.analyze_go_code,
-            self.check_go_conventions,
-            self.suggest_improvements,
-            self.analyze_goroutines,
-            self.check_channel_patterns,
-            self.detect_race_conditions,
-            self.analyze_interfaces,
-            self.check_interface_satisfaction,
-            self.suggest_interface_design,
-            self.analyze_tests,
-            self.generate_table_tests,
-            self.check_test_coverage,
-            self.manage_dependencies,
-            self.analyze_modules
-        ]
+@tool(
+    "detect_race_conditions",
+    "Detect potential race conditions in Go code",
+    {
+        "directory": str,
+        "include_tests": bool
+    }
+)
+async def detect_race_conditions(args: dict) -> Dict[str, Any]:
+    """Detect potential race conditions in Go code."""
+    result = concurrency_tools.detect_race_conditions(
+        args["directory"],
+        args.get("include_tests", True),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-        for tool_func in tools:
-            self.server.add_tool(tool_func)
+@tool(
+    "analyze_interfaces",
+    "Analyze interface design and usage patterns",
+    {
+        "file_path": str,
+        "check_satisfaction": bool
+    }
+)
+async def analyze_interfaces(args: dict) -> Dict[str, Any]:
+    """Analyze interface design and usage patterns."""
+    result = interface_tools.analyze_interfaces(
+        args["file_path"],
+        args.get("check_satisfaction", True),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-    @tool
-    def analyze_go_code(self, file_path: str, analysis_type: str = "comprehensive") -> str:
-        """
-        Analyze Go source code for patterns, idioms, and potential issues.
+@tool(
+    "check_interface_satisfaction",
+    "Check which types satisfy a given interface",
+    {
+        "interface_name": str,
+        "directory": str
+    }
+)
+async def check_interface_satisfaction(args: dict) -> Dict[str, Any]:
+    """Check which types satisfy a given interface."""
+    result = interface_tools.check_interface_satisfaction(
+        args["interface_name"],
+        args["directory"],
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-        Args:
-            file_path: Path to the Go file to analyze
-            analysis_type: Type of analysis (basic, comprehensive, performance)
+@tool(
+    "suggest_interface_design",
+    "Suggest interface design improvements following Go best practices",
+    {
+        "file_path": str,
+        "minimize": bool
+    }
+)
+async def suggest_interface_design(args: dict) -> Dict[str, Any]:
+    """Suggest interface design improvements following Go best practices."""
+    result = interface_tools.suggest_interface_design(
+        args["file_path"],
+        args.get("minimize", True),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-        Returns:
-            Analysis report with findings and recommendations
-        """
-        return go_analysis_tools.analyze_go_code(file_path, analysis_type, self.config)
+@tool(
+    "analyze_tests",
+    "Analyze Go test patterns and quality",
+    {
+        "test_path": str,
+        "coverage_check": bool
+    }
+)
+async def analyze_tests(args: dict) -> Dict[str, Any]:
+    """Analyze Go test patterns and quality."""
+    result = testing_tools.analyze_tests(
+        args["test_path"],
+        args.get("coverage_check", True),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-    @tool
-    def check_go_conventions(self, file_path: str, strict_mode: bool = False) -> str:
-        """
-        Check Go code against standard conventions and style guidelines.
+@tool(
+    "generate_table_tests",
+    "Generate table-driven tests for a Go function",
+    {
+        "function_name": str,
+        "file_path": str
+    }
+)
+async def generate_table_tests(args: dict) -> Dict[str, Any]:
+    """Generate table-driven tests for a Go function."""
+    result = testing_tools.generate_table_tests(
+        args["function_name"],
+        args["file_path"],
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-        Args:
-            file_path: Path to the Go file to check
-            strict_mode: Whether to apply strict convention checking
+@tool(
+    "check_test_coverage",
+    "Check test coverage for Go packages",
+    {
+        "package_path": str,
+        "threshold": float
+    }
+)
+async def check_test_coverage(args: dict) -> Dict[str, Any]:
+    """Check test coverage for Go packages."""
+    threshold = args.get("threshold") or CONFIG.get('testing', {}).get('coverage_threshold', 80.0)
+    result = testing_tools.check_test_coverage(
+        args["package_path"],
+        threshold,
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-        Returns:
-            Convention compliance report
-        """
-        return go_analysis_tools.check_go_conventions(file_path, strict_mode, self.config)
+@tool(
+    "manage_dependencies",
+    "Manage Go module dependencies",
+    {
+        "operation": str,
+        "module_name": str
+    }
+)
+async def manage_dependencies(args: dict) -> Dict[str, Any]:
+    """Manage Go module dependencies."""
+    result = module_tools.manage_dependencies(
+        args["operation"],
+        args.get("module_name"),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-    @tool
-    def suggest_improvements(self, file_path: str, focus_area: str = "all") -> str:
-        """
-        Suggest improvements for Go code quality and performance.
+@tool(
+    "analyze_modules",
+    "Analyze Go module structure and dependencies",
+    {
+        "project_path": str,
+        "check_vulnerabilities": bool
+    }
+)
+async def analyze_modules(args: dict) -> Dict[str, Any]:
+    """Analyze Go module structure and dependencies."""
+    result = module_tools.analyze_modules(
+        args["project_path"],
+        args.get("check_vulnerabilities", True),
+        CONFIG
+    )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-        Args:
-            file_path: Path to the Go file to analyze
-            focus_area: Area to focus on (performance, readability, idiomatic, all)
+# MCP Server creation
+async def create_mcp_server():
+    """Create and configure the MCP server with all Golang tools."""
+    tools = [
+        analyze_go_code,
+        check_go_conventions,
+        suggest_improvements,
+        analyze_goroutines,
+        check_channel_patterns,
+        detect_race_conditions,
+        analyze_interfaces,
+        check_interface_satisfaction,
+        suggest_interface_design,
+        analyze_tests,
+        generate_table_tests,
+        check_test_coverage,
+        manage_dependencies,
+        analyze_modules
+    ]
 
-        Returns:
-            Improvement suggestions with code examples
-        """
-        return go_analysis_tools.suggest_improvements(file_path, focus_area, self.config)
+    return create_sdk_mcp_server(
+        name="golang_specialist_tools",
+        version="1.0.0",
+        tools=tools
+    )
 
-    @tool
-    def analyze_goroutines(self, file_path: str, check_leaks: bool = True) -> str:
-        """
-        Analyze goroutine usage patterns and potential issues.
+async def golang_agent_prompt() -> AsyncGenerator[ClaudeAgentOptions, None]:
+    """Generate the Golang agent system prompt."""
+    prompt_path = Path(__file__).parent / "golang_specialist_prompt.md"
 
-        Args:
-            file_path: Path to the Go file containing goroutines
-            check_leaks: Whether to check for potential goroutine leaks
+    try:
+        with open(prompt_path, 'r') as f:
+            prompt = f.read()
+    except FileNotFoundError:
+        prompt = """You are a Go language specialist agent with deep expertise in:
+- Concurrency patterns (goroutines, channels, select)
+- Interface design and composition
+- Error handling and wrapping
+- Testing patterns and benchmarks
+- Module management and dependencies
+- Performance optimization and profiling
 
-        Returns:
-            Goroutine analysis report
-        """
-        return concurrency_tools.analyze_goroutines(file_path, check_leaks, self.config)
+Ready to assist with Go development tasks."""
 
-    @tool
-    def check_channel_patterns(self, file_path: str, pattern_type: str = "all") -> str:
-        """
-        Analyze channel usage patterns and detect common anti-patterns.
+    yield {
+        "message": {
+            "role": "system",
+            "content": prompt
+        }
+    }
 
-        Args:
-            file_path: Path to the Go file with channel usage
-            pattern_type: Type of patterns to check (buffered, unbuffered, select, all)
-
-        Returns:
-            Channel pattern analysis
-        """
-        return concurrency_tools.check_channel_patterns(file_path, pattern_type, self.config)
-
-    @tool
-    def detect_race_conditions(self, directory: str, include_tests: bool = True) -> str:
-        """
-        Detect potential race conditions in Go code.
-
-        Args:
-            directory: Directory to scan for race conditions
-            include_tests: Whether to include test files in analysis
-
-        Returns:
-            Race condition detection report
-        """
-        return concurrency_tools.detect_race_conditions(directory, include_tests, self.config)
-
-    @tool
-    def analyze_interfaces(self, file_path: str, check_satisfaction: bool = True) -> str:
-        """
-        Analyze interface design and usage patterns.
-
-        Args:
-            file_path: Path to the Go file containing interfaces
-            check_satisfaction: Whether to check interface satisfaction
-
-        Returns:
-            Interface analysis report
-        """
-        return interface_tools.analyze_interfaces(file_path, check_satisfaction, self.config)
-
-    @tool
-    def check_interface_satisfaction(self, interface_name: str, directory: str) -> str:
-        """
-        Check which types satisfy a given interface.
-
-        Args:
-            interface_name: Name of the interface to check
-            directory: Directory to search for implementations
-
-        Returns:
-            Interface satisfaction report
-        """
-        return interface_tools.check_interface_satisfaction(interface_name, directory, self.config)
-
-    @tool
-    def suggest_interface_design(self, file_path: str, minimize: bool = True) -> str:
-        """
-        Suggest interface design improvements following Go best practices.
-
-        Args:
-            file_path: Path to the Go file with interfaces
-            minimize: Whether to suggest minimal interfaces
-
-        Returns:
-            Interface design recommendations
-        """
-        return interface_tools.suggest_interface_design(file_path, minimize, self.config)
-
-    @tool
-    def analyze_tests(self, test_path: str, coverage_check: bool = True) -> str:
-        """
-        Analyze Go test patterns and quality.
-
-        Args:
-            test_path: Path to test files or directory
-            coverage_check: Whether to include coverage analysis
-
-        Returns:
-            Test analysis report
-        """
-        return testing_tools.analyze_tests(test_path, coverage_check, self.config)
-
-    @tool
-    def generate_table_tests(self, function_name: str, file_path: str) -> str:
-        """
-        Generate table-driven tests for a Go function.
-
-        Args:
-            function_name: Name of the function to test
-            file_path: Path to the file containing the function
-
-        Returns:
-            Generated table-driven test code
-        """
-        return testing_tools.generate_table_tests(function_name, file_path, self.config)
-
-    @tool
-    def check_test_coverage(self, package_path: str, threshold: float = None) -> str:
-        """
-        Check test coverage for Go packages.
-
-        Args:
-            package_path: Path to the Go package
-            threshold: Minimum coverage threshold (uses config default if not provided)
-
-        Returns:
-            Coverage analysis report
-        """
-        threshold = threshold or self.config.get('testing', {}).get('coverage_threshold', 80.0)
-        return testing_tools.check_test_coverage(package_path, threshold, self.config)
-
-    @tool
-    def manage_dependencies(self, operation: str, module_name: str = None) -> str:
-        """
-        Manage Go module dependencies.
-
-        Args:
-            operation: Operation to perform (list, update, add, remove, tidy)
-            module_name: Name of module for add/remove operations
-
-        Returns:
-            Dependency management result
-        """
-        return module_tools.manage_dependencies(operation, module_name, self.config)
-
-    @tool
-    def analyze_modules(self, project_path: str, check_vulnerabilities: bool = True) -> str:
-        """
-        Analyze Go module structure and dependencies.
-
-        Args:
-            project_path: Path to the Go project
-            check_vulnerabilities: Whether to check for known vulnerabilities
-
-        Returns:
-            Module analysis report
-        """
-        return module_tools.analyze_modules(project_path, check_vulnerabilities, self.config)
-
-    async def run(self):
-        """Run the Golang specialist agent server."""
-        prompt_path = Path(__file__).parent / "golang_specialist_prompt.md"
-
-        try:
-            with open(prompt_path, 'r') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            system_prompt = "You are a Go language specialist agent."
-
-        print(f"🚀 Golang Specialist Agent starting...")
-        print(f"📁 Config: {self.config_path}")
-        print(f"🔧 Registered {len(self.server.tools)} tools")
-
-        # Query with the system prompt to initialize the agent
-        async for message in query(system_prompt, {
-            "model": self.config.get("model", {}).get("default", "claude-sonnet-4"),
-            "temperature": self.config.get("model", {}).get("temperature", 0.1)
-        }):
-            print(f"🤖 {message.content}")
-
-
-def main():
+async def main():
     """Main entry point for the Golang specialist agent."""
-    agent = GolangSpecialistAgent()
-    asyncio.run(agent.run())
+    print("🚀 Golang Specialist Agent starting...")
+
+    # Create MCP server
+    server = await create_mcp_server()
+
+    print(f"🔧 Loaded {len(server.tools)} Golang tools")
+    print("Ready to assist with Go development tasks\n")
+
+    try:
+        # Agent event loop
+        async for response in query(golang_agent_prompt()):
+            if response.get("type") == "result":
+                result_content = response.get("result", {}).get("content", [])
+                for content_item in result_content:
+                    if content_item.get("type") == "text":
+                        print(content_item["text"])
+    except KeyboardInterrupt:
+        print("\n👋 Golang Specialist Agent shutting down...")
+    except Exception as e:
+        print(f"❌ Error: {e}")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n👋 Golang Specialist Agent stopped")

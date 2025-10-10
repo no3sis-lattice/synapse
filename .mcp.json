@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "noesis": {
+      "command": "/home/m0xu/1-projects/noesis/.venv/bin/python",
+      "args": ["-m", "noesis.server"],
+      "cwd": "/home/m0xu/1-projects/noesis"
+    }
+  }
+}

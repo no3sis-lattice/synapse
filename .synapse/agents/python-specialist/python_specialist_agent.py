@@ -16,20 +16,21 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 # Claude Code SDK imports with fallback
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -93,7 +94,14 @@ class SearchStandardsArgs(TypedDict):
 
 
 # Agent tools with type safety and error handling
-@tool
+@tool(
+    "python_code_analysis",
+    "Analyze Python code for quality metrics and patterns",
+    {
+        "file_path": str,
+        "analysis_type": str
+    }
+)
 async def python_code_analysis(args: AnalyzeCodeArgs) -> dict[str, Any]:
     """Analyze Python code for quality metrics and patterns."""
     try:
@@ -113,7 +121,14 @@ async def python_code_analysis(args: AnalyzeCodeArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "check_pep8_compliance",
+    "Check Python code against PEP 8 standards",
+    {
+        "file_path": str,
+        "fix_suggestions": bool
+    }
+)
 async def check_pep8_compliance(args: CheckPep8Args) -> dict[str, Any]:
     """Check Python code against PEP 8 standards."""
     try:
@@ -133,7 +148,14 @@ async def check_pep8_compliance(args: CheckPep8Args) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "suggest_code_refactors",
+    "Suggest refactoring opportunities for Python code",
+    {
+        "file_path": str,
+        "focus": str
+    }
+)
 async def suggest_code_refactors(args: SuggestRefactorsArgs) -> dict[str, Any]:
     """Suggest refactoring opportunities for Python code."""
     try:
@@ -153,7 +175,14 @@ async def suggest_code_refactors(args: SuggestRefactorsArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "analyze_performance",
+    "Analyze Python code for performance bottlenecks",
+    {
+        "file_path": str,
+        "function_name": str
+    }
+)
 async def analyze_performance(args: ProfilePerformanceArgs) -> dict[str, Any]:
     """Analyze Python code for performance bottlenecks."""
     try:
@@ -173,7 +202,14 @@ async def analyze_performance(args: ProfilePerformanceArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "suggest_type_hints",
+    "Suggest type hints for Python functions",
+    {
+        "file_path": str,
+        "function_name": str
+    }
+)
 async def suggest_type_hints(args: AddTypeHintsArgs) -> dict[str, Any]:
     """Suggest type hints for Python functions."""
     try:
@@ -193,7 +229,13 @@ async def suggest_type_hints(args: AddTypeHintsArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "check_type_safety",
+    "Check Python file for mypy type checking compatibility",
+    {
+        "file_path": str
+    }
+)
 async def check_type_safety(args: CheckMypyArgs) -> dict[str, Any]:
     """Check Python file for mypy type checking compatibility."""
     try:
@@ -210,7 +252,14 @@ async def check_type_safety(args: CheckMypyArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "suggest_inline_types",
+    "Suggest appropriate types for code snippets",
+    {
+        "code_snippet": str,
+        "context": str
+    }
+)
 async def suggest_inline_types(args: SuggestTypesArgs) -> dict[str, Any]:
     """Suggest appropriate types for code snippets."""
     try:
@@ -230,7 +279,13 @@ async def suggest_inline_types(args: SuggestTypesArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "analyze_testing_coverage",
+    "Analyze test coverage for Python project",
+    {
+        "directory_path": str
+    }
+)
 async def analyze_testing_coverage(args: AnalyzeCoverageArgs) -> dict[str, Any]:
     """Analyze test coverage for Python project."""
     try:
@@ -247,7 +302,14 @@ async def analyze_testing_coverage(args: AnalyzeCoverageArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "suggest_testing_patterns",
+    "Suggest testing patterns for Python code",
+    {
+        "file_path": str,
+        "test_type": str
+    }
+)
 async def suggest_testing_patterns(args: SuggestTestPatternsArgs) -> dict[str, Any]:
     """Suggest testing patterns for Python code."""
     try:
@@ -267,7 +329,14 @@ async def suggest_testing_patterns(args: SuggestTestPatternsArgs) -> dict[str, A
         }
 
 
-@tool
+@tool(
+    "generate_test_templates",
+    "Generate test stubs for Python code",
+    {
+        "file_path": str,
+        "test_framework": str
+    }
+)
 async def generate_test_templates(args: GenerateTestStubsArgs) -> dict[str, Any]:
     """Generate test stubs for Python code."""
     try:
@@ -287,7 +356,14 @@ async def generate_test_templates(args: GenerateTestStubsArgs) -> dict[str, Any]
         }
 
 
-@tool
+@tool(
+    "find_python_patterns",
+    "Query Synapse for Python patterns and best practices",
+    {
+        "pattern_type": str,
+        "context": str
+    }
+)
 async def find_python_patterns(args: QueryPatternsArgs) -> dict[str, Any]:
     """Query Synapse for Python patterns and best practices."""
     try:
@@ -307,7 +383,14 @@ async def find_python_patterns(args: QueryPatternsArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "find_python_standards",
+    "Search for Python coding standards and conventions",
+    {
+        "standard_type": str,
+        "language_version": str
+    }
+)
 async def find_python_standards(args: SearchStandardsArgs) -> dict[str, Any]:
     """Search for Python coding standards and conventions."""
     try:
@@ -327,7 +410,7 @@ async def find_python_standards(args: SearchStandardsArgs) -> dict[str, Any]:
         }
 
 
-async def generate_prompt(user_message: str) -> AsyncGenerator[ClaudeCodeSdkMessage, None]:
+async def generate_prompt(user_message: str) -> AsyncGenerator[ClaudeAgentOptions, None]:
     """Generate prompt in streaming format for MCP servers."""
     yield {
         "type": "user",
@@ -354,6 +437,7 @@ async def main():
         # Create MCP server with tools
         python_server = create_sdk_mcp_server(
             name="python_specialist_tools",
+            version="1.0.0",
             tools=[
                 python_code_analysis,
                 check_pep8_compliance,

@@ -39,9 +39,12 @@ mojo = [
 
 # Machine learning features (optional)
 ml = [
-    "transformers>=4.30.0",
-    "datasets>=2.0.0",
-    "huggingface-hub>=0.20.0",
+    "sentence-transformers>=2.2.0",  # BGE-M3 semantic search
+    "torch>=2.0.0",                  # Deep learning backend
+    "numpy>=1.24.0",                 # Numerical operations
+    "transformers>=4.30.0",          # HuggingFace base
+    "datasets>=2.0.0",               # Dataset utilities
+    "huggingface-hub>=0.20.0",       # Model hub access
 ]
 
 # Web/API features (optional)
@@ -50,9 +53,14 @@ api = [
     "uvicorn>=0.23.0",
 ]
 
+# Agent SDK (optional, for custom agents)
+agents = [
+    "claude-agent-sdk>=0.1.0",
+]
+
 # Full development environment
 all = [
-    "synapse[dev,ml,api]",
+    "synapse[dev,ml,api,agents]",
 ]
 
 [build-system]

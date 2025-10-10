@@ -20,21 +20,21 @@ from typing import Any, AsyncGenerator, TypedDict
 # Add tools to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Claude Code SDK imports (with fallback)
+# Claude Agent SDK imports (with fallback)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    print("⚠️  Claude Code SDK not available, using mock implementations")
+    print("⚠️  Claude Agent SDK not available, using mock implementations")
     from tools.mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -71,7 +71,15 @@ class PatternSharingArgs(TypedDict):
     notify_agents: bool
 
 # Enhanced agent tools
-@tool
+@tool(
+    "enhanced_scan_patterns",
+    "Enhanced pattern scanning with Synapse integration",
+    {
+        "file_path": str,
+        "use_synapse": bool,
+        "check_global_patterns": bool
+    }
+)
 async def enhanced_scan_patterns(args: EnhancedCodeAnalysisArgs) -> dict[str, Any]:
     """Enhanced pattern scanning with Synapse integration."""
     config = get_config()
@@ -100,7 +108,16 @@ async def enhanced_scan_patterns(args: EnhancedCodeAnalysisArgs) -> dict[str, An
     return scan_result
 
 
-@tool
+@tool(
+    "enhanced_compress_code",
+    "Enhanced code compression with clarity assessment",
+    {
+        "code": str,
+        "target_type": str,
+        "use_clarity_judge": bool,
+        "language": str
+    }
+)
 async def enhanced_compress_code(args: EnhancedTransformArgs) -> dict[str, Any]:
     """Enhanced code compression with clarity assessment."""
     config = get_config()
@@ -135,7 +152,16 @@ async def enhanced_compress_code(args: EnhancedTransformArgs) -> dict[str, Any]:
     return transform_result
 
 
-@tool
+@tool(
+    "enhanced_score_transformation",
+    "Enhanced scoring with configurable weights and clarity integration",
+    {
+        "code": str,
+        "target_type": str,
+        "use_clarity_judge": bool,
+        "language": str
+    }
+)
 async def enhanced_score_transformation(args: EnhancedTransformArgs) -> dict[str, Any]:
     """Enhanced scoring with configurable weights and clarity integration."""
     config = get_config()
@@ -177,7 +203,15 @@ async def enhanced_score_transformation(args: EnhancedTransformArgs) -> dict[str
     return score_result
 
 
-@tool
+@tool(
+    "manage_pattern_sharing",
+    "Manage pattern discovery and sharing across the agent ecosystem",
+    {
+        "pattern": dict,
+        "publish_globally": bool,
+        "notify_agents": bool
+    }
+)
 async def manage_pattern_sharing(args: PatternSharingArgs) -> dict[str, Any]:
     """Manage pattern discovery and sharing across the agent ecosystem."""
     config = get_config()
@@ -232,7 +266,11 @@ async def manage_pattern_sharing(args: PatternSharingArgs) -> dict[str, Any]:
     }
 
 
-@tool
+@tool(
+    "get_enhanced_memory_state",
+    "Get enhanced memory state with configuration and communication logs",
+    {}
+)
 async def get_enhanced_memory_state() -> dict[str, Any]:
     """Get enhanced memory state with configuration and communication logs."""
     config = get_config()
@@ -270,7 +308,7 @@ async def get_enhanced_memory_state() -> dict[str, Any]:
 
 
 # Enhanced system prompt generator
-async def generate_enhanced_prompt(user_message: str, mode: str = "interactive") -> AsyncGenerator[ClaudeCodeSdkMessage, None]:
+async def generate_enhanced_prompt(user_message: str, mode: str = "interactive") -> AsyncGenerator[ClaudeAgentOptions, None]:
     """Generate enhanced prompt with full context and capabilities."""
 
     # Load system prompt

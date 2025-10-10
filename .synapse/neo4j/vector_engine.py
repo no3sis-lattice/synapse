@@ -16,6 +16,7 @@ import hashlib
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 import numpy as np
+import redis
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,6 +36,27 @@ class VectorEngine:
         # Simple vocabulary for TF-IDF (placeholder until real embeddings)
         self.vocabulary = {}
         self.idf_scores = {}
+
+        # Redis configuration for query embedding cache
+        self.redis_host = os.getenv("REDIS_HOST", "localhost")
+        self.redis_port = int(os.getenv("REDIS_PORT", 6379))
+        self.redis_password = os.getenv("REDIS_PASSWORD", None)
+        self.redis_client = None
+        self.embedding_cache_ttl = 604800  # 7 days in seconds
+        self.cache_prefix = "synapse:embedding:"
+
+        # Initialize Redis client
+        try:
+            self.redis_client = redis.Redis(
+                host=self.redis_host,
+                port=self.redis_port,
+                password=self.redis_password,
+                decode_responses=False  # We store binary data
+            )
+            self.redis_client.ping()
+        except Exception as e:
+            print(f"⚠️  Redis not available for embedding cache: {e}")
+            self.redis_client = None
 
         # Initialize transformer model if using BGE-M3
         self.transformer_model = None
@@ -202,6 +224,71 @@ class VectorEngine:
         else:
             # Fallback to simple method
             return self.simple_tfidf_embedding(text)
+
+    def _get_embedding_cache_key(self, text: str) -> str:
+        """Generate cache key for query embedding"""
+        text_hash = hashlib.sha256(text.encode()).hexdigest()[:16]
+        return f"{self.cache_prefix}{self.embedding_model}:{text_hash}"
+
+    def get_cached_embedding(self, text: str) -> Optional[np.ndarray]:
+        """Retrieve cached embedding from Redis if available"""
+        if not self.redis_client:
+            return None
+
+        try:
+            cache_key = self._get_embedding_cache_key(text)
+            cached_data = self.redis_client.get(cache_key)
+
+            if cached_data:
+                # Deserialize numpy array from bytes
+                return np.frombuffer(cached_data, dtype=np.float64)
+        except Exception as e:
+            # Silently fail and regenerate if cache is unavailable
+            pass
+
+        return None
+
+    def cache_embedding(self, text: str, embedding: np.ndarray):
+        """Cache query embedding in Redis with 7-day TTL"""
+        if not self.redis_client:
+            return
+
+        try:
+            cache_key = self._get_embedding_cache_key(text)
+            embedding_bytes = embedding.tobytes()
+            self.redis_client.setex(cache_key, self.embedding_cache_ttl, embedding_bytes)
+        except Exception as e:
+            # Silently fail - caching is optimization, not critical
+            pass
+
+    def generate_embedding_cached(self, text: str, file_path: str = "") -> np.ndarray:
+        """
+        Generate embedding with Redis caching layer.
+
+        This is the hot-path optimized version for query embeddings:
+        - Check Redis cache first (< 1ms)
+        - Generate via BGE-M3 if cache miss (~5-10s)
+        - Store result in Redis for future queries
+
+        Args:
+            text: Text to embed
+            file_path: Optional file path (ignored for query embeddings)
+
+        Returns:
+            1024-dimensional embedding vector
+        """
+        # Try cache first
+        cached = self.get_cached_embedding(text)
+        if cached is not None:
+            return cached
+
+        # Cache miss - generate new embedding
+        embedding = self.generate_embedding(text, file_path)
+
+        # Store in cache for next time
+        self.cache_embedding(text, embedding)
+
+        return embedding
 
     def store_embedding(self, neo4j_node_id: str, file_path: str, content_hash: str, embedding: np.ndarray):
         """Store embedding in SQLite database"""

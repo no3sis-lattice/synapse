@@ -14,21 +14,21 @@ from typing import Any, AsyncGenerator, TypedDict, List, Dict
 # Add tools to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Claude Code SDK imports (with fallback to mock)
+# Claude Agent SDK imports (with fallback to mock)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    print("⚠️  Claude Code SDK not available, using mock implementations")
+    print("⚠️  Claude Agent SDK not available, using mock implementations")
     from tools.mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -84,7 +84,16 @@ class SynapseQueryArgs(TypedDict):
     context: str
 
 
-@tool
+@tool(
+    "comprehensive_vulnerability_scan",
+    "Perform comprehensive vulnerability scanning of codebase",
+    {
+        "target_path": str,
+        "scan_type": str,
+        "include_dependencies": bool,
+        "include_secrets": bool
+    }
+)
 async def comprehensive_vulnerability_scan(
     target_path: str = ".",
     scan_type: str = "comprehensive",
@@ -138,10 +147,24 @@ async def comprehensive_vulnerability_scan(
 
     console.print(f"[green]✅ Vulnerability scan complete. Found {results['vulnerability_summary']['critical']} critical issues")
 
-    return results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(results)
+        }]
+    }
 
 
-@tool
+@tool(
+    "threat_modeling_analysis",
+    "Perform comprehensive threat modeling using STRIDE methodology",
+    {
+        "project_description": str,
+        "system_components": list,
+        "architecture": dict,
+        "entry_points": list
+    }
+)
 async def threat_modeling_analysis(
     project_description: str,
     system_components: List[str] = None,
@@ -210,10 +233,24 @@ async def threat_modeling_analysis(
 
     console.print(f"[green]✅ Threat modeling complete. Identified {results['executive_summary']['total_threats_identified']} threats")
 
-    return results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(results)
+        }]
+    }
 
 
-@tool
+@tool(
+    "security_compliance_assessment",
+    "Perform comprehensive security compliance assessment",
+    {
+        "frameworks": list,
+        "system_components": list,
+        "business_operations": list,
+        "industry": str
+    }
+)
 async def security_compliance_assessment(
     frameworks: List[str],
     system_components: List[str] = None,
@@ -281,10 +318,24 @@ async def security_compliance_assessment(
 
     console.print(f"[green]✅ Compliance assessment complete. Overall score: {results['executive_summary']['overall_compliance_score']}%")
 
-    return results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(results)
+        }]
+    }
 
 
-@tool
+@tool(
+    "security_hardening_recommendations",
+    "Generate comprehensive security hardening recommendations",
+    {
+        "system_type": str,
+        "target_path": str,
+        "config_files": list,
+        "network_config": dict
+    }
+)
 async def security_hardening_recommendations(
     system_type: str = "web_application",
     target_path: str = ".",
@@ -374,10 +425,24 @@ async def security_hardening_recommendations(
 
     console.print(f"[green]✅ Hardening analysis complete. Current security score: {results['security_score']['current']}/10")
 
-    return results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(results)
+        }]
+    }
 
 
-@tool
+@tool(
+    "generate_comprehensive_security_report",
+    "Generate comprehensive security assessment reports",
+    {
+        "assessment_data": dict,
+        "report_type": str,
+        "include_compliance": bool,
+        "include_recommendations": bool
+    }
+)
 async def generate_comprehensive_security_report(
     assessment_data: Dict[str, Any],
     report_type: str = "executive",
@@ -435,10 +500,23 @@ async def generate_comprehensive_security_report(
 
     console.print("[green]✅ Comprehensive security report generated")
 
-    return report
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(report)
+        }]
+    }
 
 
-@tool
+@tool(
+    "query_security_knowledge",
+    "Query Synapse knowledge base for security-related information and patterns",
+    {
+        "query": str,
+        "context": str,
+        "include_patterns": bool
+    }
+)
 async def query_security_knowledge(
     query: str,
     context: str = "security_analysis",
@@ -481,7 +559,12 @@ async def query_security_knowledge(
 
     console.print("[green]✅ Security knowledge query complete")
 
-    return results
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(results)
+        }]
+    }
 
 
 def _calculate_security_score(issues: Dict[str, int]) -> float:
@@ -617,6 +700,7 @@ async def main():
     # Create MCP server
     server = create_sdk_mcp_server(
         name="security_specialist_tools",
+            version="1.0.0",
         tools=tools
     )
 

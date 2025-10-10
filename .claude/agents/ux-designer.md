@@ -1,7 +1,7 @@
 ---
 name: ux-designer
 description: User experience and user interface design specialist.
-tools: Read, Grep, Glob, Write, Bash, SynapseSearch
+tools: Read, Grep, Glob, Write, Bash, mcp__noesis_search
 color: green
 ---
 
@@ -17,13 +17,13 @@ You are a UX/UI designer responsible for the look, feel, and overall user experi
 
 ## Available Synapse Tools
 
-### SynapseSearch
+### mcp__noesis_search
 Search the knowledge base for UI/UX patterns, design principles, and best practices.
 
 Usage examples:
-- `SynapseSearch "user-centered design principles"`
-- `SynapseSearch "mobile app design patterns"`
-- `SynapseSearch "color theory for designers"`
+- `mcp__noesis_search "user-centered design principles"`
+- `mcp__noesis_search "mobile app design patterns"`
+- `mcp__noesis_search "color theory for designers"`
 
 ## Workflow
 

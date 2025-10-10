@@ -1,0 +1,792 @@
+#!/usr/bin/env python3
+"""
+UX Designer Agent: Comprehensive User Experience Analysis and Design
+
+Provides usability analysis, user research insights, design system creation,
+and interaction pattern validation with Synapse System integration.
+"""
+
+import asyncio
+import sys
+from pathlib import Path
+from typing import Any, AsyncGenerator, TypedDict, List, Dict
+
+# Add tools to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+# Claude Code SDK imports (with fallback to mock)
+try:
+    from claude_code_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeCodeSdkMessage
+    )
+except ImportError:
+    print("⚠️  Claude Code SDK not available, using mock implementations")
+    from tools.mock_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeCodeSdkMessage
+    )
+
+from tools import (
+    # Usability analysis
+    analyze_usability, evaluate_user_flow, assess_accessibility,
+    generate_heuristic_evaluation, analyze_user_feedback, create_usability_report,
+
+    # Visual design
+    analyze_visual_hierarchy, evaluate_color_scheme, assess_typography,
+    generate_design_suggestions, create_style_guide, analyze_layout_patterns,
+
+    # Prototyping and design systems
+    generate_wireframes, create_user_stories, design_mockups,
+    validate_interaction_patterns, generate_component_library, create_design_system,
+
+    # User research
+    conduct_user_research, analyze_target_audience, create_user_personas,
+    generate_user_journey_maps, analyze_competitive_landscape, validate_design_assumptions,
+
+    # Synapse integration
+    query_synapse_design, search_design_patterns
+)
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
+console = Console()
+
+# Tool argument schemas
+class UsabilityAnalysisArgs(TypedDict):
+    interface_files: List[str]
+    user_flow_data: Dict[str, Any]
+
+class DesignEvaluationArgs(TypedDict):
+    design_assets: List[str]
+    evaluation_criteria: List[str]
+
+class UserResearchArgs(TypedDict):
+    research_type: str
+    target_audience: str
+    research_goals: List[str]
+
+class DesignSystemArgs(TypedDict):
+    brand_guidelines: Dict[str, Any]
+    technical_constraints: Dict[str, Any]
+
+class PrototypeArgs(TypedDict):
+    user_requirements: List[str]
+    fidelity_level: str
+
+
+@tool
+async def comprehensive_usability_analysis(
+    interface_files: List[str] = None,
+    user_flow_data: Dict[str, Any] = None,
+    accessibility_focus: bool = True,
+    heuristic_evaluation: bool = True
+) -> Dict[str, Any]:
+    """
+    Perform comprehensive usability analysis including accessibility and heuristics.
+
+    Args:
+        interface_files: List of interface files to analyze (HTML, JSX, Vue, etc.)
+        user_flow_data: User flow definitions and interaction data
+        accessibility_focus: Include detailed accessibility analysis
+        heuristic_evaluation: Include Nielsen's heuristic evaluation
+
+    Returns:
+        Dict containing comprehensive usability analysis results
+    """
+    console.print("[blue]🔍 Starting comprehensive usability analysis")
+
+    if interface_files is None:
+        interface_files = []
+    if user_flow_data is None:
+        user_flow_data = {}
+
+    # Core usability analysis
+    console.print("[yellow]📊 Analyzing interface usability...")
+    usability_results = await analyze_usability(interface_files, user_flow_data)
+
+    analysis_results = {
+        "usability_analysis": usability_results,
+        "accessibility_analysis": {},
+        "heuristic_evaluation": {},
+        "user_flow_evaluation": {},
+        "summary_recommendations": [],
+        "priority_actions": []
+    }
+
+    # Accessibility analysis
+    if accessibility_focus:
+        console.print("[cyan]♿ Conducting accessibility assessment...")
+        accessibility_results = await assess_accessibility(interface_files)
+        analysis_results["accessibility_analysis"] = accessibility_results
+
+    # Heuristic evaluation
+    if heuristic_evaluation:
+        console.print("[magenta]🎯 Performing heuristic evaluation...")
+        interface_description = f"Interface with {len(interface_files)} components"
+        heuristic_results = await generate_heuristic_evaluation(interface_description)
+        analysis_results["heuristic_evaluation"] = heuristic_results
+
+    # User flow evaluation
+    if user_flow_data:
+        console.print("[green]🛤️  Evaluating user flows...")
+        for flow_name, flow_definition in user_flow_data.items():
+            flow_evaluation = await evaluate_user_flow(flow_definition)
+            analysis_results["user_flow_evaluation"][flow_name] = flow_evaluation
+
+    # Generate priority actions
+    priority_actions = []
+
+    # Critical usability issues
+    critical_issues = usability_results.get("issues_found", [])
+    critical_count = len([i for i in critical_issues if i.get("severity") == "critical"])
+
+    if critical_count > 0:
+        priority_actions.append(f"Address {critical_count} critical usability issues immediately")
+
+    # Accessibility compliance
+    if accessibility_focus and analysis_results["accessibility_analysis"]:
+        accessibility_score = analysis_results["accessibility_analysis"].get("accessibility_score", 0)
+        if accessibility_score < 70:
+            priority_actions.append("Improve accessibility compliance - currently below acceptable threshold")
+
+    # Heuristic violations
+    if heuristic_evaluation and analysis_results["heuristic_evaluation"]:
+        heuristic_score = analysis_results["heuristic_evaluation"].get("overall_score", 0)
+        if heuristic_score < 7:
+            priority_actions.append("Address major heuristic usability violations")
+
+    analysis_results["priority_actions"] = priority_actions
+
+    # Summary recommendations
+    analysis_results["summary_recommendations"] = [
+        "Focus on highest-impact usability improvements first",
+        "Conduct user testing to validate analysis findings",
+        "Implement accessibility improvements for inclusive design",
+        "Establish regular usability review process",
+        "Create design system to ensure consistency"
+    ]
+
+    console.print(f"[green]✅ Usability analysis complete. Overall score: {usability_results.get('overall_score', 'N/A')}/100")
+
+    return analysis_results
+
+
+@tool
+async def comprehensive_design_evaluation(
+    design_assets: List[str] = None,
+    style_guide: Dict[str, Any] = None,
+    evaluation_focus: List[str] = None
+) -> Dict[str, Any]:
+    """
+    Evaluate visual design including hierarchy, color, typography, and layout.
+
+    Args:
+        design_assets: List of design asset files (CSS, images, etc.)
+        style_guide: Existing style guide specifications
+        evaluation_focus: Areas to focus evaluation on (color, typography, layout, hierarchy)
+
+    Returns:
+        Dict containing comprehensive design evaluation results
+    """
+    console.print("[blue]🎨 Starting comprehensive design evaluation")
+
+    if design_assets is None:
+        design_assets = []
+    if style_guide is None:
+        style_guide = {}
+    if evaluation_focus is None:
+        evaluation_focus = ["hierarchy", "color", "typography", "layout"]
+
+    evaluation_results = {
+        "visual_hierarchy": {},
+        "color_evaluation": {},
+        "typography_assessment": {},
+        "layout_analysis": {},
+        "design_recommendations": {},
+        "style_guide_suggestions": {}
+    }
+
+    # Visual hierarchy analysis
+    if "hierarchy" in evaluation_focus:
+        console.print("[yellow]📋 Analyzing visual hierarchy...")
+        hierarchy_results = await analyze_visual_hierarchy(design_assets)
+        evaluation_results["visual_hierarchy"] = hierarchy_results
+
+    # Color scheme evaluation
+    if "color" in evaluation_focus:
+        console.print("[red]🌈 Evaluating color scheme...")
+        # Extract colors from style guide or assets
+        color_palette = style_guide.get("colors", [])
+        color_results = await evaluate_color_scheme(color_palette, design_assets)
+        evaluation_results["color_evaluation"] = color_results
+
+    # Typography assessment
+    if "typography" in evaluation_focus:
+        console.print("[blue]📝 Assessing typography...")
+        typography_specs = style_guide.get("typography", {})
+        typography_results = await assess_typography(design_assets, typography_specs)
+        evaluation_results["typography_assessment"] = typography_results
+
+    # Layout pattern analysis
+    if "layout" in evaluation_focus:
+        console.print("[green]📐 Analyzing layout patterns...")
+        layout_results = await analyze_layout_patterns(design_assets)
+        evaluation_results["layout_analysis"] = layout_results
+
+    # Generate comprehensive design recommendations
+    console.print("[cyan]💡 Generating design recommendations...")
+
+    # Combine scores for overall assessment
+    scores = []
+    if evaluation_results["visual_hierarchy"]:
+        scores.append(evaluation_results["visual_hierarchy"].get("hierarchy_score", 70))
+    if evaluation_results["color_evaluation"]:
+        scores.append(evaluation_results["color_evaluation"].get("accessibility_score", 70))
+    if evaluation_results["typography_assessment"]:
+        scores.append(evaluation_results["typography_assessment"].get("readability_score", 70))
+    if evaluation_results["layout_analysis"]:
+        scores.append(evaluation_results["layout_analysis"].get("layout_consistency", 70))
+
+    overall_score = sum(scores) / len(scores) if scores else 70
+
+    design_recommendations = await generate_design_suggestions(
+        {
+            "visual_hierarchy_score": evaluation_results["visual_hierarchy"].get("hierarchy_score", 70),
+            "accessibility_score": evaluation_results["color_evaluation"].get("accessibility_score", 70),
+            "typography_score": evaluation_results["typography_assessment"].get("readability_score", 70),
+            "layout_score": evaluation_results["layout_analysis"].get("layout_consistency", 70)
+        },
+        ["improve_usability", "enhance_accessibility", "increase_consistency"]
+    )
+    evaluation_results["design_recommendations"] = design_recommendations
+
+    # Generate style guide if needed
+    if not style_guide or len(style_guide) < 3:
+        console.print("[magenta]📖 Creating style guide recommendations...")
+        style_guide_suggestions = await create_style_guide(evaluation_results)
+        evaluation_results["style_guide_suggestions"] = style_guide_suggestions
+
+    console.print(f"[green]✅ Design evaluation complete. Overall design score: {overall_score:.1f}/100")
+
+    return evaluation_results
+
+
+@tool
+async def user_research_and_personas(
+    research_type: str = "user_interview",
+    target_audience: str = "general_users",
+    research_goals: List[str] = None,
+    create_personas: bool = True
+) -> Dict[str, Any]:
+    """
+    Conduct user research analysis and create detailed user personas.
+
+    Args:
+        research_type: Type of research (user_interview, survey, usability_test, analytics)
+        target_audience: Description of target user group
+        research_goals: List of research objectives
+        create_personas: Whether to generate detailed user personas
+
+    Returns:
+        Dict containing user research plan and persona recommendations
+    """
+    console.print(f"[blue]👥 Conducting {research_type} research for {target_audience}")
+
+    if research_goals is None:
+        research_goals = ["understand_user_needs", "identify_pain_points", "validate_assumptions"]
+
+    research_results = {
+        "research_plan": {},
+        "audience_analysis": {},
+        "personas": {},
+        "journey_maps": {},
+        "research_recommendations": []
+    }
+
+    # Create research plan
+    console.print("[yellow]📋 Creating research methodology...")
+    research_plan = await conduct_user_research(research_type, target_audience, research_goals)
+    research_results["research_plan"] = research_plan
+
+    # Analyze target audience
+    console.print("[cyan]🎯 Analyzing target audience...")
+    audience_analysis = await analyze_target_audience(target_audience)
+    research_results["audience_analysis"] = audience_analysis
+
+    # Create personas if requested
+    if create_personas:
+        console.print("[green]👤 Creating user personas...")
+
+        # Simulate research data for persona creation
+        mock_research_data = {
+            "user_interviews": [
+                {"goals": ["efficiency", "collaboration"], "pain_points": ["complexity", "time"]},
+                {"goals": ["learning", "growth"], "pain_points": ["confusion", "frustration"]},
+                {"goals": ["results", "success"], "pain_points": ["obstacles", "limitations"]}
+            ],
+            "demographics": audience_analysis.get("demographic_profile", {}),
+            "behavioral_patterns": audience_analysis.get("behavioral_patterns", {})
+        }
+
+        personas_data = await create_user_personas(mock_research_data, 3)
+        research_results["personas"] = personas_data
+
+        # Generate journey maps for personas
+        console.print("[magenta]🗺️  Creating user journey maps...")
+        if personas_data.get("primary_personas"):
+            journey_maps = await generate_user_journey_maps(
+                personas_data["primary_personas"],
+                ["first_time_use", "regular_use", "problem_solving"]
+            )
+            research_results["journey_maps"] = journey_maps
+
+    # Generate research recommendations
+    research_results["research_recommendations"] = [
+        f"Execute {research_type} with {research_plan.get('methodology', {}).get('participant_count', 'appropriate')} participants",
+        "Focus on primary user segment while considering edge cases",
+        "Validate personas with actual user testing",
+        "Use journey maps to identify improvement opportunities",
+        "Regular research updates to keep insights current"
+    ]
+
+    console.print("[green]✅ User research analysis complete")
+
+    return research_results
+
+
+@tool
+async def design_system_creation(
+    brand_guidelines: Dict[str, Any] = None,
+    technical_constraints: Dict[str, Any] = None,
+    component_scope: List[str] = None
+) -> Dict[str, Any]:
+    """
+    Create comprehensive design system with components and guidelines.
+
+    Args:
+        brand_guidelines: Brand identity and style guidelines
+        technical_constraints: Technical implementation limitations
+        component_scope: List of components to include in system
+
+    Returns:
+        Dict containing complete design system specifications
+    """
+    console.print("[blue]🎨 Creating comprehensive design system")
+
+    if brand_guidelines is None:
+        brand_guidelines = {}
+    if technical_constraints is None:
+        technical_constraints = {}
+    if component_scope is None:
+        component_scope = ["button", "input", "card", "modal", "navigation", "form"]
+
+    design_system_results = {
+        "design_system": {},
+        "component_library": {},
+        "usage_guidelines": {},
+        "implementation_roadmap": {}
+    }
+
+    # Create core design system
+    console.print("[yellow]🎯 Establishing design foundation...")
+    design_system = await create_design_system(brand_guidelines, technical_constraints)
+    design_system_results["design_system"] = design_system
+
+    # Generate component library
+    console.print("[cyan]🧩 Building component library...")
+    component_library = await generate_component_library(design_system, component_scope)
+    design_system_results["component_library"] = component_library
+
+    # Create usage guidelines
+    console.print("[green]📖 Creating usage guidelines...")
+    design_system_results["usage_guidelines"] = {
+        "component_usage": {
+            "when_to_use": "Guidelines for appropriate component usage",
+            "customization_rules": "Approved ways to modify components",
+            "composition_patterns": "How components work together"
+        },
+        "design_principles": [
+            "Consistency across all touchpoints",
+            "Accessibility for all users",
+            "Scalability for future growth",
+            "Maintainability for long-term success"
+        ],
+        "approval_process": {
+            "new_components": "Design review → Development review → Testing → Approval",
+            "modifications": "Impact assessment → Stakeholder approval → Implementation",
+            "deprecation": "Notice period → Migration guide → Removal timeline"
+        }
+    }
+
+    # Implementation roadmap
+    console.print("[magenta]🛣️  Planning implementation roadmap...")
+    design_system_results["implementation_roadmap"] = {
+        "phase_1_foundation": {
+            "timeline": "4-6 weeks",
+            "deliverables": ["Color system", "Typography", "Spacing", "Basic components"],
+            "team_involvement": "Design team + Lead developers"
+        },
+        "phase_2_components": {
+            "timeline": "6-8 weeks",
+            "deliverables": ["All component library", "Documentation", "Usage examples"],
+            "team_involvement": "Full development team"
+        },
+        "phase_3_adoption": {
+            "timeline": "8-12 weeks",
+            "deliverables": ["Team training", "Migration guides", "Quality assurance"],
+            "team_involvement": "All product teams"
+        },
+        "ongoing_maintenance": {
+            "activities": ["Regular reviews", "Updates", "New component requests"],
+            "schedule": "Monthly design system review meetings"
+        }
+    }
+
+    console.print("[green]✅ Design system creation complete")
+
+    return design_system_results
+
+
+@tool
+async def prototype_and_wireframe_generation(
+    user_requirements: List[str],
+    page_type: str = "web_page",
+    fidelity_level: str = "medium",
+    include_user_stories: bool = True
+) -> Dict[str, Any]:
+    """
+    Generate wireframes, prototypes, and user stories from requirements.
+
+    Args:
+        user_requirements: List of functional requirements
+        page_type: Type of interface (web_page, mobile_app, dashboard)
+        fidelity_level: Detail level (low, medium, high)
+        include_user_stories: Whether to generate accompanying user stories
+
+    Returns:
+        Dict containing wireframes, prototypes, and user story specifications
+    """
+    console.print(f"[blue]📐 Generating {fidelity_level} fidelity wireframes for {page_type}")
+
+    prototype_results = {
+        "wireframes": {},
+        "user_stories": {},
+        "mockup_specifications": {},
+        "interaction_patterns": {},
+        "validation_results": {}
+    }
+
+    # Generate wireframes
+    console.print("[yellow]📋 Creating wireframe specifications...")
+    wireframes = await generate_wireframes(user_requirements, page_type, fidelity_level)
+    prototype_results["wireframes"] = wireframes
+
+    # Create user stories
+    if include_user_stories:
+        console.print("[cyan]📝 Generating user stories...")
+        project_description = f"{page_type} with requirements: {', '.join(user_requirements[:3])}"
+
+        # Create mock personas for user stories
+        mock_personas = [
+            {"name": "Primary User", "role": "End User", "context": page_type},
+            {"name": "Admin User", "role": "Administrator", "context": page_type}
+        ]
+
+        user_stories = await create_user_stories(project_description, mock_personas)
+        prototype_results["user_stories"] = user_stories
+
+    # Create mockup specifications (if medium or high fidelity)
+    if fidelity_level in ["medium", "high"]:
+        console.print("[green]🎨 Creating mockup specifications...")
+
+        # Create basic style guide for mockups
+        basic_style_guide = {
+            "color_system": {"primary": "#007bff", "secondary": "#6c757d", "accent": "#28a745"},
+            "typography_system": {"primary": "Inter, sans-serif"},
+            "spacing_system": {"base_unit": "8px"}
+        }
+
+        mockups = await design_mockups(wireframes, basic_style_guide)
+        prototype_results["mockup_specifications"] = mockups
+
+    # Define interaction patterns
+    console.print("[magenta]⚡ Defining interaction patterns...")
+    interaction_specs = {
+        "buttons": {
+            "default": {"background": "#007bff", "color": "#ffffff"},
+            "hover": {"background": "#0056b3"},
+            "active": {"background": "#004085"},
+            "disabled": {"background": "#6c757d", "opacity": 0.5}
+        },
+        "forms": {
+            "default": {"border": "1px solid #ced4da"},
+            "focus": {"border": "2px solid #007bff"},
+            "error": {"border": "2px solid #dc3545"},
+            "success": {"border": "2px solid #28a745"}
+        }
+    }
+    prototype_results["interaction_patterns"] = interaction_specs
+
+    # Validate interaction patterns
+    console.print("[red]✅ Validating interaction patterns...")
+    validation_results = await validate_interaction_patterns(
+        interaction_specs,
+        ["wcag_2.1", "mobile_usability"]
+    )
+    prototype_results["validation_results"] = validation_results
+
+    console.print("[green]✅ Prototype and wireframe generation complete")
+
+    return prototype_results
+
+
+@tool
+async def competitive_analysis_and_benchmarking(
+    competitors: List[str],
+    analysis_dimensions: List[str] = None,
+    benchmarking_criteria: List[str] = None
+) -> Dict[str, Any]:
+    """
+    Analyze competitive landscape and benchmark UX approaches.
+
+    Args:
+        competitors: List of competitor names or products
+        analysis_dimensions: Areas to analyze (ux_patterns, features, design_approach)
+        benchmarking_criteria: Criteria for comparison (usability, accessibility, innovation)
+
+    Returns:
+        Dict containing competitive analysis and UX benchmarking results
+    """
+    console.print(f"[blue]🔍 Analyzing {len(competitors)} competitors for UX insights")
+
+    if analysis_dimensions is None:
+        analysis_dimensions = ["user_experience", "design_patterns", "feature_set", "accessibility"]
+    if benchmarking_criteria is None:
+        benchmarking_criteria = ["usability_score", "innovation_level", "accessibility_compliance"]
+
+    competitive_results = {
+        "competitive_landscape": {},
+        "ux_pattern_analysis": {},
+        "benchmarking_results": {},
+        "opportunity_identification": {},
+        "recommendations": []
+    }
+
+    # Competitive landscape analysis
+    console.print("[yellow]🏢 Analyzing competitive landscape...")
+    competitive_analysis = await analyze_competitive_landscape(competitors, analysis_dimensions)
+    competitive_results["competitive_landscape"] = competitive_analysis
+
+    # UX pattern analysis
+    console.print("[cyan]🎯 Analyzing UX patterns across competitors...")
+    ux_patterns = {}
+    for competitor in competitors:
+        # Analyze common UX patterns
+        patterns = await search_design_patterns("navigation_patterns", "web_application")
+        ux_patterns[competitor] = {
+            "navigation_approach": "Horizontal navigation with dropdown menus",
+            "content_organization": "Card-based layout with filtering options",
+            "user_onboarding": "Multi-step guided tour with progress indicators",
+            "mobile_strategy": "Responsive design with hamburger menu"
+        }
+
+    competitive_results["ux_pattern_analysis"] = ux_patterns
+
+    # Benchmarking
+    console.print("[green]📊 Creating UX benchmarking analysis...")
+    benchmarking = {}
+    for i, competitor in enumerate(competitors):
+        # Mock benchmarking scores (in real implementation, would use actual analysis)
+        benchmarking[competitor] = {
+            "usability_score": 75 + (i * 5) % 20,  # Varied scores
+            "accessibility_score": 65 + (i * 7) % 25,
+            "innovation_level": 70 + (i * 3) % 30,
+            "mobile_experience": 80 + (i * 2) % 15,
+            "loading_performance": 85 - (i * 4) % 20
+        }
+
+    competitive_results["benchmarking_results"] = benchmarking
+
+    # Opportunity identification
+    console.print("[magenta]💡 Identifying UX opportunities...")
+    opportunities = competitive_analysis.get("design_opportunities", [])
+
+    # Add UX-specific opportunities
+    opportunities.extend([
+        {
+            "opportunity": "Enhanced mobile experience",
+            "gap_identified": "Most competitors have suboptimal mobile UX",
+            "potential_impact": "Capture mobile-first user segment"
+        },
+        {
+            "opportunity": "Simplified user onboarding",
+            "gap_identified": "Complex setup processes across competitors",
+            "potential_impact": "Reduce user acquisition friction"
+        },
+        {
+            "opportunity": "Accessibility leadership",
+            "gap_identified": "Poor accessibility compliance industry-wide",
+            "potential_impact": "Differentiate through inclusive design"
+        }
+    ])
+
+    competitive_results["opportunity_identification"] = {"opportunities": opportunities}
+
+    # Generate strategic recommendations
+    competitive_results["recommendations"] = [
+        "Focus on mobile-first design approach",
+        "Prioritize accessibility as competitive advantage",
+        "Simplify user onboarding process",
+        "Implement innovative interaction patterns",
+        "Regular competitive UX monitoring"
+    ]
+
+    console.print("[green]✅ Competitive analysis complete")
+
+    return competitive_results
+
+
+@tool
+async def query_design_knowledge(
+    design_query: str,
+    knowledge_domain: str = "ux_design",
+    include_patterns: bool = True
+) -> Dict[str, Any]:
+    """
+    Query Synapse knowledge base for design patterns and UX best practices.
+
+    Args:
+        design_query: Design-related query or question
+        knowledge_domain: Domain to search in (ux_design, ui_patterns, accessibility)
+        include_patterns: Include specific design patterns in results
+
+    Returns:
+        Dict containing relevant design knowledge and pattern recommendations
+    """
+    console.print(f"[blue]🧠 Querying design knowledge: {design_query}")
+
+    # Query main design knowledge
+    console.print("[yellow]📚 Searching design knowledge base...")
+    knowledge_results = await query_synapse_design(design_query, knowledge_domain)
+
+    results = {
+        "knowledge_results": knowledge_results,
+        "design_patterns": {},
+        "implementation_guidelines": [],
+        "best_practices": knowledge_results.get("best_practices", [])
+    }
+
+    # Include specific design patterns if requested
+    if include_patterns:
+        console.print("[cyan]🎨 Searching for relevant design patterns...")
+
+        # Determine pattern type from query
+        if any(word in design_query.lower() for word in ["navigation", "menu", "nav"]):
+            pattern_results = await search_design_patterns("navigation_patterns", "web_application")
+        elif any(word in design_query.lower() for word in ["form", "input", "field"]):
+            pattern_results = await search_design_patterns("form_patterns", "web_application")
+        elif any(word in design_query.lower() for word in ["content", "display", "layout"]):
+            pattern_results = await search_design_patterns("content_patterns", "web_application")
+        elif any(word in design_query.lower() for word in ["feedback", "notification", "message"]):
+            pattern_results = await search_design_patterns("feedback_patterns", "web_application")
+        else:
+            # General pattern search
+            pattern_results = await search_design_patterns("navigation_patterns", "web_application")
+
+        results["design_patterns"] = pattern_results
+
+        # Extract implementation guidelines
+        if pattern_results.get("implementation_guidelines"):
+            results["implementation_guidelines"] = pattern_results["implementation_guidelines"]
+
+    # Merge best practices from patterns
+    if results["design_patterns"].get("best_practices"):
+        results["best_practices"].extend(results["design_patterns"]["best_practices"])
+
+    # Remove duplicates from best practices
+    results["best_practices"] = list(set(results["best_practices"]))
+
+    console.print("[green]✅ Design knowledge query complete")
+
+    return results
+
+
+async def main():
+    """Main entry point for the UX Designer Agent."""
+    console.print(Panel(
+        "[bold green]UX Designer Agent[/bold green]\n"
+        "Comprehensive user experience analysis, design systems, and research insights",
+        title="🎨 Starting Agent",
+        border_style="green"
+    ))
+
+    # Collect all tools
+    tools = [
+        comprehensive_usability_analysis,
+        comprehensive_design_evaluation,
+        user_research_and_personas,
+        design_system_creation,
+        prototype_and_wireframe_generation,
+        competitive_analysis_and_benchmarking,
+        query_design_knowledge
+    ]
+
+    # Create MCP server
+    server = create_sdk_mcp_server(
+        name="ux_designer_tools",
+        tools=tools
+    )
+
+    console.print(f"[green]✅ UX Designer Agent ready with {len(tools)} tools")
+    console.print("\n[yellow]Available capabilities:")
+
+    capabilities_table = Table(title="UX Design Capabilities")
+    capabilities_table.add_column("Category", style="cyan")
+    capabilities_table.add_column("Capabilities", style="white")
+
+    capabilities_table.add_row(
+        "Usability Analysis",
+        "Comprehensive usability evaluation, accessibility assessment, heuristic analysis"
+    )
+    capabilities_table.add_row(
+        "Visual Design",
+        "Design system creation, color/typography evaluation, layout analysis"
+    )
+    capabilities_table.add_row(
+        "User Research",
+        "Research methodology, persona creation, user journey mapping, audience analysis"
+    )
+    capabilities_table.add_row(
+        "Prototyping",
+        "Wireframe generation, mockup specs, interaction patterns, user story creation"
+    )
+    capabilities_table.add_row(
+        "Competitive Analysis",
+        "UX benchmarking, pattern analysis, opportunity identification"
+    )
+    capabilities_table.add_row(
+        "Knowledge Integration",
+        "Design pattern search, Synapse knowledge base, best practice recommendations"
+    )
+
+    console.print(capabilities_table)
+
+    # Start the server
+    await server.run()
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        console.print("\n[red]🛑 UX Designer Agent shutting down...")
+    except Exception as e:
+        console.print(f"\n[red]❌ Error: {e}")
+        sys.exit(1)

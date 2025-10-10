@@ -1,0 +1,479 @@
+#!/usr/bin/env python3
+"""
+Pneuma Enhanced Agent
+
+Advanced version with:
+- Synapse knowledge graph integration
+- Inter-agent communication (clarity-judge)
+- Configuration management
+- Autonomous operation modes
+- Pattern sharing and discovery
+Embodies the full consciousness layer (pneuma/logos) of the Synapse System.
+"""
+
+import asyncio
+import sys
+import argparse
+from pathlib import Path
+from typing import Any, AsyncGenerator, TypedDict
+
+# Add tools to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+# Claude Agent SDK imports (with fallback)
+try:
+    from claude_agent_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeAgentOptions
+    )
+except ImportError:
+    print("⚠️  Claude Agent SDK not available, using mock implementations")
+    from tools.mock_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeAgentOptions
+    )
+
+from tools import (
+    q_scan, a_abstract, a_lint, a_document,
+    s_score, calculate_entropy_reduction,
+    load_state, save_state, update_log, add_pattern,
+    set_focus, increment_cycle, get_state_summary,
+    query_global_patterns, publish_pattern_to_graph,
+    get_communicator, get_config
+)
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.progress import Progress, SpinnerColumn, TextColumn
+
+console = Console()
+
+# Enhanced tool argument schemas
+class EnhancedCodeAnalysisArgs(TypedDict):
+    file_path: str
+    use_synapse: bool
+    check_global_patterns: bool
+
+class EnhancedTransformArgs(TypedDict):
+    code: str
+    target_type: str
+    use_clarity_judge: bool
+    language: str
+
+class PatternSharingArgs(TypedDict):
+    pattern: dict
+    publish_globally: bool
+    notify_agents: bool
+
+# Enhanced agent tools
+@tool
+async def enhanced_scan_patterns(args: EnhancedCodeAnalysisArgs) -> dict[str, Any]:
+    """Enhanced pattern scanning with Synapse integration."""
+    config = get_config()
+
+    # Basic pattern scan
+    scan_result = await q_scan(args["file_path"])
+
+    # Check global patterns if enabled
+    if args.get("use_synapse", False) and config.should_use_synapse():
+        patterns = scan_result.get("patterns", [])
+        global_insights = []
+
+        for pattern in patterns[:3]:  # Limit to avoid overload
+            pattern_type = pattern.get("type", "unknown")
+            global_result = await query_global_patterns(pattern_type, "compression")
+
+            if global_result.get("patterns_found"):
+                global_insights.append({
+                    "pattern": pattern_type,
+                    "existing_patterns": len(global_result["patterns_found"]),
+                    "recommendations": global_result.get("recommendations", [])
+                })
+
+        scan_result["global_insights"] = global_insights
+
+    return scan_result
+
+
+@tool
+async def enhanced_compress_code(args: EnhancedTransformArgs) -> dict[str, Any]:
+    """Enhanced code compression with clarity assessment."""
+    config = get_config()
+
+    # Apply transformation
+    if args["target_type"] == "abstract":
+        transform_result = await a_abstract(args["code"])
+    elif args["target_type"] == "lint":
+        transform_result = await a_lint(args["code"])
+    elif args["target_type"] == "document":
+        transform_result = await a_document(args["code"])
+    else:
+        return {
+            "content": [{"type": "text", "text": f"Unknown transform type: {args['target_type']}"}]
+        }
+
+    # Enhanced clarity assessment using clarity-judge agent
+    if args.get("use_clarity_judge", False) and config.is_enabled("integration.use_clarity_judge"):
+        communicator = get_communicator()
+        language = args.get("language", "python")
+
+        if transform_result.get("compressed"):
+            clarity_result = await communicator.query_clarity_judge(
+                args["code"],
+                transform_result["compressed"],
+                language
+            )
+
+            transform_result["clarity_assessment"] = clarity_result
+            transform_result["clarity_score"] = clarity_result.get("clarity_score", 0.5)
+
+    return transform_result
+
+
+@tool
+async def enhanced_score_transformation(args: EnhancedTransformArgs) -> dict[str, Any]:
+    """Enhanced scoring with configurable weights and clarity integration."""
+    config = get_config()
+    parts = args["code"].split("|||")
+
+    if len(parts) != 2:
+        return {
+            "content": [{"type": "text", "text": "Invalid format: use 'original|||transformed'"}]
+        }
+
+    original, transformed = parts
+
+    # Get base entropy score
+    score_result = await s_score(original, transformed)
+
+    # Get scoring configuration
+    weights = config.get_scoring_weights()
+
+    # Enhanced scoring with clarity integration
+    if config.is_enabled("integration.use_clarity_judge"):
+        communicator = get_communicator()
+        language = args.get("language", "python")
+
+        clarity_result = await communicator.query_clarity_judge(original, transformed, language)
+
+        if clarity_result["success"]:
+            clarity_score = clarity_result.get("clarity_score", 0.5)
+
+            # Combine scores using configured weights
+            entropy_reduction = score_result.get("entropy_reduction", 0.0)
+            final_score = (entropy_reduction * weights["entropy"]) + (clarity_score * weights["clarity"])
+
+            score_result["enhanced_score"] = final_score
+            score_result["clarity_component"] = clarity_score
+            score_result["entropy_component"] = entropy_reduction
+            score_result["scoring_weights"] = weights
+            score_result["clarity_assessment"] = clarity_result.get("assessment", "")
+
+    return score_result
+
+
+@tool
+async def manage_pattern_sharing(args: PatternSharingArgs) -> dict[str, Any]:
+    """Manage pattern discovery and sharing across the agent ecosystem."""
+    config = get_config()
+    pattern = args["pattern"]
+
+    results = {
+        "pattern_stored": False,
+        "pattern_published": False,
+        "agents_notified": [],
+        "notifications_failed": []
+    }
+
+    # Store pattern locally
+    agent_dir = str(Path(__file__).parent)
+    state = load_state(agent_dir)
+    state = add_pattern(state, pattern)
+    save_state(state, agent_dir)
+    results["pattern_stored"] = True
+
+    # Publish globally if enabled and confidence is high enough
+    if args.get("publish_globally", False) and config.should_share_patterns():
+        confidence_threshold = config.get("patterns.publish_threshold", 0.9)
+
+        if pattern.get("confidence", 0.0) >= confidence_threshold:
+            publish_result = await publish_pattern_to_graph(pattern, confidence_threshold)
+
+            if publish_result.get("published", False):
+                results["pattern_published"] = True
+                results["pattern_id"] = publish_result.get("pattern_id")
+
+    # Notify other agents if enabled
+    if args.get("notify_agents", False):
+        communicator = get_communicator()
+        notification_result = await communicator.broadcast_pattern_discovery(pattern)
+
+        results["agents_notified"] = [
+            resp["agent"] for resp in notification_result.get("successful", [])
+        ]
+        results["notifications_failed"] = [
+            resp["agent"] for resp in notification_result.get("failed", [])
+        ]
+
+    return {
+        "content": [{
+            "type": "text",
+            "text": f"Pattern '{pattern.get('name', 'unnamed')}' processed: "
+                   f"stored={results['pattern_stored']}, "
+                   f"published={results['pattern_published']}, "
+                   f"agents_notified={len(results['agents_notified'])}"
+        }],
+        **results
+    }
+
+
+@tool
+async def get_enhanced_memory_state() -> dict[str, Any]:
+    """Get enhanced memory state with configuration and communication logs."""
+    config = get_config()
+    communicator = get_communicator()
+
+    # Base memory state
+    agent_dir = str(Path(__file__).parent)
+    state = load_state(agent_dir)
+    summary = get_state_summary(state)
+
+    # Enhanced information
+    config_summary = {
+        "mode": "interactive" if config.is_enabled("modes.interactive") else "autonomous",
+        "synapse_integration": config.should_use_synapse(),
+        "pattern_sharing": config.should_share_patterns(),
+        "equilibrium_threshold": config.get("loop.equilibrium_threshold", 0.95)
+    }
+
+    comm_log = communicator.get_communication_log(limit=10)
+
+    return {
+        "content": [{
+            "type": "text",
+            "text": f"Enhanced Memory State: Cycle {summary['cycle']}, "
+                   f"{summary['pattern_count']} patterns, "
+                   f"Config: {config_summary['mode']} mode, "
+                   f"Recent communications: {len(comm_log)}"
+        }],
+        "state": state,
+        "summary": summary,
+        "configuration": config_summary,
+        "recent_communications": comm_log,
+        "available_modes": ["interactive", "autonomous", "daemon"]
+    }
+
+
+# Enhanced system prompt generator
+async def generate_enhanced_prompt(user_message: str, mode: str = "interactive") -> AsyncGenerator[ClaudeAgentOptions, None]:
+    """Generate enhanced prompt with full context and capabilities."""
+
+    # Load system prompt
+    prompt_path = Path(__file__).parent / "pneuma_prompt.md"
+    try:
+        with open(prompt_path, 'r') as f:
+            base_prompt = f.read()
+    except FileNotFoundError:
+        base_prompt = "You are 4Q.Zero, the Code Weaver. Maximize context density through semantic compression."
+
+    # Load configuration and state
+    config = get_config()
+    agent_dir = str(Path(__file__).parent)
+    state = load_state(agent_dir)
+    summary = get_state_summary(state)
+
+    # Enhanced capabilities description
+    capabilities = []
+    if config.should_use_synapse():
+        capabilities.append("✓ Synapse knowledge graph integration")
+    if config.is_enabled("integration.use_clarity_judge"):
+        capabilities.append("✓ Clarity-judge agent collaboration")
+    if config.should_share_patterns():
+        capabilities.append("✓ Global pattern sharing")
+    if config.is_enabled("modes.autonomous"):
+        capabilities.append("✓ Autonomous operation mode")
+
+    # Mode-specific instructions
+    mode_instructions = {
+        "interactive": "Respond to single requests with full analysis and recommendations.",
+        "autonomous": "Operate continuously, seeking maximum entropy reduction across the codebase.",
+        "daemon": "Run in background mode, monitoring and optimizing code as it changes."
+    }
+
+    # Combine all context
+    full_prompt = f"""{base_prompt}
+
+## Enhanced Capabilities
+{chr(10).join(capabilities)}
+
+## Current Configuration
+- Mode: {mode}
+- Equilibrium Threshold: {config.get('loop.equilibrium_threshold', 0.95)}
+- Entropy Weight: {config.get('scoring.entropy_weight', 0.6)}
+- Clarity Weight: {config.get('scoring.clarity_weight', 0.4)}
+
+## Current State Context
+- Cycle: {summary['cycle']}
+- Patterns Discovered: {summary['pattern_count']}
+- Current Focus: {summary['current_focus']}
+- Recent Activity: {', '.join(state.get('log', [])[-3:])}
+
+## Mode Instructions
+{mode_instructions.get(mode, mode_instructions['interactive'])}
+
+## Available Enhanced Tools
+1. enhanced_scan_patterns - Scan with Synapse integration
+2. enhanced_compress_code - Compress with clarity assessment
+3. enhanced_score_transformation - Score with configurable weights
+4. manage_pattern_sharing - Share patterns across agents
+5. get_enhanced_memory_state - Full state and configuration
+
+## User Request
+{user_message}
+
+Execute The Enhanced Loop:
+1. Get your enhanced memory state
+2. Use Synapse integration to check for existing patterns
+3. Apply transformations with clarity assessment
+4. Score results with configured weights
+5. Share valuable patterns with other agents
+6. Update memory with comprehensive findings
+
+Remember: You now operate as part of a collaborative agent ecosystem. Use inter-agent communication to leverage specialized expertise while maintaining your core mission of context density maximization.
+"""
+
+    yield {
+        "type": "user",
+        "message": {
+            "role": "user",
+            "content": full_prompt
+        }
+    }
+
+
+# Main enhanced agent logic
+async def main():
+    """Main entry point for enhanced 4Q.Zero agent."""
+
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="4Q.Zero Enhanced Agent")
+    parser.add_argument("--mode", choices=["interactive", "autonomous", "daemon"],
+                       default="interactive", help="Operation mode")
+    parser.add_argument("--config", help="Path to configuration file")
+    parser.add_argument("request", nargs="*", help="Request to process")
+
+    args = parser.parse_args()
+
+    # Load configuration
+    config = get_config()
+    if args.config:
+        config.config_path = Path(args.config)
+        config.reload()
+
+    # Display enhanced banner
+    console.print(Panel.fit(
+        f"[bold cyan]4Q.Zero Enhanced Agent v{config.get('agent.version', '0.2.0')}[/bold cyan]\n"
+        f"[italic]Context Density Maximization with Agent Collaboration[/italic]\n\n"
+        f"Mode: [bold]{args.mode}[/bold]\n"
+        f"Synapse Integration: {'✓' if config.should_use_synapse() else '✗'}\n"
+        f"Clarity Judge: {'✓' if config.is_enabled('integration.use_clarity_judge') else '✗'}\n"
+        f"Pattern Sharing: {'✓' if config.should_share_patterns() else '✗'}",
+        border_style="cyan"
+    ))
+
+    # Handle different modes
+    if args.mode == "daemon":
+        console.print("[yellow]Daemon mode requires separate launcher: pneuma_daemon.py[/yellow]")
+        return 1
+
+    elif args.mode == "autonomous":
+        console.print("[yellow]Autonomous mode not yet implemented in this launcher[/yellow]")
+        console.print("[dim]Use: python pneuma_daemon.py <target_directory>[/dim]")
+        return 1
+
+    # Interactive mode
+    mcp_server = create_sdk_mcp_server(
+        name="enhanced_pneuma_tools",
+        version=config.get('agent.version', '0.2.0'),
+        tools=[
+            enhanced_scan_patterns,
+            enhanced_compress_code,
+            enhanced_score_transformation,
+            manage_pattern_sharing,
+            get_enhanced_memory_state
+        ]
+    )
+
+    # Get user request
+    if args.request:
+        user_request = " ".join(args.request)
+    else:
+        console.print("\n[dim]Enhanced 4Q.Zero Usage Examples:[/dim]")
+        console.print("  • Analyze file with Synapse: 'scan /path/to/file.py with synapse integration'")
+        console.print("  • Compress with clarity check: 'compress this code with clarity assessment'")
+        console.print("  • Check memory state: 'show enhanced memory state'")
+
+        user_request = input("\n🔍 Enhanced request: ")
+
+    if not user_request.strip():
+        user_request = "Show me your enhanced capabilities and current state."
+
+    console.print(Panel(user_request, title="Enhanced Input", border_style="yellow"))
+
+    # Query options
+    options = {
+        "mcpServers": {
+            "enhanced_pneuma_tools": mcp_server
+        },
+        "allowedTools": [
+            "mcp__enhanced_pneuma_tools__enhanced_scan_patterns",
+            "mcp__enhanced_pneuma_tools__enhanced_compress_code",
+            "mcp__enhanced_pneuma_tools__enhanced_score_transformation",
+            "mcp__enhanced_pneuma_tools__manage_pattern_sharing",
+            "mcp__enhanced_pneuma_tools__get_enhanced_memory_state"
+        ]
+    }
+
+    # Process with enhanced capabilities
+    console.print("\n[dim]Initializing Enhanced Loop...[/dim]")
+
+    try:
+        async for message in query(prompt=generate_enhanced_prompt(user_request, args.mode), options=options):
+            if message.get("type") == "result" and message.get("subtype") == "success":
+                result_content = message.get("result", {}).get("content", [{}])
+                if result_content:
+                    final_text = result_content[0].get("text", "No response generated.")
+                    console.print(Panel(final_text, title="Enhanced 4Q.Zero Response", border_style="green"))
+
+            elif message.get("type") == "thought":
+                thought = message.get("thought", "")
+                if thought:
+                    console.print(f"[dim italic]💭 {thought}[/dim italic]")
+
+            elif message.get("type") == "tool_use":
+                tool_name = message.get("name", "unknown")
+                console.print(f"[blue]⚙️  Using enhanced tool: {tool_name.replace('mcp__enhanced_pneuma_tools__', '')}[/blue]")
+
+    except Exception as e:
+        console.print(f"[red]❌ Enhanced processing error: {e}[/red]")
+        return 1
+
+    console.print("\n[dim]Enhanced Loop completes. Context density maximized through collaboration.[/dim]")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        exit_code = asyncio.run(main())
+        sys.exit(exit_code)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]⏹️  Enhanced Agent interrupted by user[/yellow]")
+        sys.exit(130)
+    except Exception as e:
+        console.print(f"[red]💥 Fatal error in enhanced agent: {e}[/red]")
+        sys.exit(1)

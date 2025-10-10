@@ -326,7 +326,7 @@ class SynapseContextManager:
         # 1. Try vector search with expanded queries
         for query_variant in expanded_queries[:5]:  # Limit to top 5 variants
             try:
-                query_embedding = self.vector_engine.generate_embedding(query_variant)
+                query_embedding = self.vector_engine.generate_embedding_cached(query_variant)
                 vector_results = self.vector_engine.similarity_search(query_embedding, max_results)
 
                 if vector_results:
@@ -491,7 +491,7 @@ class SynapseContextManager:
 
         # Vector search
         try:
-            query_embedding = self.vector_engine.generate_embedding(query)
+            query_embedding = self.vector_engine.generate_embedding_cached(query)
             vector_results = self.vector_engine.similarity_search(query_embedding, max_results * 2)
 
             # Get Neo4j nodes for vector matches

@@ -16,20 +16,21 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 # Claude Code SDK imports (placeholders for now)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -77,7 +78,14 @@ class SearchStyleGuidesArgs(TypedDict):
 
 
 # Agent tools with decorators
-@tool
+@tool(
+    "create_documentation",
+    "Generate documentation for a code file",
+    {
+        "file_path": str,
+        "doc_type": str
+    }
+)
 async def create_documentation(args: GenerateDocsArgs) -> dict[str, Any]:
     """Generate documentation for a code file."""
     return await generate_docs(
@@ -86,13 +94,26 @@ async def create_documentation(args: GenerateDocsArgs) -> dict[str, Any]:
     )
 
 
-@tool
+@tool(
+    "extract_existing_comments",
+    "Extract existing comments and docstrings from code",
+    {
+        "file_path": str
+    }
+)
 async def extract_existing_comments(args: ExtractCommentsArgs) -> dict[str, Any]:
     """Extract existing comments and docstrings from code."""
     return await extract_comments(args["file_path"])
 
 
-@tool
+@tool(
+    "generate_readme_file",
+    "Create a README file for a project",
+    {
+        "project_path": str,
+        "template": str
+    }
+)
 async def generate_readme_file(args: CreateReadmeArgs) -> dict[str, Any]:
     """Create a README file for a project."""
     return await create_readme(
@@ -101,13 +122,26 @@ async def generate_readme_file(args: CreateReadmeArgs) -> dict[str, Any]:
     )
 
 
-@tool
+@tool(
+    "analyze_project_structure",
+    "Analyze code structure for documentation purposes",
+    {
+        "directory_path": str
+    }
+)
 async def analyze_project_structure(args: AnalyzeStructureArgs) -> dict[str, Any]:
     """Analyze code structure for documentation purposes."""
     return await analyze_code_structure(args["directory_path"])
 
 
-@tool
+@tool(
+    "format_documentation_content",
+    "Format content in specified format",
+    {
+        "content": str,
+        "format_type": str
+    }
+)
 async def format_documentation_content(args: FormatContentArgs) -> dict[str, Any]:
     """Format content in specified format."""
     return await format_content(
@@ -116,13 +150,26 @@ async def format_documentation_content(args: FormatContentArgs) -> dict[str, Any
     )
 
 
-@tool
+@tool(
+    "validate_markdown_content",
+    "Validate markdown content for common issues",
+    {
+        "content": str
+    }
+)
 async def validate_markdown_content(args: ValidateMarkdownArgs) -> dict[str, Any]:
     """Validate markdown content for common issues."""
     return await validate_markdown(args["content"])
 
 
-@tool
+@tool(
+    "create_api_documentation",
+    "Generate API documentation from code",
+    {
+        "code_content": str,
+        "language": str
+    }
+)
 async def create_api_documentation(args: GenerateApiDocsArgs) -> dict[str, Any]:
     """Generate API documentation from code."""
     return await generate_api_docs(
@@ -131,13 +178,25 @@ async def create_api_documentation(args: GenerateApiDocsArgs) -> dict[str, Any]:
     )
 
 
-@tool
+@tool(
+    "find_documentation_templates",
+    "Query Synapse for documentation templates",
+    {
+        "template_type": str
+    }
+)
 async def find_documentation_templates(args: QueryTemplatesArgs) -> dict[str, Any]:
     """Query Synapse for documentation templates."""
     return await query_doc_templates(args["template_type"])
 
 
-@tool
+@tool(
+    "find_style_guides",
+    "Search for style guides and writing standards",
+    {
+        "domain": str
+    }
+)
 async def find_style_guides(args: SearchStyleGuidesArgs) -> dict[str, Any]:
     """Search for style guides and writing standards."""
     return await search_style_guides(args.get("domain", "general"))
@@ -159,6 +218,7 @@ async def main():
         # Create MCP server with tools
         server = create_sdk_mcp_server(
             name="docs_writer_tools",
+            version="1.0.0",
             tools=[
                 create_documentation,
                 extract_existing_comments,

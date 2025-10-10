@@ -15,22 +15,23 @@ from typing import Any, AsyncGenerator, TypedDict
 # Add tools to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Claude Code SDK imports (placeholders for now)
+# Claude Agent SDK imports (placeholders for now)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -59,26 +60,65 @@ class StateUpdateArgs(TypedDict):
     details: str
 
 # Agent tools with decorators
-@tool
+@tool(
+    "scan_patterns",
+    "Curiosity phase: Scan code for compression opportunities",
+    {
+        "file_path": str
+    }
+)
 async def scan_patterns(args: CodeAnalysisArgs) -> dict[str, Any]:
     """Curiosity phase: Scan code for compression opportunities."""
-    return await q_scan(args["file_path"])
+    result = await q_scan(args["file_path"])
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
-@tool
+@tool(
+    "compress_code",
+    "Action phase: Apply semantic compression to code",
+    {
+        "code": str,
+        "target_type": str
+    }
+)
 async def compress_code(args: TransformArgs) -> dict[str, Any]:
     """Action phase: Apply semantic compression to code."""
     if args["target_type"] == "abstract":
-        return await a_abstract(args["code"])
+        result = await a_abstract(args["code"])
+        return {
+            "content": [
+                {"type": "text", "text": str(result)}
+            ]
+        }
     elif args["target_type"] == "lint":
-        return await a_lint(args["code"])
+        result = await a_lint(args["code"])
+        return {
+            "content": [
+                {"type": "text", "text": str(result)}
+            ]
+        }
     elif args["target_type"] == "document":
-        return await a_document(args["code"])
+        result = await a_document(args["code"])
+        return {
+            "content": [
+                {"type": "text", "text": str(result)}
+            ]
+        }
     else:
         return {
             "content": [{"type": "text", "text": f"Unknown transform type: {args['target_type']}"}]
         }
 
-@tool
+@tool(
+    "score_transformation",
+    "Evaluation phase: Score the compression results",
+    {
+        "code": str
+    }
+)
 async def score_transformation(args: TransformArgs) -> dict[str, Any]:
     """Evaluation phase: Score the compression results."""
     parts = args["code"].split("|||")
@@ -87,9 +127,21 @@ async def score_transformation(args: TransformArgs) -> dict[str, Any]:
             "content": [{"type": "text", "text": "Invalid format: use 'original|||transformed'"}]
         }
 
-    return await s_score(parts[0], parts[1])
+    result = await s_score(parts[0], parts[1])
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
-@tool
+@tool(
+    "update_memory",
+    "Update agent's symbolic memory",
+    {
+        "action": str,
+        "details": str
+    }
+)
 async def update_memory(args: StateUpdateArgs) -> dict[str, Any]:
     """Update agent's symbolic memory."""
     try:
@@ -127,7 +179,11 @@ async def update_memory(args: StateUpdateArgs) -> dict[str, Any]:
             "content": [{"type": "text", "text": f"Memory update error: {e}"}]
         }
 
-@tool
+@tool(
+    "get_memory_state",
+    "Get current memory state and summary",
+    {}
+)
 async def get_memory_state() -> dict[str, Any]:
     """Get current memory state and summary."""
     try:
@@ -149,7 +205,7 @@ async def get_memory_state() -> dict[str, Any]:
         }
 
 # System prompt generator
-async def generate_prompt(user_message: str) -> AsyncGenerator[ClaudeCodeSdkMessage, None]:
+async def generate_prompt(user_message: str) -> AsyncGenerator[ClaudeAgentOptions, None]:
     """Generate prompt with system instructions and user input."""
 
     # Load system prompt

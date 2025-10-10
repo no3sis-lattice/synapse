@@ -14,22 +14,23 @@ from typing import Any, AsyncGenerator, TypedDict, Dict, List, Optional
 # Add tools to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Claude Code SDK imports (placeholders for now)
+# Claude Agent SDK imports (placeholders for now)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -67,7 +68,15 @@ class WorkflowArgs(TypedDict):
     target_branch: Optional[str]
     pr_title: Optional[str]
 
-@tool
+@tool(
+    "manage_git_branches",
+    "Manage git branches with intelligent naming and Synapse integration",
+    {
+        "action": str,
+        "branch_name": str,
+        "source_branch": str
+    }
+)
 async def manage_git_branches(args: BranchOperationArgs) -> Dict[str, Any]:
     """
     Manage git branches with intelligent naming and Synapse integration.
@@ -93,9 +102,22 @@ async def manage_git_branches(args: BranchOperationArgs) -> Dict[str, Any]:
         standards = await get_synapse_standards("branch-naming-conventions")
         result["synapse_recommendations"] = standards.get("recommendations", [])
 
-    return result
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-@tool
+@tool(
+    "smart_commit",
+    "Create intelligent commits with Synapse-enhanced message generation",
+    {
+        "message": str,
+        "files": list,
+        "amend": bool
+    }
+)
 async def smart_commit(args: CommitOperationArgs) -> Dict[str, Any]:
     """
     Create intelligent commits with Synapse-enhanced message generation.
@@ -126,9 +148,23 @@ async def smart_commit(args: CommitOperationArgs) -> Dict[str, Any]:
     result["message_analysis"] = await _analyze_commit_message(enhanced_message)
     result["synapse_conventions"] = conventions
 
-    return result
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-@tool
+@tool(
+    "execute_complete_workflow",
+    "Execute complete git workflow from changes to PR creation",
+    {
+        "action": str,
+        "spec_folder": str,
+        "target_branch": str,
+        "pr_title": str
+    }
+)
 async def execute_complete_workflow(args: WorkflowArgs) -> Dict[str, Any]:
     """
     Execute complete git workflow from changes to PR creation.
@@ -166,9 +202,23 @@ async def execute_complete_workflow(args: WorkflowArgs) -> Dict[str, Any]:
     # Combine results
     workflow_result["agent_coordination"] = coordination_result
 
-    return workflow_result
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(workflow_result)
+        }]
+    }
 
-@tool
+@tool(
+    "create_pull_request",
+    "Create pull request with Synapse-enhanced templates and descriptions",
+    {
+        "title": str,
+        "target_branch": str,
+        "include_test_results": bool,
+        "spec_reference": str
+    }
+)
 async def create_pull_request(args: Dict[str, Any]) -> Dict[str, Any]:
     """
     Create pull request with Synapse-enhanced templates and descriptions.
@@ -200,9 +250,18 @@ async def create_pull_request(args: Dict[str, Any]) -> Dict[str, Any]:
         include_test_results=include_test_results
     )
 
-    return result
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
-@tool
+@tool(
+    "check_repository_status",
+    "Check comprehensive git repository status with intelligent analysis",
+    {}
+)
 async def check_repository_status(args: Dict[str, Any] = None) -> Dict[str, Any]:
     """
     Check comprehensive git repository status with intelligent analysis.
@@ -218,7 +277,12 @@ async def check_repository_status(args: Dict[str, Any] = None) -> Dict[str, Any]
     recommendations = await _generate_status_recommendations(status_result)
     status_result["recommendations"] = recommendations
 
-    return status_result
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(status_result)
+        }]
+    }
 
 # Internal helper functions
 
@@ -292,7 +356,7 @@ async def _generate_status_recommendations(status: Dict[str, Any]) -> List[str]:
 
     return recommendations
 
-async def handle_message(message: ClaudeCodeSdkMessage) -> str:
+async def handle_message(message: ClaudeAgentOptions) -> str:
     """Process incoming messages and route to appropriate git operations."""
 
     content = message.get("content", "").lower()
@@ -376,6 +440,7 @@ async def main():
     # Create MCP server with tools
     server = create_sdk_mcp_server(
         name="git_workflow_tools",
+            version="1.0.0",
         tools=[
             manage_git_branches,
             smart_commit,

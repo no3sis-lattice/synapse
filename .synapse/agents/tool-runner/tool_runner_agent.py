@@ -14,22 +14,23 @@ from typing import Any, AsyncGenerator, TypedDict
 # Add tools to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Claude Code SDK imports (placeholders for now)
+# Claude Agent SDK imports
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -87,90 +88,210 @@ class SynapseToolArgs(TypedDict):
 
 
 # Agent tools with decorators
-@tool
+@tool(
+    "run_command",
+    "Execute a shell command with timeout and validation",
+    {
+        "command": str,
+        "timeout": int,
+        "working_dir": str
+    }
+)
 async def run_command(args: ExecuteCommandArgs) -> dict[str, Any]:
     """Execute a shell command with timeout and validation."""
-    return await execute_command(
+    result = await execute_command(
         args["command"],
         args.get("timeout", 30),
         args.get("working_dir")
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "run_script",
+    "Execute a script file with arguments",
+    {
+        "script_path": str,
+        "args": list,
+        "timeout": int
+    }
+)
 async def run_script(args: ExecuteScriptArgs) -> dict[str, Any]:
     """Execute a script file with arguments."""
-    return await execute_script(
+    result = await execute_script(
         args["script_path"],
         args.get("args", []),
         args.get("timeout", 60)
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "run_command_chain",
+    "Execute multiple commands in sequence",
+    {
+        "command_list": list,
+        "stop_on_error": bool
+    }
+)
 async def run_command_chain(args: ChainCommandsArgs) -> dict[str, Any]:
     """Execute multiple commands in sequence."""
-    return await chain_commands(
+    result = await chain_commands(
         args["command_list"],
         args.get("stop_on_error", True)
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "get_process_status",
+    "Check the status of a process by PID",
+    {
+        "process_id": int
+    }
+)
 async def get_process_status(args: ProcessStatusArgs) -> dict[str, Any]:
     """Check the status of a process by PID."""
-    return await check_status(args["process_id"])
+    result = await check_status(args["process_id"])
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "terminate_process",
+    "Terminate a process by PID",
+    {
+        "process_id": int,
+        "force": bool
+    }
+)
 async def terminate_process(args: KillProcessArgs) -> dict[str, Any]:
     """Terminate a process by PID."""
-    return await kill_process(
+    result = await kill_process(
         args["process_id"],
         args.get("force", False)
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "get_process_list",
+    "List running processes with optional filtering",
+    {
+        "filter_name": str,
+        "limit": int
+    }
+)
 async def get_process_list(args: ListProcessesArgs) -> dict[str, Any]:
     """List running processes with optional filtering."""
-    return await list_processes(
+    result = await list_processes(
         args.get("filter_name"),
         args.get("limit", 20)
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "parse_command_output",
+    "Parse command output in various formats",
+    {
+        "output": str,
+        "format_type": str
+    }
+)
 async def parse_command_output(args: ParseOutputArgs) -> dict[str, Any]:
     """Parse command output in various formats."""
-    return await parse_output(
+    result = await parse_output(
         args["output"],
         args.get("format_type", "text")
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "format_data",
+    "Format data for display in various formats",
+    {
+        "data": dict,
+        "output_format": str
+    }
+)
 async def format_data(args: FormatResultsArgs) -> dict[str, Any]:
     """Format data for display in various formats."""
-    return await format_results(
+    result = await format_results(
         args["data"],
         args.get("output_format", "pretty")
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "lookup_tool_mapping",
+    "Query tool mapping from Synapse knowledge graph",
+    {
+        "tool_name": str
+    }
+)
 async def lookup_tool_mapping(args: ToolMappingArgs) -> dict[str, Any]:
     """Query tool mapping from Synapse knowledge graph."""
-    return await query_tool_mapping(args["tool_name"])
+    result = await query_tool_mapping(args["tool_name"])
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "run_synapse_tool",
+    "Execute a Synapse-defined tool",
+    {
+        "tool_name": str,
+        "args": list
+    }
+)
 async def run_synapse_tool(args: SynapseToolArgs) -> dict[str, Any]:
     """Execute a Synapse-defined tool."""
-    return await execute_synapse_tool(
+    result = await execute_synapse_tool(
         args["tool_name"],
         args.get("args", [])
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
 async def main():
@@ -189,6 +310,7 @@ async def main():
         # Create MCP server with tools
         server = create_sdk_mcp_server(
             name="tool_runner_tools",
+            version="1.0.0",
             tools=[
                 run_command,
                 run_script,

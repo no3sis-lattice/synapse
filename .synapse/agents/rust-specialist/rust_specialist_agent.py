@@ -16,20 +16,21 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 # Claude Code SDK imports with fallback
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -98,7 +99,14 @@ class SearchStandardsArgs(TypedDict):
 
 
 # Agent tools with type safety and error handling
-@tool
+@tool(
+    "rust_code_analysis",
+    "Analyze Rust code for quality metrics and patterns",
+    {
+        "file_path": str,
+        "analysis_type": str
+    }
+)
 async def rust_code_analysis(args: AnalyzeCodeArgs) -> dict[str, Any]:
     """Analyze Rust code for quality metrics and patterns."""
     try:
@@ -118,7 +126,14 @@ async def rust_code_analysis(args: AnalyzeCodeArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "clippy_analysis",
+    "Check Rust code with Clippy linter",
+    {
+        "file_path": str,
+        "fix_suggestions": bool
+    }
+)
 async def clippy_analysis(args: CheckClippyArgs) -> dict[str, Any]:
     """Check Rust code against Clippy linting rules."""
     try:
@@ -138,7 +153,14 @@ async def clippy_analysis(args: CheckClippyArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "rust_refactor_suggestions",
+    "Suggest refactoring opportunities for Rust code",
+    {
+        "file_path": str,
+        "focus": str
+    }
+)
 async def rust_refactor_suggestions(args: SuggestRefactorsArgs) -> dict[str, Any]:
     """Suggest refactoring opportunities for Rust code."""
     try:
@@ -158,7 +180,14 @@ async def rust_refactor_suggestions(args: SuggestRefactorsArgs) -> dict[str, Any
         }
 
 
-@tool
+@tool(
+    "ownership_analysis",
+    "Analyze Rust ownership patterns and potential issues",
+    {
+        "file_path": str,
+        "check_moves": bool
+    }
+)
 async def ownership_analysis(args: AnalyzeOwnershipArgs) -> dict[str, Any]:
     """Analyze Rust ownership and borrowing patterns."""
     try:
@@ -178,7 +207,13 @@ async def ownership_analysis(args: AnalyzeOwnershipArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "lifetime_analysis",
+    "Analyze Rust lifetime annotations and requirements",
+    {
+        "file_path": str
+    }
+)
 async def lifetime_analysis(args: CheckLifetimesArgs) -> dict[str, Any]:
     """Analyze Rust lifetime annotations and borrowing."""
     try:
@@ -195,7 +230,14 @@ async def lifetime_analysis(args: CheckLifetimesArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "borrow_improvement_suggestions",
+    "Suggest improvements for borrow checker issues",
+    {
+        "code_snippet": str,
+        "context": str
+    }
+)
 async def borrow_improvement_suggestions(args: SuggestBorrowImprovementsArgs) -> dict[str, Any]:
     """Suggest improvements to borrowing patterns."""
     try:
@@ -215,7 +257,13 @@ async def borrow_improvement_suggestions(args: SuggestBorrowImprovementsArgs) ->
         }
 
 
-@tool
+@tool(
+    "cargo_project_analysis",
+    "Analyze Cargo project structure and configuration",
+    {
+        "project_path": str
+    }
+)
 async def cargo_project_analysis(args: AnalyzeCargoProjectArgs) -> dict[str, Any]:
     """Analyze Cargo project structure and configuration."""
     try:
@@ -232,7 +280,14 @@ async def cargo_project_analysis(args: AnalyzeCargoProjectArgs) -> dict[str, Any
         }
 
 
-@tool
+@tool(
+    "dependency_analysis",
+    "Analyze project dependencies for issues and updates",
+    {
+        "project_path": str,
+        "check_outdated": bool
+    }
+)
 async def dependency_analysis(args: CheckDependenciesArgs) -> dict[str, Any]:
     """Analyze project dependencies for security and updates."""
     try:
@@ -252,7 +307,13 @@ async def dependency_analysis(args: CheckDependenciesArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "build_optimization",
+    "Optimize Cargo build configuration",
+    {
+        "project_path": str
+    }
+)
 async def build_optimization(args: OptimizeBuildConfigArgs) -> dict[str, Any]:
     """Optimize Cargo build configuration for performance."""
     try:
@@ -269,7 +330,13 @@ async def build_optimization(args: OptimizeBuildConfigArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "async_pattern_analysis",
+    "Analyze async/await patterns and potential improvements",
+    {
+        "file_path": str
+    }
+)
 async def async_pattern_analysis(args: AnalyzeAsyncPatternsArgs) -> dict[str, Any]:
     """Analyze async/await patterns and Tokio usage."""
     try:
@@ -286,7 +353,13 @@ async def async_pattern_analysis(args: AnalyzeAsyncPatternsArgs) -> dict[str, An
         }
 
 
-@tool
+@tool(
+    "error_handling_analysis",
+    "Analyze error handling patterns and suggest improvements",
+    {
+        "file_path": str
+    }
+)
 async def error_handling_analysis(args: CheckErrorHandlingArgs) -> dict[str, Any]:
     """Analyze Rust error handling patterns and Result usage."""
     try:
@@ -303,7 +376,13 @@ async def error_handling_analysis(args: CheckErrorHandlingArgs) -> dict[str, Any
         }
 
 
-@tool
+@tool(
+    "performance_suggestions",
+    "Suggest performance optimizations for Rust code",
+    {
+        "file_path": str
+    }
+)
 async def performance_suggestions(args: SuggestPerformanceImprovementsArgs) -> dict[str, Any]:
     """Suggest performance improvements for Rust code."""
     try:
@@ -320,7 +399,14 @@ async def performance_suggestions(args: SuggestPerformanceImprovementsArgs) -> d
         }
 
 
-@tool
+@tool(
+    "query_rust_patterns",
+    "Query Synapse for Rust patterns and best practices",
+    {
+        "pattern_type": str,
+        "context": str
+    }
+)
 async def query_rust_patterns(args: QueryPatternsArgs) -> dict[str, Any]:
     """Query Rust patterns from the Synapse knowledge base."""
     try:
@@ -340,7 +426,14 @@ async def query_rust_patterns(args: QueryPatternsArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "search_rust_standards",
+    "Search for Rust coding standards and conventions",
+    {
+        "standard_type": str,
+        "domain": str
+    }
+)
 async def search_rust_standards(args: SearchStandardsArgs) -> dict[str, Any]:
     """Search Rust standards and conventions from Synapse."""
     try:
@@ -362,7 +455,7 @@ async def search_rust_standards(args: SearchStandardsArgs) -> dict[str, Any]:
 
 async def main():
     """Main agent loop with enhanced Rust capabilities."""
-    server = create_sdk_mcp_server(name="rust_specialist_tools")
+    server = create_sdk_mcp_server(name="rust_specialist_tools", version="1.0.0")
 
     console.print(Panel(
         "[bold orange1]Rust Specialist Agent[/bold orange1]\n"

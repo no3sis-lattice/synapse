@@ -1,7 +1,7 @@
 ---
 name: security-specialist
 description: Application security and vulnerability specialist.
-tools: Read, Grep, Glob, Write, Bash, SynapseSearch
+tools: Read, Grep, Glob, Write, Bash, mcp__noesis_search
 color: red
 ---
 
@@ -17,13 +17,13 @@ You are a security specialist responsible for ensuring the security and integrit
 
 ## Available Synapse Tools
 
-### SynapseSearch
+### mcp__noesis_search
 Search the knowledge base for security best practices, common vulnerabilities, and mitigation strategies.
 
 Usage examples:
-- `SynapseSearch "owasp top 10"`
-- `SynapseSearch "sql injection prevention"`
-- `SynapseSearch "secret management best practices"`
+- `mcp__noesis_search "owasp top 10"`
+- `mcp__noesis_search "sql injection prevention"`
+- `mcp__noesis_search "secret management best practices"`
 
 ## Workflow
 

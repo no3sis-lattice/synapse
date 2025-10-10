@@ -14,22 +14,22 @@ from typing import Any, AsyncGenerator, TypedDict
 # Add tools to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Claude Code SDK imports (placeholders for now)
+# Claude Agent SDK imports
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
     # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
+    print("⚠️  Claude Agent SDK not available, using mock implementations")
     from tools.mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -65,62 +65,153 @@ class SearchArgs(TypedDict):
 
 
 # Agent tools with decorators
-@tool
+@tool(
+    "create_single_file",
+    "Create a single file with optional template processing",
+    {
+        "file_path": str,
+        "content": str,
+        "template_name": str
+    }
+)
 async def create_single_file(args: CreateFileArgs) -> dict[str, Any]:
     """Create a single file with optional template processing."""
-    return await create_file(
+    result = await create_file(
         args["file_path"],
         args.get("content", ""),
         args.get("template_name")
     )
+    # Return structured content
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "create_directory_structure",
+    "Create directory with optional nested structure",
+    {
+        "dir_path": str,
+        "structure": dict
+    }
+)
 async def create_directory_structure(args: CreateDirectoryArgs) -> dict[str, Any]:
     """Create directory with optional nested structure."""
-    return await create_directory(
+    result = await create_directory(
         args["dir_path"],
         args.get("structure")
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "batch_create_files",
+    "Create multiple files in a batch operation",
+    {
+        "file_list": list
+    }
+)
 async def batch_create_files(args: BatchCreateArgs) -> dict[str, Any]:
     """Create multiple files in a batch operation."""
-    return await batch_create(args["file_list"])
+    result = await batch_create(args["file_list"])
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "apply_file_template",
+    "Apply a template with variable substitution",
+    {
+        "template_name": str,
+        "variables": dict
+    }
+)
 async def apply_file_template(args: TemplateArgs) -> dict[str, Any]:
     """Apply a template with variable substitution."""
-    return await apply_template(
+    result = await apply_template(
         args["template_name"],
         args.get("variables", {})
     )
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "get_template_content",
+    "Retrieve template content by name",
+    {
+        "template_name": str
+    }
+)
 async def get_template_content(args: TemplateArgs) -> dict[str, Any]:
     """Retrieve template content by name."""
-    return await get_template(args["template_name"])
+    result = await get_template(args["template_name"])
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "list_available_templates",
+    "List all available templates",
+    {}
+)
 async def list_available_templates(args: dict) -> dict[str, Any]:
     """List all available templates."""
-    return await list_templates()
+    result = await list_templates()
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "search_templates",
+    "Search for templates in Synapse knowledge graph",
+    {
+        "query": str
+    }
+)
 async def search_templates(args: SearchArgs) -> dict[str, Any]:
     """Search for templates in Synapse knowledge graph."""
-    return await query_synapse_templates(args["query"])
+    result = await query_synapse_templates(args["query"])
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
-@tool
+@tool(
+    "search_file_structure_patterns",
+    "Search for file structure patterns",
+    {
+        "query": str
+    }
+)
 async def search_file_structure_patterns(args: SearchArgs) -> dict[str, Any]:
     """Search for file structure patterns."""
-    return await search_file_patterns(args["query"])
+    result = await search_file_patterns(args["query"])
+    return {
+        "content": [
+            {"type": "text", "text": str(result)}
+        ]
+    }
 
 
 async def main():
@@ -139,6 +230,7 @@ async def main():
         # Create MCP server with tools
         server = create_sdk_mcp_server(
             name="file_creator_tools",
+            version="1.0.0",
             tools=[
                 create_single_file,
                 create_directory_structure,

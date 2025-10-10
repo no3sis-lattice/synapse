@@ -14,22 +14,23 @@ from typing import Any, AsyncGenerator, TypedDict, Dict, List, Optional
 # Add tools to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Claude Code SDK imports (placeholders for now)
+# Claude Agent SDK imports (placeholders for now)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -61,7 +62,15 @@ class QualityAnalysisArgs(TypedDict):
     include_patterns: Optional[List[str]]
     exclude_patterns: Optional[List[str]]
 
-@tool
+@tool(
+    "comprehensive_code_review",
+    "Execute comprehensive code review enforcing TDD, KISS, SOLID, and DRY principles",
+    {
+        "file_path": str,
+        "language": str,
+        "review_type": str
+    }
+)
 async def comprehensive_code_review(args: CodeReviewArgs) -> Dict[str, Any]:
     """
     Perform a comprehensive code review enforcing TDD, KISS, SOLID, and DRY principles.
@@ -108,9 +117,21 @@ async def comprehensive_code_review(args: CodeReviewArgs) -> Dict[str, Any]:
     # Generate formatted report
     results["formatted_report"] = await generate_review_report(results)
 
-    return results
+    return {
+        "content": [
+            {"type": "text", "text": str(results)}
+        ]
+    }
 
-@tool
+@tool(
+    "project_quality_audit",
+    "Execute comprehensive quality audit across entire project directory",
+    {
+        "directory": str,
+        "include_patterns": list,
+        "exclude_patterns": list
+    }
+)
 async def project_quality_audit(args: QualityAnalysisArgs) -> Dict[str, Any]:
     """
     Perform a comprehensive quality audit across an entire project directory.
@@ -184,9 +205,20 @@ async def project_quality_audit(args: QualityAnalysisArgs) -> Dict[str, Any]:
             "no_shortcuts": sum(s.get("no_shortcuts", 0) for s in scores) / len(scores)
         }
 
-    return audit_results
+    return {
+        "content": [
+            {"type": "text", "text": str(audit_results)}
+        ]
+    }
 
-@tool
+@tool(
+    "enforce_standards",
+    "Enforce coding standards and best practices based on Synapse knowledge base",
+    {
+        "file_path": str,
+        "standards_type": str
+    }
+)
 async def enforce_standards(args: Dict[str, Any]) -> Dict[str, Any]:
     """
     Enforce coding standards and best practices based on Synapse knowledge base.
@@ -235,9 +267,13 @@ async def enforce_standards(args: Dict[str, Any]) -> Dict[str, Any]:
         kiss_issues = analysis.get("complexity_issues", [])
         enforcement_results["violations"].extend(kiss_issues)
 
-    return enforcement_results
+    return {
+        "content": [
+            {"type": "text", "text": str(enforcement_results)}
+        ]
+    }
 
-async def handle_message(message: ClaudeCodeSdkMessage) -> str:
+async def handle_message(message: ClaudeAgentOptions) -> str:
     """Process incoming messages and route to appropriate tools."""
 
     content = message.get("content", "").lower()
@@ -293,6 +329,7 @@ async def main():
     # Create MCP server with tools
     server = create_sdk_mcp_server(
         name="code_hound_tools",
+            version="1.0.0",
         tools=[comprehensive_code_review, project_quality_audit, enforce_standards]
     )
 

@@ -1,0 +1,379 @@
+#!/usr/bin/env python3
+"""
+Architect Agent
+
+High-level system design and architecture specialist with Synapse System integration
+for creating robust, scalable, and maintainable architectures with organizational learning.
+"""
+
+import asyncio
+import sys
+from pathlib import Path
+from typing import Any, AsyncGenerator, TypedDict, Dict, List, Optional
+
+# Add tools to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+# Claude Agent SDK imports (placeholders for now)
+try:
+    from claude_agent_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeAgentOptions
+    )
+except ImportError:
+    # Fallback for development/testing
+    print("⚠️  Claude Agent SDK not available, using mock implementations")
+    from tools.mock_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeAgentOptions
+    )
+
+from tools import (
+    design_system_architecture,
+    evaluate_architectural_patterns,
+    analyze_scalability_requirements,
+    create_architectural_documentation,
+    assess_technology_stack,
+    generate_decision_records,
+    load_config,
+    get_architectural_patterns,
+    coordinate_with_development_team
+)
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
+
+console = Console()
+
+# Tool argument schemas
+class SystemDesignArgs(TypedDict):
+    requirements: Dict[str, Any]  # Business and technical requirements
+    constraints: Optional[Dict[str, Any]]  # Technical constraints
+    scale_requirements: Optional[Dict[str, Any]]  # Scalability needs
+
+class ArchitecturalAnalysisArgs(TypedDict):
+    system_type: str  # "web-app", "microservices", "data-pipeline", etc.
+    requirements: Dict[str, Any]
+    existing_architecture: Optional[str]  # Path to existing architecture docs
+
+class TechnologyStackArgs(TypedDict):
+    project_type: str  # Type of project
+    requirements: Dict[str, Any]  # Functional and non-functional requirements
+    constraints: Optional[Dict[str, Any]]  # Budget, team skills, etc.
+
+@tool
+async def create_system_architecture(args: SystemDesignArgs) -> Dict[str, Any]:
+    """
+    Design comprehensive system architecture based on requirements.
+
+    Args:
+        requirements: Business and technical requirements
+        constraints: Technical and organizational constraints
+        scale_requirements: Scalability and performance needs
+
+    Returns:
+        Complete architectural design with patterns, components, and rationale
+    """
+    requirements = args["requirements"]
+    constraints = args.get("constraints", {})
+    scale_requirements = args.get("scale_requirements", {})
+
+    console.print(f"🏛️ [bold purple]Architect:[/bold purple] Designing system architecture")
+
+    # Design the architecture using Synapse patterns
+    architecture = await design_system_architecture(
+        requirements=requirements,
+        constraints=constraints,
+        scale_requirements=scale_requirements
+    )
+
+    # Enhance with organizational patterns
+    patterns = await get_architectural_patterns("system-design")
+    architecture["synapse_patterns"] = patterns
+
+    # Add decision rationale
+    architecture["architectural_decisions"] = await _generate_architectural_decisions(
+        architecture, requirements, constraints
+    )
+
+    return architecture
+
+@tool
+async def evaluate_architecture_patterns(args: ArchitecturalAnalysisArgs) -> Dict[str, Any]:
+    """
+    Evaluate and recommend architectural patterns for a system.
+
+    Args:
+        system_type: Type of system being designed
+        requirements: System requirements
+        existing_architecture: Optional path to existing architecture
+
+    Returns:
+        Pattern evaluation with recommendations and trade-offs
+    """
+    system_type = args["system_type"]
+    requirements = args["requirements"]
+    existing_architecture = args.get("existing_architecture")
+
+    console.print(f"🔍 [bold purple]Architect:[/bold purple] Evaluating patterns for {system_type}")
+
+    evaluation = await evaluate_architectural_patterns(
+        system_type=system_type,
+        requirements=requirements,
+        existing_architecture=existing_architecture
+    )
+
+    # Add Synapse knowledge base insights
+    synapse_patterns = await get_architectural_patterns(system_type)
+    evaluation["knowledge_base_patterns"] = synapse_patterns
+
+    return evaluation
+
+@tool
+async def recommend_technology_stack(args: TechnologyStackArgs) -> Dict[str, Any]:
+    """
+    Recommend optimal technology stack based on project requirements.
+
+    Args:
+        project_type: Type of project (web-app, api, data-pipeline, etc.)
+        requirements: Functional and non-functional requirements
+        constraints: Budget, team skills, timeline constraints
+
+    Returns:
+        Technology recommendations with rationale and alternatives
+    """
+    project_type = args["project_type"]
+    requirements = args["requirements"]
+    constraints = args.get("constraints", {})
+
+    console.print(f"⚙️ [bold purple]Architect:[/bold purple] Recommending tech stack for {project_type}")
+
+    # Assess technology options
+    tech_assessment = await assess_technology_stack(
+        project_type=project_type,
+        requirements=requirements,
+        constraints=constraints
+    )
+
+    # Add organizational technology standards
+    org_standards = await get_architectural_patterns("technology-standards")
+    tech_assessment["organizational_standards"] = org_standards
+
+    return tech_assessment
+
+@tool
+async def create_architecture_documentation(args: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Generate comprehensive architectural documentation.
+
+    Args:
+        architecture: Architecture design to document
+        format: Documentation format ("c4", "arc42", "custom")
+        include_decisions: Whether to include ADRs
+
+    Returns:
+        Generated documentation with diagrams and decision records
+    """
+    architecture = args.get("architecture", {})
+    doc_format = args.get("format", "c4")
+    include_decisions = args.get("include_decisions", True)
+
+    console.print(f"📋 [bold purple]Architect:[/bold purple] Creating {doc_format} documentation")
+
+    documentation = await create_architectural_documentation(
+        architecture=architecture,
+        format=doc_format,
+        include_decisions=include_decisions
+    )
+
+    # Generate decision records if requested
+    if include_decisions:
+        decision_records = await generate_decision_records(architecture)
+        documentation["decision_records"] = decision_records
+
+    return documentation
+
+@tool
+async def analyze_system_scalability(args: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Analyze system scalability requirements and provide recommendations.
+
+    Args:
+        current_architecture: Current system architecture
+        growth_projections: Expected growth metrics
+        performance_requirements: Performance targets
+
+    Returns:
+        Scalability analysis with bottlenecks and improvement recommendations
+    """
+    current_architecture = args.get("current_architecture", {})
+    growth_projections = args.get("growth_projections", {})
+    performance_requirements = args.get("performance_requirements", {})
+
+    console.print(f"📈 [bold purple]Architect:[/bold purple] Analyzing system scalability")
+
+    scalability_analysis = await analyze_scalability_requirements(
+        architecture=current_architecture,
+        growth_projections=growth_projections,
+        performance_requirements=performance_requirements
+    )
+
+    return scalability_analysis
+
+# Internal helper functions
+
+async def _generate_architectural_decisions(architecture: Dict[str, Any],
+                                          requirements: Dict[str, Any],
+                                          constraints: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Generate architectural decision records."""
+    decisions = []
+
+    # Pattern selection decision
+    if architecture.get("pattern"):
+        decisions.append({
+            "title": f"Adopt {architecture['pattern']} Architecture Pattern",
+            "context": "Need to select appropriate architectural pattern",
+            "decision": f"Use {architecture['pattern']} pattern",
+            "rationale": f"Best fits requirements for {', '.join(requirements.keys())}",
+            "consequences": architecture.get("trade_offs", [])
+        })
+
+    # Technology decisions
+    if architecture.get("technologies"):
+        for tech_area, tech_choice in architecture["technologies"].items():
+            decisions.append({
+                "title": f"Select {tech_choice} for {tech_area}",
+                "context": f"Need to choose technology for {tech_area}",
+                "decision": f"Use {tech_choice}",
+                "rationale": "Aligns with organizational standards and project needs",
+                "consequences": ["Team needs training", "Standard monitoring applies"]
+            })
+
+    return decisions
+
+async def handle_message(message: ClaudeAgentOptions) -> str:
+    """Process incoming messages and route to appropriate architectural services."""
+
+    content = message.get("content", "").lower()
+
+    # Display Architect banner
+    banner = Text("🏛️ ARCHITECT", style="bold purple")
+    banner.append(" - System Design Specialist", style="purple")
+    console.print(Panel(banner, border_style="purple"))
+
+    if any(word in content for word in ["design", "architecture", "system"]):
+        # System design request
+        requirements = {
+            "type": message.get("system_type", "web-application"),
+            "scale": message.get("scale", "medium"),
+            "complexity": message.get("complexity", "moderate")
+        }
+
+        result = await create_system_architecture({
+            "requirements": requirements,
+            "constraints": {},
+            "scale_requirements": {}
+        })
+
+        return f"🏛️ **Architecture Design Complete**\n\n" + \
+               f"**Pattern**: {result.get('pattern', 'Custom')}\n" + \
+               f"**Components**: {len(result.get('components', []))} identified\n" + \
+               f"**Decisions**: {len(result.get('architectural_decisions', []))} documented\n" + \
+               f"**Scalability**: {result.get('scalability_rating', 'Good')}\n"
+
+    elif any(word in content for word in ["technology", "stack", "tech"]):
+        # Technology recommendation request
+        project_type = message.get("project_type", "web-application")
+
+        result = await recommend_technology_stack({
+            "project_type": project_type,
+            "requirements": {"performance": "high", "maintainability": "high"},
+            "constraints": {}
+        })
+
+        recommendations = result.get("recommendations", {})
+        return f"⚙️ **Technology Stack Recommendations**\n\n" + \
+               "\n".join([f"**{area}**: {tech}" for area, tech in recommendations.items()]) + \
+               f"\n\n**Confidence**: {result.get('confidence_score', 85)}/100"
+
+    elif any(word in content for word in ["patterns", "evaluate", "compare"]):
+        # Pattern evaluation request
+        system_type = message.get("system_type", "web-application")
+
+        result = await evaluate_architecture_patterns({
+            "system_type": system_type,
+            "requirements": {"scalability": "high", "maintainability": "high"},
+            "existing_architecture": None
+        })
+
+        patterns = result.get("recommended_patterns", [])
+        return f"🔍 **Pattern Evaluation Complete**\n\n" + \
+               f"**Recommended Patterns**:\n" + \
+               "\n".join([f"- {pattern['name']}: {pattern['score']}/100" for pattern in patterns[:3]]) + \
+               f"\n\n**Top Choice**: {patterns[0]['name'] if patterns else 'Custom'}"
+
+    elif any(word in content for word in ["scalability", "performance", "scale"]):
+        # Scalability analysis request
+        result = await analyze_system_scalability({
+            "current_architecture": {"pattern": "microservices"},
+            "growth_projections": {"users": "10x", "data": "5x"},
+            "performance_requirements": {"response_time": "< 200ms"}
+        })
+
+        return f"📈 **Scalability Analysis Complete**\n\n" + \
+               f"**Current Rating**: {result.get('scalability_score', 75)}/100\n" + \
+               f"**Bottlenecks**: {len(result.get('bottlenecks', []))} identified\n" + \
+               f"**Recommendations**: {len(result.get('improvements', []))} provided\n" + \
+               f"**Priority**: {result.get('priority_level', 'Medium')}"
+
+    else:
+        return (
+            "🏛️ **Architect Agent Ready**\n\n"
+            "I provide high-level system design and architectural guidance:\n"
+            "- **System Architecture**: Design scalable, maintainable systems\n"
+            "- **Pattern Evaluation**: Compare and recommend architectural patterns\n"
+            "- **Technology Selection**: Choose optimal tech stacks\n"
+            "- **Documentation**: Create C4 models, ADRs, and design docs\n"
+            "- **Scalability Analysis**: Identify bottlenecks and improvements\n\n"
+            "Available commands:\n"
+            "- `design system [type]` - Create system architecture\n"
+            "- `recommend technology` - Suggest tech stack\n"
+            "- `evaluate patterns` - Compare architectural approaches\n"
+            "- `analyze scalability` - Review performance characteristics\n\n"
+            "*Creating robust, scalable, and maintainable architectures*"
+        )
+
+async def main():
+    """Main agent loop."""
+    config = load_config()
+
+    console.print("[bold purple]Architect Agent Starting...[/bold purple]")
+
+    # Create MCP server with tools
+    server = create_sdk_mcp_server(
+        name="architect_tools",
+            version="1.0.0",
+        tools=[
+            create_system_architecture,
+            evaluate_architecture_patterns,
+            recommend_technology_stack,
+            create_architecture_documentation,
+            analyze_system_scalability
+        ]
+    )
+
+    # Start the server
+    await server.run()
+
+    # Agent message loop
+    async for message in query("You are the Architect Agent, ready to design robust systems."):
+        response = await handle_message(message)
+        print(response)
+
+if __name__ == "__main__":
+    asyncio.run(main())

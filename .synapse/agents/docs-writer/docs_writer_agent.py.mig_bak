@@ -1,0 +1,226 @@
+#!/usr/bin/env python3
+"""
+Documentation Writer Agent: Intelligent Documentation Generation
+
+Handles documentation creation, maintenance, and formatting with
+Synapse System integration for templates and style guides.
+"""
+
+import asyncio
+import sys
+from pathlib import Path
+from typing import Any, AsyncGenerator, TypedDict
+
+# Add tools to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+# Claude Code SDK imports (placeholders for now)
+try:
+    from claude_code_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeCodeSdkMessage
+    )
+except ImportError:
+    # Fallback for development/testing
+    print("⚠️  Claude Code SDK not available, using mock implementations")
+    from tools.mock_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeCodeSdkMessage
+    )
+
+from tools import (
+    generate_docs, extract_comments, create_readme, analyze_code_structure,
+    format_content, validate_markdown, generate_api_docs,
+    query_doc_templates, search_style_guides
+)
+
+from rich.console import Console
+from rich.panel import Panel
+
+console = Console()
+
+# Tool argument schemas
+class GenerateDocsArgs(TypedDict):
+    file_path: str
+    doc_type: str
+
+class ExtractCommentsArgs(TypedDict):
+    file_path: str
+
+class CreateReadmeArgs(TypedDict):
+    project_path: str
+    template: str
+
+class AnalyzeStructureArgs(TypedDict):
+    directory_path: str
+
+class FormatContentArgs(TypedDict):
+    content: str
+    format_type: str
+
+class ValidateMarkdownArgs(TypedDict):
+    content: str
+
+class GenerateApiDocsArgs(TypedDict):
+    code_content: str
+    language: str
+
+class QueryTemplatesArgs(TypedDict):
+    template_type: str
+
+class SearchStyleGuidesArgs(TypedDict):
+    domain: str
+
+
+# Agent tools with decorators
+@tool
+async def create_documentation(args: GenerateDocsArgs) -> dict[str, Any]:
+    """Generate documentation for a code file."""
+    return await generate_docs(
+        args["file_path"],
+        args.get("doc_type", "auto")
+    )
+
+
+@tool
+async def extract_existing_comments(args: ExtractCommentsArgs) -> dict[str, Any]:
+    """Extract existing comments and docstrings from code."""
+    return await extract_comments(args["file_path"])
+
+
+@tool
+async def generate_readme_file(args: CreateReadmeArgs) -> dict[str, Any]:
+    """Create a README file for a project."""
+    return await create_readme(
+        args["project_path"],
+        args.get("template")
+    )
+
+
+@tool
+async def analyze_project_structure(args: AnalyzeStructureArgs) -> dict[str, Any]:
+    """Analyze code structure for documentation purposes."""
+    return await analyze_code_structure(args["directory_path"])
+
+
+@tool
+async def format_documentation_content(args: FormatContentArgs) -> dict[str, Any]:
+    """Format content in specified format."""
+    return await format_content(
+        args["content"],
+        args.get("format_type", "markdown")
+    )
+
+
+@tool
+async def validate_markdown_content(args: ValidateMarkdownArgs) -> dict[str, Any]:
+    """Validate markdown content for common issues."""
+    return await validate_markdown(args["content"])
+
+
+@tool
+async def create_api_documentation(args: GenerateApiDocsArgs) -> dict[str, Any]:
+    """Generate API documentation from code."""
+    return await generate_api_docs(
+        args["code_content"],
+        args["language"]
+    )
+
+
+@tool
+async def find_documentation_templates(args: QueryTemplatesArgs) -> dict[str, Any]:
+    """Query Synapse for documentation templates."""
+    return await query_doc_templates(args["template_type"])
+
+
+@tool
+async def find_style_guides(args: SearchStyleGuidesArgs) -> dict[str, Any]:
+    """Search for style guides and writing standards."""
+    return await search_style_guides(args.get("domain", "general"))
+
+
+async def main():
+    """Main agent entry point."""
+    try:
+        # Load configuration
+        agent_dir = Path(__file__).parent
+
+        console.print(Panel(
+            "[bold yellow]Documentation Writer Agent[/bold yellow]\n"
+            "Intelligent documentation generation and maintenance\n"
+            "Connected to Synapse System for templates and style guides",
+            title="📚 Agent Ready"
+        ))
+
+        # Create MCP server with tools
+        server = create_sdk_mcp_server(
+            name="docs_writer_tools",
+            tools=[
+                create_documentation,
+                extract_existing_comments,
+                generate_readme_file,
+                analyze_project_structure,
+                format_documentation_content,
+                validate_markdown_content,
+                create_api_documentation,
+                find_documentation_templates,
+                find_style_guides
+            ]
+        )
+
+        console.print(f"[green]✓[/green] MCP Server created with {len(server.tools)} tools")
+
+        # Load system prompt
+        prompt_file = agent_dir / "docs_writer_prompt.md"
+        if prompt_file.exists():
+            system_prompt = prompt_file.read_text()
+            console.print("[green]✓[/green] System prompt loaded")
+        else:
+            system_prompt = "You are a documentation writer agent."
+            console.print("[yellow]⚠[/yellow] Using default prompt")
+
+        # Agent loop - in real implementation, this would handle incoming requests
+        console.print("[cyan]Agent ready for @docs-writer calls[/cyan]")
+
+        # For now, just demonstrate the tools are available
+        await demo_tools()
+
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Agent shutdown requested[/yellow]")
+    except Exception as e:
+        console.print(f"[red]Agent error: {e}[/red]")
+
+
+async def demo_tools():
+    """Demonstrate available tools."""
+    console.print("\n[bold]Available Tools:[/bold]")
+
+    tools_demo = [
+        "create_documentation - Generate docs from code files",
+        "extract_existing_comments - Extract comments and docstrings",
+        "generate_readme_file - Create README files for projects",
+        "analyze_project_structure - Analyze code structure",
+        "format_documentation_content - Format content in various formats",
+        "validate_markdown_content - Validate markdown syntax",
+        "create_api_documentation - Generate API documentation",
+        "find_documentation_templates - Query Synapse for templates",
+        "find_style_guides - Search for style guides"
+    ]
+
+    for tool_desc in tools_demo:
+        console.print(f"  [yellow]📝[/yellow] {tool_desc}")
+
+    # Show supported formats
+    console.print("\n[bold]Supported Formats:[/bold]")
+    formats = ["Markdown", "HTML", "reStructuredText", "Plain Text"]
+
+    for format_name in formats:
+        console.print(f"  [green]✓[/green] {format_name}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

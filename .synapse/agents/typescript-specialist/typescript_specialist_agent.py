@@ -16,20 +16,21 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 # Claude Code SDK imports with fallback
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -110,14 +111,27 @@ class SearchStandardsArgs(TypedDict):
 
 
 # Agent tools with type safety and error handling
-@tool
+@tool(
+    "typescript_code_analysis",
+    "Analyze TypeScript/JavaScript code for quality metrics and patterns",
+    {
+        "file_path": str,
+        "analysis_type": str
+    }
+)
 async def typescript_code_analysis(args: AnalyzeCodeArgs) -> dict[str, Any]:
     """Analyze TypeScript/JavaScript code for quality metrics and patterns."""
     try:
-        return await analyze_typescript_code(
+        result = await analyze_typescript_code(
             args["file_path"],
             args.get("analysis_type", "full")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in typescript_code_analysis: {e}[/bold red]")
         return {
@@ -130,14 +144,27 @@ async def typescript_code_analysis(args: AnalyzeCodeArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "check_eslint_compliance",
+    "Check TypeScript/JavaScript code against ESLint rules",
+    {
+        "file_path": str,
+        "fix_suggestions": bool
+    }
+)
 async def check_eslint_compliance(args: CheckEslintArgs) -> dict[str, Any]:
     """Check TypeScript/JavaScript code against ESLint rules."""
     try:
-        return await check_eslint_compliance(
+        result = await check_eslint_compliance(
             args["file_path"],
             args.get("fix_suggestions", True)
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in check_eslint_compliance: {e}[/bold red]")
         return {
@@ -150,14 +177,27 @@ async def check_eslint_compliance(args: CheckEslintArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "suggest_code_refactors",
+    "Suggest refactoring opportunities for TypeScript/JavaScript code",
+    {
+        "file_path": str,
+        "focus": str
+    }
+)
 async def suggest_code_refactors(args: SuggestRefactorsArgs) -> dict[str, Any]:
     """Suggest refactoring opportunities for TypeScript/JavaScript code."""
     try:
-        return await suggest_refactors(
+        result = await suggest_refactors(
             args["file_path"],
             args.get("focus", "all")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in suggest_code_refactors: {e}[/bold red]")
         return {
@@ -170,14 +210,27 @@ async def suggest_code_refactors(args: SuggestRefactorsArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "type_safety_analysis",
+    "Analyze TypeScript code for type safety and coverage",
+    {
+        "file_path": str,
+        "strict_mode": bool
+    }
+)
 async def type_safety_analysis(args: AnalyzeTypeSafetyArgs) -> dict[str, Any]:
     """Analyze TypeScript code for type safety and coverage."""
     try:
-        return await analyze_type_safety(
+        result = await analyze_type_safety(
             args["file_path"],
             args.get("strict_mode", True)
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in type_safety_analysis: {e}[/bold red]")
         return {
@@ -190,14 +243,27 @@ async def type_safety_analysis(args: AnalyzeTypeSafetyArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "improve_type_annotations",
+    "Suggest improvements to TypeScript type annotations",
+    {
+        "code_snippet": str,
+        "context": str
+    }
+)
 async def improve_type_annotations(args: SuggestTypeImprovementsArgs) -> dict[str, Any]:
     """Suggest improvements to TypeScript type annotations."""
     try:
-        return await suggest_type_improvements(
+        result = await suggest_type_improvements(
             args["code_snippet"],
             args.get("context", "")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in improve_type_annotations: {e}[/bold red]")
         return {
@@ -210,11 +276,23 @@ async def improve_type_annotations(args: SuggestTypeImprovementsArgs) -> dict[st
         }
 
 
-@tool
+@tool(
+    "verify_strict_mode",
+    "Check TypeScript project strict mode configuration",
+    {
+        "project_path": str
+    }
+)
 async def verify_strict_mode(args: CheckStrictModeArgs) -> dict[str, Any]:
     """Check TypeScript project strict mode configuration."""
     try:
-        return await check_strict_mode(args["project_path"])
+        result = await check_strict_mode(args["project_path"])
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in verify_strict_mode: {e}[/bold red]")
         return {
@@ -227,14 +305,27 @@ async def verify_strict_mode(args: CheckStrictModeArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "react_pattern_analysis",
+    "Analyze React component patterns and best practices",
+    {
+        "file_path": str,
+        "component_type": str
+    }
+)
 async def react_pattern_analysis(args: AnalyzeReactPatternsArgs) -> dict[str, Any]:
     """Analyze React component patterns and best practices."""
     try:
-        return await analyze_react_patterns(
+        result = await analyze_react_patterns(
             args["file_path"],
             args.get("component_type", "functional")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in react_pattern_analysis: {e}[/bold red]")
         return {
@@ -247,14 +338,27 @@ async def react_pattern_analysis(args: AnalyzeReactPatternsArgs) -> dict[str, An
         }
 
 
-@tool
+@tool(
+    "node_pattern_analysis",
+    "Analyze Node.js patterns and backend best practices",
+    {
+        "file_path": str,
+        "pattern_type": str
+    }
+)
 async def node_pattern_analysis(args: AnalyzeNodePatternsArgs) -> dict[str, Any]:
     """Analyze Node.js patterns and backend best practices."""
     try:
-        return await analyze_node_patterns(
+        result = await analyze_node_patterns(
             args["file_path"],
             args.get("pattern_type", "api")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in node_pattern_analysis: {e}[/bold red]")
         return {
@@ -267,14 +371,27 @@ async def node_pattern_analysis(args: AnalyzeNodePatternsArgs) -> dict[str, Any]
         }
 
 
-@tool
+@tool(
+    "state_management_suggestions",
+    "Suggest optimal state management patterns for the project",
+    {
+        "project_path": str,
+        "framework": str
+    }
+)
 async def state_management_suggestions(args: SuggestStateManagementArgs) -> dict[str, Any]:
     """Suggest optimal state management patterns for the project."""
     try:
-        return await suggest_state_management(
+        result = await suggest_state_management(
             args["project_path"],
             args.get("framework", "react")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in state_management_suggestions: {e}[/bold red]")
         return {
@@ -287,11 +404,23 @@ async def state_management_suggestions(args: SuggestStateManagementArgs) -> dict
         }
 
 
-@tool
+@tool(
+    "test_coverage_analysis",
+    "Analyze test coverage for TypeScript/JavaScript project",
+    {
+        "directory_path": str
+    }
+)
 async def test_coverage_analysis(args: AnalyzeCoverageArgs) -> dict[str, Any]:
     """Analyze test coverage for TypeScript/JavaScript project."""
     try:
-        return await analyze_test_coverage(args["directory_path"])
+        result = await analyze_test_coverage(args["directory_path"])
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in test_coverage_analysis: {e}[/bold red]")
         return {
@@ -304,14 +433,27 @@ async def test_coverage_analysis(args: AnalyzeCoverageArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "generate_test_stubs",
+    "Generate test stubs for TypeScript/JavaScript files",
+    {
+        "file_path": str,
+        "test_framework": str
+    }
+)
 async def generate_test_stubs(args: GenerateTestStubsArgs) -> dict[str, Any]:
     """Generate test stubs for TypeScript/JavaScript files."""
     try:
-        return await generate_test_stubs(
+        result = await generate_test_stubs(
             args["file_path"],
             args.get("test_framework", "jest")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in generate_test_stubs: {e}[/bold red]")
         return {
@@ -324,14 +466,27 @@ async def generate_test_stubs(args: GenerateTestStubsArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "testing_pattern_suggestions",
+    "Suggest testing patterns and best practices",
+    {
+        "file_path": str,
+        "test_type": str
+    }
+)
 async def testing_pattern_suggestions(args: SuggestTestPatternsArgs) -> dict[str, Any]:
     """Suggest testing patterns and best practices."""
     try:
-        return await suggest_test_patterns(
+        result = await suggest_test_patterns(
             args["file_path"],
             args.get("test_type", "unit")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in testing_pattern_suggestions: {e}[/bold red]")
         return {
@@ -344,14 +499,27 @@ async def testing_pattern_suggestions(args: SuggestTestPatternsArgs) -> dict[str
         }
 
 
-@tool
+@tool(
+    "build_config_optimization",
+    "Optimize build configuration for better performance",
+    {
+        "config_path": str,
+        "build_tool": str
+    }
+)
 async def build_config_optimization(args: OptimizeBuildConfigArgs) -> dict[str, Any]:
     """Optimize build configuration for better performance."""
     try:
-        return await optimize_build_config(
+        result = await optimize_build_config(
             args["config_path"],
             args.get("build_tool", "vite")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in build_config_optimization: {e}[/bold red]")
         return {
@@ -364,11 +532,23 @@ async def build_config_optimization(args: OptimizeBuildConfigArgs) -> dict[str, 
         }
 
 
-@tool
+@tool(
+    "bundle_size_analysis",
+    "Analyze and optimize bundle size for the project",
+    {
+        "project_path": str
+    }
+)
 async def bundle_size_analysis(args: AnalyzeBundleSizeArgs) -> dict[str, Any]:
     """Analyze and optimize bundle size for the project."""
     try:
-        return await analyze_bundle_size(args["project_path"])
+        result = await analyze_bundle_size(args["project_path"])
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in bundle_size_analysis: {e}[/bold red]")
         return {
@@ -381,14 +561,27 @@ async def bundle_size_analysis(args: AnalyzeBundleSizeArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "query_typescript_patterns",
+    "Query TypeScript patterns from the Synapse knowledge base",
+    {
+        "pattern_type": str,
+        "context": str
+    }
+)
 async def query_typescript_patterns(args: QueryPatternsArgs) -> dict[str, Any]:
     """Query TypeScript patterns from the Synapse knowledge base."""
     try:
-        return await query_typescript_patterns(
+        result = await query_typescript_patterns(
             args["pattern_type"],
             args.get("context", "")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in query_typescript_patterns: {e}[/bold red]")
         return {
@@ -401,14 +594,27 @@ async def query_typescript_patterns(args: QueryPatternsArgs) -> dict[str, Any]:
         }
 
 
-@tool
+@tool(
+    "search_typescript_standards",
+    "Search TypeScript standards and conventions from Synapse",
+    {
+        "standard_type": str,
+        "framework": str
+    }
+)
 async def search_typescript_standards(args: SearchStandardsArgs) -> dict[str, Any]:
     """Search TypeScript standards and conventions from Synapse."""
     try:
-        return await search_typescript_standards(
+        result = await search_typescript_standards(
             args["standard_type"],
             args.get("framework", "general")
         )
+        return {
+            "content": [{
+                "type": "text",
+                "text": str(result)
+            }]
+        }
     except Exception as e:
         console.print(f"[bold red]Error in search_typescript_standards: {e}[/bold red]")
         return {
@@ -423,7 +629,7 @@ async def search_typescript_standards(args: SearchStandardsArgs) -> dict[str, An
 
 async def main():
     """Main agent loop with enhanced capabilities."""
-    server = create_sdk_mcp_server(name="typescript_specialist_tools")
+    server = create_sdk_mcp_server(name="typescript_specialist_tools", version="1.0.0")
 
     console.print(Panel(
         "[bold blue]TypeScript Specialist Agent[/bold blue]\n"

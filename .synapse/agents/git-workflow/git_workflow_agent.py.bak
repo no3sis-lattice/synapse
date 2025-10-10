@@ -1,0 +1,397 @@
+#!/usr/bin/env python3
+"""
+Git Workflow Agent
+
+Specialized git workflow automation with Synapse System integration for intelligent
+branch management, commit operations, and PR creation following organizational patterns.
+"""
+
+import asyncio
+import sys
+from pathlib import Path
+from typing import Any, AsyncGenerator, TypedDict, Dict, List, Optional
+
+# Add tools to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+# Claude Code SDK imports (placeholders for now)
+try:
+    from claude_code_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeCodeSdkMessage
+    )
+except ImportError:
+    # Fallback for development/testing
+    print("⚠️  Claude Code SDK not available, using mock implementations")
+    from tools.mock_sdk import (
+        create_sdk_mcp_server,
+        tool,
+        query,
+        ClaudeCodeSdkMessage
+    )
+
+from tools import (
+    manage_branches,
+    create_commits,
+    handle_merges,
+    create_pull_requests,
+    check_git_status,
+    execute_git_workflow,
+    load_config,
+    get_synapse_standards,
+    coordinate_workflow_with_agents
+)
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
+
+console = Console()
+
+# Tool argument schemas
+class BranchOperationArgs(TypedDict):
+    action: str  # "create", "switch", "delete", "list"
+    branch_name: Optional[str]
+    source_branch: Optional[str]
+
+class CommitOperationArgs(TypedDict):
+    message: str
+    files: Optional[List[str]]  # If None, stage all changes
+    amend: Optional[bool]
+
+class WorkflowArgs(TypedDict):
+    action: str  # "feature", "hotfix", "release"
+    spec_folder: Optional[str]
+    target_branch: Optional[str]
+    pr_title: Optional[str]
+
+@tool
+async def manage_git_branches(args: BranchOperationArgs) -> Dict[str, Any]:
+    """
+    Manage git branches with intelligent naming and Synapse integration.
+
+    Args:
+        action: Action to perform (create, switch, delete, list)
+        branch_name: Name of branch (optional for list)
+        source_branch: Source branch for new branches (defaults to current)
+
+    Returns:
+        Operation result with branch status and recommendations
+    """
+    action = args["action"]
+    branch_name = args.get("branch_name")
+    source_branch = args.get("source_branch")
+
+    console.print(f"🌿 [bold orange]Git Workflow:[/bold orange] {action} branch operation")
+
+    result = await manage_branches(action, branch_name, source_branch)
+
+    # Add Synapse-powered recommendations
+    if action == "create" and branch_name:
+        standards = await get_synapse_standards("branch-naming-conventions")
+        result["synapse_recommendations"] = standards.get("recommendations", [])
+
+    return result
+
+@tool
+async def smart_commit(args: CommitOperationArgs) -> Dict[str, Any]:
+    """
+    Create intelligent commits with Synapse-enhanced message generation.
+
+    Args:
+        message: Commit message
+        files: Specific files to commit (optional, defaults to all changes)
+        amend: Whether to amend the last commit (optional)
+
+    Returns:
+        Commit result with message analysis and improvements
+    """
+    message = args["message"]
+    files = args.get("files")
+    amend = args.get("amend", False)
+
+    console.print(f"💾 [bold orange]Git Workflow:[/bold orange] Creating commit")
+
+    # Get commit conventions from Synapse
+    conventions = await get_synapse_standards("git-commit-conventions")
+
+    # Enhance commit message if needed
+    enhanced_message = await _enhance_commit_message(message, conventions)
+
+    result = await create_commits(enhanced_message, files, amend)
+
+    # Add quality analysis
+    result["message_analysis"] = await _analyze_commit_message(enhanced_message)
+    result["synapse_conventions"] = conventions
+
+    return result
+
+@tool
+async def execute_complete_workflow(args: WorkflowArgs) -> Dict[str, Any]:
+    """
+    Execute complete git workflow from changes to PR creation.
+
+    Args:
+        action: Workflow type (feature, hotfix, release)
+        spec_folder: Path to spec folder (for branch naming)
+        target_branch: Target branch for PR (defaults to main)
+        pr_title: Custom PR title (optional)
+
+    Returns:
+        Complete workflow execution result
+    """
+    action = args["action"]
+    spec_folder = args.get("spec_folder")
+    target_branch = args.get("target_branch", "main")
+    pr_title = args.get("pr_title")
+
+    console.print(f"🚀 [bold orange]Git Workflow:[/bold orange] Executing {action} workflow")
+
+    # Coordinate with other agents if needed
+    coordination_result = await coordinate_workflow_with_agents(action, {
+        "spec_folder": spec_folder,
+        "target_branch": target_branch
+    })
+
+    # Execute the workflow
+    workflow_result = await execute_git_workflow(
+        action=action,
+        spec_folder=spec_folder,
+        target_branch=target_branch,
+        pr_title=pr_title
+    )
+
+    # Combine results
+    workflow_result["agent_coordination"] = coordination_result
+
+    return workflow_result
+
+@tool
+async def create_pull_request(args: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Create pull request with Synapse-enhanced templates and descriptions.
+
+    Args:
+        title: PR title
+        target_branch: Target branch for PR (defaults to main)
+        include_test_results: Whether to include test results (optional)
+        spec_reference: Path to spec folder (optional)
+
+    Returns:
+        PR creation result with URL and metadata
+    """
+    title = args.get("title", "")
+    target_branch = args.get("target_branch", "main")
+    include_test_results = args.get("include_test_results", False)
+    spec_reference = args.get("spec_reference")
+
+    console.print(f"📝 [bold orange]Git Workflow:[/bold orange] Creating pull request")
+
+    # Get PR template from Synapse
+    pr_template = await get_synapse_standards("pull-request-templates")
+
+    result = await create_pull_requests(
+        title=title,
+        target_branch=target_branch,
+        template=pr_template,
+        spec_reference=spec_reference,
+        include_test_results=include_test_results
+    )
+
+    return result
+
+@tool
+async def check_repository_status(args: Dict[str, Any] = None) -> Dict[str, Any]:
+    """
+    Check comprehensive git repository status with intelligent analysis.
+
+    Returns:
+        Repository status with recommendations and next actions
+    """
+    console.print(f"📊 [bold orange]Git Workflow:[/bold orange] Checking repository status")
+
+    status_result = await check_git_status()
+
+    # Add intelligent recommendations
+    recommendations = await _generate_status_recommendations(status_result)
+    status_result["recommendations"] = recommendations
+
+    return status_result
+
+# Internal helper functions
+
+async def _enhance_commit_message(message: str, conventions: Dict[str, Any]) -> str:
+    """Enhance commit message based on Synapse conventions."""
+    if not conventions:
+        return message
+
+    # Check if message follows conventional commits
+    conventional_types = conventions.get("types", ["feat", "fix", "docs", "style", "refactor", "test", "chore"])
+
+    # If message doesn't start with a conventional type, suggest enhancement
+    if not any(message.lower().startswith(f"{t}:") for t in conventional_types):
+        # Simple heuristic to suggest type
+        if "test" in message.lower():
+            return f"test: {message}"
+        elif "fix" in message.lower() or "bug" in message.lower():
+            return f"fix: {message}"
+        elif "add" in message.lower() or "implement" in message.lower():
+            return f"feat: {message}"
+        elif "update" in message.lower() or "refactor" in message.lower():
+            return f"refactor: {message}"
+
+    return message
+
+async def _analyze_commit_message(message: str) -> Dict[str, Any]:
+    """Analyze commit message quality."""
+    analysis = {
+        "length": len(message),
+        "has_type": ":" in message[:20],  # Simple check for conventional commits
+        "is_descriptive": len(message.split()) >= 3,
+        "quality_score": 0
+    }
+
+    # Calculate quality score
+    score = 0
+    if 10 <= analysis["length"] <= 72:  # Good length
+        score += 30
+    if analysis["has_type"]:  # Follows convention
+        score += 25
+    if analysis["is_descriptive"]:  # Descriptive enough
+        score += 25
+    if message[0].isupper():  # Starts with capital
+        score += 10
+    if not message.endswith('.'):  # Doesn't end with period
+        score += 10
+
+    analysis["quality_score"] = score
+
+    return analysis
+
+async def _generate_status_recommendations(status: Dict[str, Any]) -> List[str]:
+    """Generate intelligent recommendations based on repository status."""
+    recommendations = []
+
+    if status.get("uncommitted_changes", 0) > 0:
+        recommendations.append("💡 Uncommitted changes detected - consider creating a commit")
+
+    if status.get("unpushed_commits", 0) > 0:
+        recommendations.append("📤 Local commits ready to push to remote")
+
+    if status.get("behind_remote", 0) > 0:
+        recommendations.append("⬇️ Pull latest changes from remote")
+
+    current_branch = status.get("current_branch", "")
+    if current_branch in ["main", "master", "production"]:
+        recommendations.append("⚠️ Working on protected branch - consider creating feature branch")
+
+    if not recommendations:
+        recommendations.append("✅ Repository is in clean state")
+
+    return recommendations
+
+async def handle_message(message: ClaudeCodeSdkMessage) -> str:
+    """Process incoming messages and route to appropriate git operations."""
+
+    content = message.get("content", "").lower()
+
+    # Display Git Workflow banner
+    banner = Text("🌿 GIT WORKFLOW", style="bold orange")
+    banner.append(" - Intelligent Version Control", style="orange")
+    console.print(Panel(banner, border_style="orange"))
+
+    if any(word in content for word in ["branch", "checkout", "switch"]):
+        # Branch operations
+        if "create" in content:
+            # Extract branch name (simplified)
+            branch_name = message.get("branch_name", "feature-branch")
+            result = await manage_git_branches({
+                "action": "create",
+                "branch_name": branch_name
+            })
+            return f"✓ Created branch: {branch_name}"
+
+        elif "list" in content:
+            result = await manage_git_branches({"action": "list"})
+            branches = result.get("branches", [])
+            return f"Branches:\n" + "\n".join(f"  - {b}" for b in branches)
+
+    elif any(word in content for word in ["commit", "save"]):
+        # Commit operations
+        commit_message = message.get("message", "Update files")
+        result = await smart_commit({
+            "message": commit_message
+        })
+        return f"✓ Committed: {commit_message}\n📊 Quality score: {result.get('message_analysis', {}).get('quality_score', 'N/A')}/100"
+
+    elif any(word in content for word in ["workflow", "complete", "pr"]):
+        # Complete workflow
+        result = await execute_complete_workflow({
+            "action": "feature",
+            "target_branch": "main"
+        })
+        return f"✓ Workflow complete\n📝 PR created: {result.get('pr_url', 'N/A')}"
+
+    elif any(word in content for word in ["status", "check"]):
+        # Repository status
+        result = await check_repository_status()
+        status_summary = f"📊 Repository Status:\n"
+        status_summary += f"  Branch: {result.get('current_branch', 'unknown')}\n"
+        status_summary += f"  Uncommitted: {result.get('uncommitted_changes', 0)} files\n"
+        status_summary += f"  Unpushed: {result.get('unpushed_commits', 0)} commits\n"
+
+        recommendations = result.get("recommendations", [])
+        if recommendations:
+            status_summary += "\n💡 Recommendations:\n"
+            for rec in recommendations[:3]:
+                status_summary += f"  - {rec}\n"
+
+        return status_summary
+
+    else:
+        return (
+            "🌿 **Git Workflow Agent Ready**\n\n"
+            "I handle intelligent git operations with Synapse integration:\n"
+            "- **Branch Management**: Create, switch, and manage branches\n"
+            "- **Smart Commits**: Enhanced commit messages with conventions\n"
+            "- **Pull Requests**: Template-driven PR creation\n"
+            "- **Complete Workflows**: End-to-end feature development\n"
+            "- **Status Analysis**: Intelligent repository insights\n\n"
+            "Available commands:\n"
+            "- `create branch [name]` - Create new feature branch\n"
+            "- `commit [message]` - Smart commit with analysis\n"
+            "- `complete workflow` - Full feature workflow with PR\n"
+            "- `status` - Check repository status\n\n"
+            "*Efficient git operations with clean history and project conventions*"
+        )
+
+async def main():
+    """Main agent loop."""
+    config = load_config()
+
+    console.print("[bold orange]Git Workflow Agent Starting...[/bold orange]")
+
+    # Create MCP server with tools
+    server = create_sdk_mcp_server(
+        name="git_workflow_tools",
+        tools=[
+            manage_git_branches,
+            smart_commit,
+            execute_complete_workflow,
+            create_pull_request,
+            check_repository_status
+        ]
+    )
+
+    # Start the server
+    await server.run()
+
+    # Agent message loop
+    async for message in query("You are Git Workflow Agent, ready to handle version control operations."):
+        response = await handle_message(message)
+        print(response)
+
+if __name__ == "__main__":
+    asyncio.run(main())

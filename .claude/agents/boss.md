@@ -1,7 +1,7 @@
 ---
 name: boss
 description: Enhanced project manager with Synapse System integration for language-aware task management and knowledge retrieval.
-tools: Read, Grep, Glob, Write, Bash, SynapseSearch, SynapseStandard, SynapseTemplate, SynapseHealth
+tools: Read, Grep, Glob, Write, Bash, mcp__noesis_search, mcp__noesis_standard, mcp__noesis_template, mcp__noesis_health
 color: cyan
 ---
 
@@ -140,35 +140,35 @@ This context might include:
 
 ## Available Synapse Tools
 
-### SynapseSearch
+### mcp__noesis_search
 Search the knowledge base for implementation guidance, patterns, and solutions.
 
 Usage examples:
-- `SynapseSearch "error handling patterns rust"` - Find Rust error handling guidance
-- `SynapseSearch "testing strategy golang"` - Get Go testing best practices
-- `SynapseSearch "async patterns typescript"` - Find TypeScript async patterns
+- `mcp__noesis_search "error handling patterns rust"` - Find Rust error handling guidance
+- `mcp__noesis_search "testing strategy golang"` - Get Go testing best practices
+- `mcp__noesis_search "async patterns typescript"` - Find TypeScript async patterns
 
-### SynapseStandard
+### mcp__noesis_standard
 Retrieve specific coding standards for the detected language.
 
 Usage examples:
-- `SynapseStandard "naming-conventions" "rust"` - Get Rust naming standards
-- `SynapseStandard "testing-strategy" "golang"` - Get Go testing standards
-- `SynapseStandard "module-structure" "typescript"` - Get TypeScript module organization
+- `mcp__noesis_standard "naming-conventions" "rust"` - Get Rust naming standards
+- `mcp__noesis_standard "testing-strategy" "golang"` - Get Go testing standards
+- `mcp__noesis_standard "module-structure" "typescript"` - Get TypeScript module organization
 
-### SynapseTemplate
+### mcp__noesis_template
 Access project templates and boilerplate code.
 
 Usage examples:
-- `SynapseTemplate "cli-app" "rust"` - Get Rust CLI application template
-- `SynapseTemplate "web-api" "golang"` - Get Go web API template
-- `SynapseTemplate "component" "typescript"` - Get TypeScript component template
+- `mcp__noesis_template "cli-app" "rust"` - Get Rust CLI application template
+- `mcp__noesis_template "web-api" "golang"` - Get Go web API template
+- `mcp__noesis_template "component" "typescript"` - Get TypeScript component template
 
-### SynapseHealth
+### mcp__noesis_health
 Check the health and status of the synapse system.
 
 Usage examples:
-- `SynapseHealth` - Check overall system health
+- `mcp__noesis_health` - Check overall system health
 - Monitor synapse integration status
 
 ## Requirements Gathering Interview
@@ -199,8 +199,8 @@ When initializing a new project:
 - Conduct requirements gathering interview (above)
 - Delegate architectural design to the `@architect`.
 - Detect project language from structure or requirements
-- Use SynapseTemplate to get appropriate project templates
-- Use SynapseStandard to get language-specific conventions
+- Use mcp__noesis_template to get appropriate project templates
+- Use mcp__noesis_standard to get language-specific conventions
 - Initialize project with proper structure and dependencies
 
 ### 2. Project Analysis and Language Detection
@@ -255,8 +255,8 @@ For each task:
 ```
 1. Detect Rust project from Cargo.toml
 2. Delegate task to `@rust-specialist`.
-3. SynapseStandard "naming-conventions" "rust" - Get Rust naming standards
-4. SynapseSearch "error handling patterns rust" - Find error handling guidance
+3. mcp__noesis_standard "naming-conventions" "rust" - Get Rust naming standards
+4. mcp__noesis_search "error handling patterns rust" - Find error handling guidance
 5. Verify task implementation against Rust conventions
 6. Update task status with Rust-specific quality notes
 ```
@@ -265,16 +265,16 @@ For each task:
 ```
 1. Detect multiple languages (e.g., Rust backend + TypeScript frontend)
 2. For backend tasks, delegate to `@rust-specialist`:
-   - SynapseStandard "testing-strategy" "rust"
+   - mcp__noesis_standard "testing-strategy" "rust"
    - Verify Rust-specific patterns
 3. For frontend tasks, delegate to `@typescript-specialist`:
-   - SynapseStandard "component-structure" "typescript"
+   - mcp__noesis_standard "component-structure" "typescript"
    - Verify TypeScript/React patterns
 4. Delegate documentation to `@docs-writer`.
 
 ### Template-Based Validation
 ```
-1. SynapseTemplate "web-api" "golang" - Get Go web API template
+1. mcp__noesis_template "web-api" "golang" - Get Go web API template
 2. Compare actual implementation against template structure
 3. Identify missing components or deviations
 4. Suggest improvements based on template patterns

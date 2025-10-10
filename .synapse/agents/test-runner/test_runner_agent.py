@@ -16,20 +16,21 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 # Claude Code SDK imports (placeholders for now)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -78,17 +79,37 @@ class QuerySolutionsArgs(TypedDict):
 
 
 # Agent tools with decorators
-@tool
+@tool(
+    "execute_tests",
+    "Run tests based on specification",
+    {
+        "test_spec": str,
+        "framework": str,
+        "working_dir": str
+    }
+)
 async def execute_tests(args: RunTestsArgs) -> dict[str, Any]:
     """Run tests based on specification."""
-    return await run_tests(
+    result = await run_tests(
         args.get("test_spec", ""),
         args.get("framework"),
         args.get("working_dir")
     )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
 
-@tool
+@tool(
+    "detect_framework",
+    "Detect test framework in directory",
+    {
+        "directory": str
+    }
+)
 async def detect_framework(args: DetectFrameworkArgs) -> dict[str, Any]:
     """Detect test framework in directory."""
     framework = await detect_test_framework(args["directory"])
@@ -102,7 +123,15 @@ async def detect_framework(args: DetectFrameworkArgs) -> dict[str, Any]:
     }
 
 
-@tool
+@tool(
+    "parse_output",
+    "Parse test execution output",
+    {
+        "stdout": str,
+        "stderr": str,
+        "framework": str
+    }
+)
 async def parse_output(args: ParseOutputArgs) -> dict[str, Any]:
     """Parse test execution output."""
     parsed = await parse_test_output(
@@ -121,46 +150,110 @@ async def parse_output(args: ParseOutputArgs) -> dict[str, Any]:
     }
 
 
-@tool
+@tool(
+    "analyze_test_failures",
+    "Analyze test failures for patterns and solutions",
+    {
+        "failures": list,
+        "language": str
+    }
+)
 async def analyze_test_failures(args: AnalyzeFailuresArgs) -> dict[str, Any]:
     """Analyze test failures for patterns and solutions."""
-    return await analyze_failures(
+    result = await analyze_failures(
         args["failures"],
         args.get("language", "python")
     )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
 
-@tool
+@tool(
+    "get_coverage_report",
+    "Generate coverage report from test output",
+    {
+        "test_output": str,
+        "framework": str
+    }
+)
 async def get_coverage_report(args: GenerateCoverageArgs) -> dict[str, Any]:
     """Generate coverage report from test output."""
-    return await generate_coverage(
+    result = await generate_coverage(
         args["test_output"],
         args["framework"]
     )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
 
-@tool
+@tool(
+    "analyze_test_structure",
+    "Extract information about test structure",
+    {
+        "directory": str
+    }
+)
 async def analyze_test_structure(args: ExtractTestInfoArgs) -> dict[str, Any]:
     """Extract information about test structure."""
-    return await extract_test_info(args["directory"])
+    result = await extract_test_info(args["directory"])
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
 
-@tool
+@tool(
+    "find_test_patterns",
+    "Search for testing patterns in Synapse knowledge graph",
+    {
+        "language": str,
+        "test_type": str
+    }
+)
 async def find_test_patterns(args: SearchPatternsArgs) -> dict[str, Any]:
     """Search for testing patterns in Synapse knowledge graph."""
-    return await search_test_patterns(
+    result = await search_test_patterns(
         args["language"],
         args.get("test_type", "unit")
     )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
 
-@tool
+@tool(
+    "find_failure_solutions",
+    "Query solutions for test failures",
+    {
+        "error_type": str,
+        "language": str
+    }
+)
 async def find_failure_solutions(args: QuerySolutionsArgs) -> dict[str, Any]:
     """Query solutions for test failures."""
-    return await query_failure_solutions(
+    result = await query_failure_solutions(
         args["error_type"],
         args["language"]
     )
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(result)
+        }]
+    }
 
 
 async def main():
@@ -179,6 +272,7 @@ async def main():
         # Create MCP server with tools
         server = create_sdk_mcp_server(
             name="test_runner_tools",
+            version="1.0.0",
             tools=[
                 execute_tests,
                 detect_framework,

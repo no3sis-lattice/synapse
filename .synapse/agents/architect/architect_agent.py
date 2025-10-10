@@ -14,22 +14,23 @@ from typing import Any, AsyncGenerator, TypedDict, Dict, List, Optional
 # Add tools to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Claude Code SDK imports (placeholders for now)
+# Claude Agent SDK imports (placeholders for now)
 try:
-    from claude_code_sdk import (
+    from claude_agent_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 except ImportError:
-    # Fallback for development/testing
-    print("⚠️  Claude Code SDK not available, using mock implementations")
-    from tools.mock_sdk import (
+    # Fallback for development/testing - use shared mock SDK
+    print("⚠️  Claude Agent SDK not available, using shared mock SDK")
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+    from mock_sdk import (
         create_sdk_mcp_server,
         tool,
         query,
-        ClaudeCodeSdkMessage
+        ClaudeAgentOptions
     )
 
 from tools import (
@@ -66,7 +67,15 @@ class TechnologyStackArgs(TypedDict):
     requirements: Dict[str, Any]  # Functional and non-functional requirements
     constraints: Optional[Dict[str, Any]]  # Budget, team skills, etc.
 
-@tool
+@tool(
+    "create_system_architecture",
+    "Design comprehensive system architecture based on requirements",
+    {
+        "requirements": dict,
+        "constraints": dict,
+        "scale_requirements": dict
+    }
+)
 async def create_system_architecture(args: SystemDesignArgs) -> Dict[str, Any]:
     """
     Design comprehensive system architecture based on requirements.
@@ -101,9 +110,22 @@ async def create_system_architecture(args: SystemDesignArgs) -> Dict[str, Any]:
         architecture, requirements, constraints
     )
 
-    return architecture
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(architecture)
+        }]
+    }
 
-@tool
+@tool(
+    "evaluate_architecture_patterns",
+    "Evaluate and recommend architectural patterns for a system",
+    {
+        "system_type": str,
+        "requirements": dict,
+        "existing_architecture": str
+    }
+)
 async def evaluate_architecture_patterns(args: ArchitecturalAnalysisArgs) -> Dict[str, Any]:
     """
     Evaluate and recommend architectural patterns for a system.
@@ -132,9 +154,22 @@ async def evaluate_architecture_patterns(args: ArchitecturalAnalysisArgs) -> Dic
     synapse_patterns = await get_architectural_patterns(system_type)
     evaluation["knowledge_base_patterns"] = synapse_patterns
 
-    return evaluation
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(evaluation)
+        }]
+    }
 
-@tool
+@tool(
+    "recommend_technology_stack",
+    "Recommend optimal technology stack based on project requirements",
+    {
+        "project_type": str,
+        "requirements": dict,
+        "constraints": dict
+    }
+)
 async def recommend_technology_stack(args: TechnologyStackArgs) -> Dict[str, Any]:
     """
     Recommend optimal technology stack based on project requirements.
@@ -164,9 +199,22 @@ async def recommend_technology_stack(args: TechnologyStackArgs) -> Dict[str, Any
     org_standards = await get_architectural_patterns("technology-standards")
     tech_assessment["organizational_standards"] = org_standards
 
-    return tech_assessment
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(tech_assessment)
+        }]
+    }
 
-@tool
+@tool(
+    "create_architecture_documentation",
+    "Generate comprehensive architectural documentation",
+    {
+        "architecture": dict,
+        "format": str,
+        "include_decisions": bool
+    }
+)
 async def create_architecture_documentation(args: Dict[str, Any]) -> Dict[str, Any]:
     """
     Generate comprehensive architectural documentation.
@@ -196,9 +244,22 @@ async def create_architecture_documentation(args: Dict[str, Any]) -> Dict[str, A
         decision_records = await generate_decision_records(architecture)
         documentation["decision_records"] = decision_records
 
-    return documentation
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(documentation)
+        }]
+    }
 
-@tool
+@tool(
+    "analyze_system_scalability",
+    "Analyze system scalability requirements and provide recommendations",
+    {
+        "current_architecture": dict,
+        "growth_projections": dict,
+        "performance_requirements": dict
+    }
+)
 async def analyze_system_scalability(args: Dict[str, Any]) -> Dict[str, Any]:
     """
     Analyze system scalability requirements and provide recommendations.
@@ -223,7 +284,12 @@ async def analyze_system_scalability(args: Dict[str, Any]) -> Dict[str, Any]:
         performance_requirements=performance_requirements
     )
 
-    return scalability_analysis
+    return {
+        "content": [{
+            "type": "text",
+            "text": str(scalability_analysis)
+        }]
+    }
 
 # Internal helper functions
 
@@ -256,7 +322,7 @@ async def _generate_architectural_decisions(architecture: Dict[str, Any],
 
     return decisions
 
-async def handle_message(message: ClaudeCodeSdkMessage) -> str:
+async def handle_message(message: ClaudeAgentOptions) -> str:
     """Process incoming messages and route to appropriate architectural services."""
 
     content = message.get("content", "").lower()
@@ -357,6 +423,7 @@ async def main():
     # Create MCP server with tools
     server = create_sdk_mcp_server(
         name="architect_tools",
+            version="1.0.0",
         tools=[
             create_system_architecture,
             evaluate_architecture_patterns,
