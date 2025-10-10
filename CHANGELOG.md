@@ -1,5 +1,41 @@
 # Synapse System Changelog
 
+## [Unreleased] - Day 10: Modular Nix Lattice + CI Fix (2025-10-10)
+
+### 🏗️ Nix Modularity: Option B Implementation Complete
+
+**Status**: Modular `.nix` lattice operational ✅
+
+**Architecture**: Single root flake importing modular components (avoids `path:` URL issues)
+
+**Modules Created**:
+1. **`nix/modules/python-base.nix`**: Python 3.12 foundation + utilities
+2. **`nix/modules/neo4j-tools.nix`**: Knowledge engine (Neo4j, BGE-M3, Pattern Map)
+3. **`nix/modules/agents/boss.nix`**: L0 orchestrator (25 particles defined)
+4. **`nix/modules/orchestrators/file-creator.nix`**: MVP orchestrator (8 particles)
+
+**Root Flake Updated**:
+- Imports modular components via `import ./nix/modules/`
+- Exposes packages: `synapse-boss`, `synapse-file-creator`, `synapse-neo4j-tools`
+- Individual tools: `synapse-health`, `synapse-search`, `synapse-ingest`
+
+**Pattern Established**: Template for expanding to remaining agents/orchestrators
+
+### 🔧 Nix CI Fix: Mutable Path Lock Resolved
+
+**Problem**: CI failed with mutable `type: "path"` lock entry for `synapse-core`
+
+**Solution Implemented**:
+1. **Root `flake.nix`**: Changed `synapse-core` from `path:./` → `github:sub0xdai/synapse-system?dir=`
+2. **`nix/flakes/synapse-core/flake.nix`**: Added `flake-utils`, replaced `builtins.currentSystem`
+3. **`flake.lock`**: Regenerated with immutable GitHub references
+
+**Impact**: CI unblocked, reproducible builds enabled
+
+**Known Limitation**: 18 agent flakes still use `builtins.currentSystem` (will fail when evaluated from GitHub)
+
+---
+
 ## [Unreleased] - Day 10: Redis Query Embedding Cache - Pattern Search Fixed (2025-10-10)
 
 ### 🚀 Performance Fix: 15x Speedup via Redis Embedding Cache

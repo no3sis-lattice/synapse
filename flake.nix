@@ -61,9 +61,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Synapse Core - local flake for core orchestration framework
+    # Synapse Core - immutable GitHub reference for core orchestration framework
     synapse-core = {
-      url = "path:./nix/flakes/synapse-core";
+      url = "github:sub0xdai/synapse-system?dir=nix/flakes/synapse-core";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -79,6 +79,12 @@
         pythonEnv = pkgs.python3.withPackages (ps: with ps; [
           redis
         ]);
+
+        # Import modular components
+        pythonBase = import ./nix/modules/python-base.nix { inherit pkgs system; };
+        neo4jTools = import ./nix/modules/neo4j-tools.nix { inherit pkgs system; pythonBase = pythonBase; };
+        bossAgent = import ./nix/modules/agents/boss.nix { inherit pkgs system; pythonBase = pythonBase; neo4jTools = neo4jTools; };
+        fileCreatorOrchestrator = import ./nix/modules/orchestrators/file-creator.nix { inherit pkgs system; pythonBase = pythonBase; };
 
       in
       {
@@ -130,6 +136,17 @@
           # Synapse Core - orchestration framework
           inherit (inputs.synapse-core.packages.${system}) synapse-core;
           synapse-cli = inputs.synapse-core.packages.${system}.synapse-core;
+
+          # Modular packages (from nix/modules/)
+          python-base = pythonBase.env;
+          synapse-neo4j-tools = neo4jTools.package;
+          synapse-boss = bossAgent.package;
+          synapse-file-creator = fileCreatorOrchestrator.package;
+
+          # Neo4j individual tools
+          synapse-health = neo4jTools.tools.health;
+          synapse-search = neo4jTools.tools.search;
+          synapse-ingest = neo4jTools.tools.ingest;
         };
 
         devShells.default = pkgs.mkShell {

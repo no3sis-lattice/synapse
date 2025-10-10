@@ -3,11 +3,12 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, ... }@inputs:
+  outputs = { self, nixpkgs, flake-utils, ... }@inputs:
+    flake-utils.lib.eachDefaultSystem (system:
     let
-      system = builtins.currentSystem;
       pkgs = import nixpkgs { inherit system; };
 
       # Import permissions system
@@ -192,5 +193,5 @@ EOF
             exec ${pythonEnv}/bin/python ${scriptPath} "$@"
           '';
       };
-    };
+    });
 }

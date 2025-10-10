@@ -575,14 +575,20 @@
         ]
       },
       "locked": {
-        "path": "./nix/flakes/synapse-core",
-        "type": "path"
+        "dir": "nix/flakes/synapse-core",
+        "lastModified": 1760080825,
+        "narHash": "sha256-eQxQkQXYCdx3bYGRH3kzec3A7T5xWuDpCh7KAm2tq3g=",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "rev": "3b74825001a732298b9b592a3017c07b6c9b6c78",
+        "type": "github"
       },
       "original": {
-        "path": "./nix/flakes/synapse-core",
-        "type": "path"
-      },
-      "parent": []
+        "dir": "nix/flakes/synapse-core",
+        "owner": "sub0xdai",
+        "repo": "synapse-system",
+        "type": "github"
+      }
     },
     "systems": {
       "locked": {
