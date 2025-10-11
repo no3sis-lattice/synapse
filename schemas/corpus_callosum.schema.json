@@ -1,0 +1,78 @@
+{
+  "$id": "https://noesis-lattice.org/schemas/corpus_callosum.schema.json",
+  "title": "Corpus Callosum Contracts",
+  "type": "object",
+  "properties": {
+    "GoalSpec": {
+      "type": "object",
+      "required": ["domain", "targetPsi"],
+      "properties": {
+        "domain": { "type": "string", "examples": ["web_api.auth", "code_structure.refactor"] },
+        "targetPsi": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "constraints": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "priors": { "type": "object", "description": "Pattern/strategy hints", "additionalProperties": true },
+        "goalVector": {
+          "type": "array",
+          "items": { "type": "number" },
+          "description": "φ(g); optional in v0, required once DGR is trained"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExecutionPlan": {
+      "type": "object",
+      "required": ["layers", "estimatedPsi", "estimatedCostSec"],
+      "properties": {
+        "layers": { "type": "array", "items": { "type": "string", "enum": ["L1","L2","L3","L4","L5"] } },
+        "estimatedPsi": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "estimatedCostSec": { "type": "number", "minimum": 0.0 },
+        "budgets": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "wallTimeSec": { "type": "number" },
+              "cpuMs": { "type": "integer" },
+              "gpuMs": { "type": "integer" },
+              "memoryMb": { "type": "integer" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "ResultPayload": {
+      "type": "object",
+      "required": ["psiAchieved", "reused", "created", "metrics"],
+      "properties": {
+        "psiAchieved": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "reused": { "type": "array", "items": { "type": "string" } },
+        "created": { "type": "array", "items": { "type": "string" } },
+        "patternsDiscovered": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "R": {
+              "type": "object",
+              "properties": {
+                "L1": { "type": "number" },
+                "L2": { "type": "number" },
+                "L3": { "type": "number" },
+                "L4": { "type": "number" },
+                "L5": { "type": "number" }
+              },
+              "additionalProperties": false
+            },
+            "latencySec": { "type": "number" },
+            "costUnits": { "type": "number" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
