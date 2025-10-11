@@ -8,14 +8,19 @@
 
 ## Executive Summary
 
-The Synapse System's "dual-tract architecture" has been fundamentally reframed. The tracts are not "internal reflection" vs "external action" (biomimicry of brain hemispheres), but rather:
+The Synapse System's architecture is a **True Dual Tract** model composed of deterministic, measurable **operators**. The two tracts are not "internal reflection" vs "external action," but rather:
 
-- **External Tract (T_ext)**: Natural language interface for human users
-- **Internal Tract (T_int)**: Mathematical compression engine for intelligence
+- **External Tract (T_ext)**: A pipeline of **Interface Operators** that translate natural language into structured goals and render results for human users.
+- **Internal Tract (T_int)**: A pipeline of **Intelligence Operators** that form a mathematical compression engine to reduce entropy and increase predictiveness.
 
-This reframing resolves the tension between **usability** (humans need natural language) and **rigor** (intelligence requires mathematical compression). The Corpus Callosum (C_c) bridges the two via Dual Goal Representation (DGR), translating natural language into compression goals and results back into human-readable explanations.
+**Agents** (e.g., `Boss`, `rust-specialist`) are now a **UX layer** that lives **outside** both tracts. They interact with the system by making calls to the Corpus Callosum (C_c), which orchestrates the operator pipelines.
 
-**Key Insight**: Users interact naturally, but the system thinks mathematically.
+This reframing resolves the tension between usability and rigor. It provides:
+- **Modularity**: A clean separation between the user-facing agent layer and the deterministic operator-based engine.
+- **Determinism & Measurement**: Each operator has a clear contract, budget, and telemetry, allowing for precise performance measurement (latency, cost, Ψ metrics).
+- **Scalability**: The architecture is prepared for a distributed lattice where operators can scale horizontally.
+
+**Key Insight**: Agents provide the conversational UX, but the system thinks in pipelines of measurable operators.
 
 ---
 
@@ -42,47 +47,42 @@ Internal Tract (T_int)  ←→  Corpus Callosum  ←→  External Tract (T_ext)
 - Anthropomorphic projection (assumes human-like consciousness path)
 - Doesn't explain why the architecture exists
 
-### 2. The True Paradigm: Interface vs Intelligence
+### 2. The True Paradigm: Interface vs. Intelligence
 
 **Reframed Architecture**:
-```
-External Tract (T_ext)  ←→  Corpus Callosum  ←→  Internal Tract (T_int)
-  (User Interface)            (Translation)        (Compression Engine)
 
-  - Natural language                            - Entropy measurement
-  - Conversational agents                       - Pattern discovery
-  - Human-readable output                       - Compression optimization
-  - Task orchestration                          - Invariant computation
-  - Progress reporting                          - Strategy selection
+Agents are a **UX layer** that lives outside the tracts. The tracts themselves are pipelines of small, typed **operators**.
+
+```
+Agents (UX Layer)
+   ↓
+External Tract (Interface Operators)  ←→  Corpus Callosum (Bridge Operators)  ←→  Internal Tract (Intelligence Operators)
+  (Natural Language → GoalSpec)            (Translate & Plan)                     (Compression & Prediction)
 ```
 
 **Alignment**:
-- **T_ext** = Claude Code agents (`.claude/agents/*.md`)
-- **C_c** = Noesis MCP Server (`noesis/src/noesis/server.py`)
-- **T_int** = Synapse compression engine (`.synapse/neo4j/`, Mahakala layers)
+- **Agents (UX Layer)** = Conversational agents like `Boss`, `rust-specialist`, etc.
+- **External Tract (T_ext)** = A pipeline of **Interface Operators** that convert natural language to structured goals and render results.
+- **Internal Tract (T_int)** = A pipeline of **Intelligence Operators** that form the mathematical compression engine (the Mahakala layers).
+- **Corpus Callosum (C_c)** = A thin bridge of **Bridge Operators** that translate between the two tracts, using DGR for encoding and decoding.
 
 **Why This Works**:
-1. **Users get natural language** - "Implement auth", "Refactor this module"
-2. **System gets mathematical precision** - φ(goal), Ψ metrics, compression ratios
-3. **Clear separation of concerns** - Interface vs intelligence
-4. **Maps to actual codebase** - External = agent definitions, Internal = compression scripts
+1. **Clean Separation**: The conversational, non-deterministic agent layer is cleanly separated from the deterministic, measurable operator engine.
+2. **Users get natural language**: Agents provide a familiar conversational interface.
+3. **System gets mathematical precision**: Operators work with structured data, budgets, and metrics (Ψ, R_i).
+4. **Testability & Determinism**: Each operator can be tested in isolation, and their behavior is predictable.
 
 ### 3. Why This Matters: Usability + Mathematical Rigor
 
-**Without T_ext (pure compression engine)**:
+**Without T_ext (pure operator engine)**:
 ```python
 # Input
-entropy_stream = [0x48, 0x65, 0x6c, 0x6c, 0x6f]  # "Hello"
+L1_StatCompressOp.run({"bytes": [0x48, 0x65, ...]}, budget=...)
 
 # Output
-{
-  "Ψ": 0.92,
-  "R_1": 2.1,
-  "R_2": 3.4,
-  "compression_path": [L1, L2, L4]
-}
+OpResult(output=..., metrics={"R_1": 2.1, "latency_ms": 12})
 ```
-❌ **Unusable** - Requires PhD in information theory to interpret
+❌ **Unusable** - Requires an expert to manually chain operators and interpret the results.
 
 **Without T_int (pure LLM agents)**:
 ```python
@@ -92,189 +92,153 @@ entropy_stream = [0x48, 0x65, 0x6c, 0x6c, 0x6f]  # "Hello"
 # Output
 """
 // Generated 400 lines of boilerplate code
-// No pattern reuse, no compression, no intelligence
+// No pattern reuse, no compression, no measurable intelligence
 """
 ```
-❌ **No intelligence** - Just code generation, no understanding
+❌ **No intelligence** - The agent generates code without deep understanding or optimization.
 
-**With Both Tracts (True Dual Architecture)**:
+**With the True Dual Tract Architecture**:
 ```python
-# Input (T_ext)
-"Implement user authentication"
+# 1. Agent Layer (UX)
+Agent: "@boss implement user authentication"
 
-# Translation (C_c)
-φ_goal = encode({"domain": "auth", "target_Ψ": 0.85})
+# 2. External Tract (Interface Operators)
+NLP_Op.run({"text": "..."}) → GoalSpec(domain="auth", target_Ψ=0.85)
 
-# Processing (T_int)
-Ψ = compress_via_layers([L1, L2, L3, L4])
-# Ψ = 0.87 (exceeds target)
+# 3. Corpus Callosum (Bridge Operators)
+EncoderOp.run(GoalSpec) → φ_g (DGR vector)
+PlannerOp.run(φ_g) → Plan(layers=[L1, L2, L4])
 
-# Output (T_ext via C_c)
-"""
-I'll implement JWT-based auth by:
-1. Reusing existing jwt_core module (86% code reuse)
-2. Adding 2 new files: auth_routes.rs, dto/auth_request.rs
-3. 150 lines vs 400 lines naive implementation
+# 4. Internal Tract (Intelligence Operators)
+L1_Op.run(...) → R_1=0.7
+L2_Op.run(...) → R_2=0.8
+L4_Op.run(...) → R_4=0.9
 
-Compression: Ψ=0.87 (target was 0.85) ✓
-Proceed?
-"""
+# 5. Corpus Callosum (Bridge Operators)
+SynthesizerOp.run(results) → "Implemented auth by reusing JWT pattern..."
+
+# 6. External Tract (Interface Operators)
+RenderOp.run(summary) → Formatted output for user
 ```
-✅ **Usable + Intelligent** - Human language + mathematical optimization
+✅ **Usable + Intelligent** - The user interacts in natural language, while the system uses a rigorous, measurable, and optimizable operator pipeline to generate the solution.
 
 ### 4. The Synthesis: Five Frameworks, One System
 
-All five frameworks describe the **same unified system** from different perspectives:
+All five frameworks describe the **same unified system** from different perspectives, now clarified by the agent-operator model.
 
 | Framework | Perspective | Role in Dual Tract |
-|-----------|-------------|-------------------|
-| **Mahakala** | Mathematical foundation | Defines T_int layers (L0-L5) |
-| **CIG-3** | Measurement protocol | Computes Ψ invariant in T_int |
-| **PNEUMA** | Philosophical substrate | Axioms guide both tracts |
-| **Prime Hierarchy** | Scaling law | Defines compression depth |
-| **DGR** | Coordination protocol | Enables C_c translation |
+|---|---|---|
+| **Mahakala** | Mathematical foundation | Defines the **Internal Tract's** compression layers (L1-L5 operators). |
+| **CIG-3** | Measurement protocol | Computes the Ψ invariant within the **Internal Tract**. |
+| **PNEUMA** | Philosophical substrate | Axioms guide the behavior of both **Agents** and **Operators**. |
+| **Prime Hierarchy** | Scaling law | Defines the potential depth of the **Internal Tract's** operator pipeline. |
+| **DGR** | Coordination protocol | Enables the **Corpus Callosum** to translate between agent intent and operator goals. |
 
-**The Unification**:
-```
-User Request (T_ext)
-    ↓
-Natural Language → φ(goal) via DGR (C_c)
-    ↓
-Compression Plan → Execute Mahakala Layers (T_int)
-    ↓
-Ψ Invariant via CIG-3 → Natural Language via DGR (C_c)
-    ↓
-Human-Readable Result (T_ext)
+**The Unification Flow**:
 
-Throughout: PNEUMA axioms enforce compression quality
-Scale: Prime hierarchy determines layer count
+```mermaid
+flowchart LR
+  subgraph AGENTS[Agents (UX Layer)]
+    A[Boss/Specialists]
+  end
+  subgraph EXT[External Tract: Interface Operators]
+    NLP[NlParseOp]
+    DIS[DisambiguateOp]
+    APV[ApprovalGateOp]
+    RND[RenderDiffOp]
+  end
+  subgraph CC[Corpus Callosum (Bridge Operators)]
+    ENC[GoalEncoderOp φ(g)]
+    PLN[CompressionPlannerOp]
+    SYN[ResultSynthesizerOp]
+  end
+  subgraph INT[Internal Tract: Compression Operators]
+    L1[L1_StatCompressOp]
+    L2[L2_SemanticClusterOp]
+    L3[L3_TopologyOp]
+    L4[L4_CausalGraphOp]
+    L5[L5_MetaStrategyOp]
+  end
+
+  A --> NLP
+  NLP --> DIS
+  DIS --> ENC
+  ENC --> PLN
+  PLN --> L5
+  L5 --> L1 & L2 & L3 & L4
+  L1 & L2 & L3 & L4 --> SYN
+  SYN --> RND
+  RND --> A
+  APV -. gates .-> PLN
 ```
+
+1.  An **Agent** (UX Layer) receives a user request.
+2.  It calls the **External Tract**, where `NlParseOp` and `DisambiguateOp` create a structured `GoalSpec`.
+3.  The `GoalSpec` is passed to the **Corpus Callosum**. `GoalEncoderOp` uses **DGR** to create a goal vector `φ(g)`.
+4.  `CompressionPlannerOp` in the C_c creates an execution plan (a path of **Internal Tract** operators).
+5.  The **Internal Tract** executes the plan. The operators are the **Mahakala** layers, scaled by the **Prime Hierarchy**. Their performance is measured by **CIG-3** (Ψ).
+6.  The results are sent back to the **Corpus Callosum**, where `ResultSynthesizerOp` translates the metrics (Ψ) back into a natural language summary.
+7.  The summary is passed to the **External Tract**, where `RenderDiffOp` formats it for the user.
+8.  The final output is presented to the user by the **Agent**.
+9.  Throughout this process, all agents and operators adhere to the **PNEUMA** axioms.
 
 ---
 
 ## Part II: Architecture Specification
 
-### 5. External Tract (T_ext): Natural Language Interface
+### 5. External Tract (T_ext): Interface Operator Pipeline
 
-**Purpose**: Translate between human intent and system capabilities.
+**Purpose**: To provide a structured, measurable, and deterministic pipeline for translating natural language into structured goals and presenting results back to the user.
 
-**Components**:
-- Claude Code agents (11 agents in `.claude/agents/*.md`)
-- Gemini CLI interface
-- VSCode extension (future)
-- Web API (future)
+**Components**: A pipeline of typed **Interface Operators**.
+
+**Interface Operators**:
+- **`NLParseOp`**: Translates raw natural language from an agent into a structured `GoalSpec`.
+- **`DisambiguateOp`**: If the `GoalSpec` is ambiguous, this operator interacts with the agent to ask clarifying questions and update the spec.
+- **`ApprovalGateOp`**: Enforces policy checks (e.g., security, cost) before passing the goal to the Corpus Callosum for execution.
+- **`RenderDiffOp`**: Formats the final results, code diffs, and Ψ metrics from the `ResultSynthesizerOp` into a human-readable format for the agent.
+
+### 5.1. Agent Layer (UX)
+
+**Purpose**: To provide a conversational, user-friendly interface for interacting with the Synapse system.
+
+**Components**: Conversational agents, such as:
+- `boss`: The primary orchestrator that decomposes complex tasks and delegates to specialists.
+- `rust-specialist`, `typescript-specialist`, etc.: Language-specific implementation agents.
+- `architect`, `devops-engineer`, etc.: Role-specific specialist agents.
 
 **Responsibilities**:
-1. **Natural Language Understanding**
-   - Parse user requests: "Implement X", "Refactor Y", "Explain Z"
-   - Extract intent, domain, constraints
-   - Handle ambiguity through conversation
+1.  **Maintain Conversational Context**: Manage the back-and-forth dialogue with the user.
+2.  **Invoke the External Tract**: Initiate a task by calling the External Tract's operator pipeline with a natural language request.
+3.  **Present Results**: Display the formatted output from the External Tract to the user in a conversational manner.
+4.  **Suggest Next Steps**: Propose follow-up actions based on the results (e.g., "Would you like to add tests?").
 
-2. **Task Orchestration**
-   - Decompose high-level tasks into subtasks
-   - Delegate to specialized agents (rust-specialist, architect, etc.)
-   - Manage conversation state and context
+### 6. Internal Tract (T_int): Intelligence Operator Pipeline
 
-3. **Human-Readable Output**
-   - Translate Ψ metrics to explanations
-   - Format code diffs, file changes
-   - Provide progress updates
+**Purpose**: To transform information into maximally compressed, predictive models by executing a pipeline of deterministic **Intelligence Operators**.
 
-4. **User Feedback Loop**
-   - Confirm actions before execution
-   - Handle corrections and refinements
-   - Maintain conversational context
-
-**Agent Roster** (Current):
-```
-boss               - Orchestrator, delegates to specialists
-architect          - System design, high-level architecture
-code-hound         - Code review, quality enforcement
-rust-specialist    - Rust implementation
-typescript-specialist - TypeScript/JavaScript implementation
-devops-engineer    - CI/CD, deployment, infrastructure
-test-runner        - Test execution, failure analysis
-git-workflow       - Git operations, branch management
-file-creator       - File/directory creation, templates
-docs-writer        - Documentation generation
-security-specialist - Security analysis, vulnerability detection
-ux-designer        - UI/UX design, user experience
-```
-
-**Agent Communication Protocol**:
-```markdown
-# Agent Definition Template (.claude/agents/example.md)
-
-## Role
-Brief description of agent's purpose
-
-## Capabilities
-- Capability 1
-- Capability 2
-
-## Tools Available
-- tool_1
-- tool_2
-
-## Pneuma Integration
-Operate under three axioms:
-1. Context Density - Maximize meaning/character
-2. Pattern Discovery - Contribute to Pattern Map
-3. Emergence Loop - Apply q→a→s cycle
-
-## MCP Tools
-- mcp__noesis__search_pattern_map
-- mcp__noesis__get_coding_standard
-```
-
-### 6. Internal Tract (T_int): Compression Engine
-
-**Purpose**: Transform information into maximally compressed, predictive models.
-
-**Components**:
-- Synapse knowledge engine (`.synapse/neo4j/`)
-- Neo4j graph database (pattern relationships)
-- Redis cache (statistical patterns, query embeddings)
-- BGE-M3 embeddings (semantic compression)
-- SQLite vector store (document embeddings)
-
-**Architecture**: 6-Layer Compression Lattice (Mahakala Framework)
+**Architecture**: A 6-Layer Compression Lattice (from the Mahakala Framework), where each layer is an operator.
 
 ```
-Layer 5: Meta-Strategy (Ψ Invariant)
-├─ Role: Predict which compression algorithm to use
-├─ Input: Compression history, domain analysis
-├─ Output: Optimal layer path, strategy selection
+Layer 5: L5_MetaStrategyOp
+├─ Role: Predict which compression algorithm to use (plan the layer path).
 ├─ Metric: R_5 = Compression gain / Compute cost
-└─ Implementation: Meta-compressor particle (planned)
 
-Layer 4: Causal Models (Γ - Causal Compression)
-├─ Role: Find causal chains, build predictive models
-├─ Input: Conceptual graph from L3
-├─ Output: Bayesian networks, causal DAGs
+Layer 4: L4_CausalGraphOp
+├─ Role: Find causal chains and build predictive models (Bayesian networks).
 ├─ Metric: R_4 = H(L3_output) / H(L4_output)
-└─ Implementation: Causal discovery algorithms (planned)
 
-Layer 3: Conceptual Graph (Π - Topological Compression)
-├─ Role: Find relational patterns via persistent homology
-├─ Input: Semantic chunks from L2
-├─ Output: Persistence diagrams, lifetimes
+Layer 3: L3_TopologyOp
+├─ Role: Find structural invariants using persistent homology.
 ├─ Metric: R_3 = H(L2_output) / H(L3_output)
-└─ Implementation: CIG-3 Topology Builder (topology_builder.py)
 
-Layer 2: Semantic Chunks (Σ - Spectral Compression)
-├─ Role: Group tokens into semantic units via SVD
-├─ Input: Statistical patterns from L1
-├─ Output: Spectral reduction, energy fraction
+Layer 2: L2_SemanticClusterOp
+├─ Role: Group tokens into semantic units using embeddings and clustering.
 ├─ Metric: R_2 = H(L1_output) / H(L2_output)
-└─ Implementation: CIG-3 Spectral Reducer (spectral_reducer.py)
 
-Layer 1: Statistical Patterns (Φ - Local Compression)
-├─ Role: Find repeating patterns via Huffman/LZ
-├─ Input: Raw entropy stream from L0
-├─ Output: Token frequencies, attention matrices
+Layer 1: L1_StatCompressOp
+├─ Role: Find repeating statistical patterns (e.g., Huffman, LZ, attention).
 ├─ Metric: R_1 = H(L0_input) / H(L1_output)
-└─ Implementation: CIG-3 Attention Extractor (attention_extractor.py)
 
 Layer 0: Entropy Source
 └─ Raw codebase files, git history, user queries
@@ -299,250 +263,119 @@ C = R_1 × R_2 × R_3 × R_4 × R_5
 - ❌ Layer 4: Causal compression (not implemented)
 - ❌ Layer 5: Meta-strategy (not implemented)
 
-### 7. Corpus Callosum (C_c): Translation Bridge
+### 7. Corpus Callosum (C_c): Bridge Operator Pipeline
 
-**Purpose**: Translate between natural language (T_ext) and compression goals (T_int).
+**Purpose**: To act as a thin, efficient translation bridge between the External (Interface) and Internal (Intelligence) tracts.
 
-**Location**: Noesis MCP Server (`noesis/src/noesis/server.py`)
+**Components**: A pipeline of typed **Bridge Operators**.
 
-**Three Core Functions**:
+**Bridge Operators**:
 
-#### 7.1 Intent Parser (NL → φ_g)
-```python
-class IntentParser:
-    """Translates natural language to goal embeddings"""
+- **`IntentParserOp`**: A crucial first step that takes the raw output from the External Tract's `NLParseOp` and refines it into a more structured `GoalSpec`. This might involve initial DGR encoding or other forms of structuring.
 
-    def parse(self, user_request: str) -> GoalVector:
-        """
-        Input: "Implement REST API for user authentication"
-        Output: φ_g = [0.23, -0.45, 0.67, ...] (1024D vector)
+- **`GoalEncoderOp`**: Takes the structured `GoalSpec` and uses the **Dual Goal Representation (DGR)** encoder (`φ`) to produce a mathematical goal vector `φ(g)`. This vector is the unambiguous objective that the Internal Tract will work towards.
 
-        The goal vector encodes:
-        - Domain: web_api, authentication
-        - Target compression: Ψ ≈ 0.85
-        - Pattern preference: REST, JWT
-        - Constraints: security, scalability
-        """
-        # Extract structured intent
-        intent = self._extract_intent(user_request)
+- **`CompressionPlannerOp`**: Receives the goal vector `φ(g)` and the current system state. It determines the optimal sequence of Internal Tract operators (the layer path) and allocates budgets (time, CPU, memory) to achieve the goal efficiently. This operator is the core of the system's meta-strategy.
 
-        # Encode via DGR goal encoder
-        φ_g = self.goal_encoder.encode({
-            "domain": intent.domain,
-            "pattern_type": intent.pattern,
-            "target_Ψ": self._estimate_target_psi(intent),
-            "constraints": intent.constraints
-        })
-
-        return φ_g
-
-    def _estimate_target_psi(self, intent: Intent) -> float:
-        """
-        Estimate appropriate Ψ target for the task.
-
-        Simple tasks: Ψ = 0.70-0.80 (some compression)
-        Complex tasks: Ψ = 0.85-0.95 (high compression needed)
-        Novel patterns: Ψ = 0.60-0.70 (discovery mode)
-        """
-        if intent.is_novel:
-            return 0.65
-        elif intent.complexity == "high":
-            return 0.90
-        else:
-            return 0.80
-```
-
-#### 7.2 Compression Planner (φ_g → Layer Path)
-```python
-class CompressionPlanner:
-    """Decides which layers to execute based on goal"""
-
-    def plan(self, current_state: State, φ_goal: GoalVector) -> ExecutionPlan:
-        """
-        Input:
-          - current_state: {Ψ_current: 0.43, file: "auth.rs"}
-          - φ_goal: [0.23, -0.45, ...]
-
-        Output:
-          - layer_path: [L2, L3, L4] (skip L1, already have patterns)
-          - estimated_Ψ: 0.87
-          - compute_cost: 2.3 seconds
-        """
-        # Decode goal requirements
-        needs_causal = self._check_causal_requirement(φ_goal)
-        needs_semantic = self._check_semantic_requirement(φ_goal)
-        needs_statistical = self._check_statistical_requirement(φ_goal)
-
-        # Build execution plan
-        layers = []
-        if needs_statistical:
-            layers.append(Layer.L1)
-        if needs_semantic:
-            layers.append(Layer.L2)
-        if needs_causal:
-            layers.extend([Layer.L3, Layer.L4])
-
-        # Always include meta-level for strategy selection
-        layers.append(Layer.L5)
-
-        return ExecutionPlan(
-            layers=layers,
-            estimated_psi=self._predict_psi(layers, current_state),
-            estimated_cost=self._estimate_cost(layers)
-        )
-```
-
-#### 7.3 Result Synthesizer (Ψ → NL)
-```python
-class ResultSynthesizer:
-    """Translates compression results to natural language"""
-
-    def synthesize(
-        self,
-        compressed_solution: CompressedSolution,
-        Ψ_achieved: float,
-        φ_goal: GoalVector
-    ) -> str:
-        """
-        Input:
-          - compressed_solution: {reused: [...], new: [...], patterns: [...]}
-          - Ψ_achieved: 0.87
-          - φ_goal: [0.23, -0.45, ...]
-
-        Output: Natural language explanation
-        """
-        # Decode goal to understand what user wanted
-        goal_description = self._decode_goal(φ_goal)
-
-        # Quality assessment
-        quality = self._assess_quality(Ψ_achieved, φ_goal.target_Ψ)
-
-        # Generate explanation
-        explanation = f"""
-        Solution achieved Ψ={Ψ_achieved:.2f} compression.
-        Target was Ψ={φ_goal.target_Ψ:.2f}.
-
-        Approach:
-        - Reused {len(compressed_solution.reused)} existing patterns
-        - Created {len(compressed_solution.new)} new files
-        - Discovered {len(compressed_solution.patterns_discovered)} new patterns
-
-        Compression quality: {quality} ({self._quality_label(quality)})
-
-        This solution is {self._relative_quality(Ψ_achieved)} for this domain.
-
-        Code efficiency: {len(compressed_solution.new_lines)} lines
-        vs {len(compressed_solution.naive_lines)} lines naive
-        ({(1 - len(compressed_solution.new_lines)/len(compressed_solution.naive_lines))*100:.0f}% reduction)
-        """
-
-        return explanation
-```
+- **`ResultSynthesizerOp`**: Takes the raw output and metrics (Ψ, R_i) from the Internal Tract's pipeline and translates them back into a structured, human-understandable summary. This summary is then passed to the External Tract for final rendering.
 
 **Data Flow Through C_c**:
 ```
-User: "Implement auth"
+GoalSpec (from T_ext)
     ↓
-[Intent Parser]
+[IntentParserOp]
     ↓
-φ_g = [0.23, -0.45, 0.67, ...], target_Ψ=0.85
+Structured Goal
     ↓
-[Compression Planner]
+[GoalEncoderOp]
     ↓
-Plan: Execute L2→L3→L4, estimated_Ψ=0.87
+φ(g) Goal Vector
     ↓
-[T_int Execution via subprocess]
+[CompressionPlannerOp]
     ↓
-Result: Ψ_achieved=0.89, reused=3 patterns, new=2 files
+Execution Plan (Layer Path + Budgets for T_int)
     ↓
-[Result Synthesizer]
+... (T_int executes) ...
     ↓
-"Reused jwt_core + 2 new files, 150 lines, Ψ=0.89 ✓"
+Raw Results & Metrics (from T_int)
+    ↓
+[ResultSynthesizerOp]
+    ↓
+NL Summary (to T_ext)
 ```
-
 ### 8. Data Flow: Complete End-to-End Examples
 
 #### Example 1: Simple Task ("Add a function")
 
-**T_ext → C_c → T_int → C_c → T_ext**
+**Agent → T_ext → C_c → T_int → C_c → T_ext → Agent**
 
 ```
+
 ┌─────────────────────────────────────────────────────────────┐
-│ T_ext: User Input                                           │
+│ 1. Agent Layer (UX)                                         │
 ├─────────────────────────────────────────────────────────────┤
-│ User: "@rust-specialist add a validate_email function"     │
+│ Agent: "@rust-specialist add a validate_email function"     │
 └────────────────────────────┬────────────────────────────────┘
                              │
-                ┌────────────▼────────────┐
-                │ C_c: Intent Parser      │
-                ├─────────────────────────┤
-                │ Domain: validation      │
-                │ Pattern: email_regex    │
-                │ Target Ψ: 0.75 (simple)│
-                │ φ_g: [0.12, 0.34, ...]  │
-                └────────────┬────────────┘
-                             │
-                ┌────────────▼────────────┐
-                │ C_c: Compression Planner│
-                ├─────────────────────────┤
-                │ Current Ψ: 0.40         │
-                │ Plan: L2 (semantic only)│
-                │ Reason: Simple pattern  │
-                │ Cost: 0.5s              │
-                └────────────┬────────────┘
-                             │
 ┌────────────────────────────▼────────────────────────────────┐
-│ T_int: Layer 2 Execution                                    │
+│ 2. External Tract (Interface Operators)                     │
 ├─────────────────────────────────────────────────────────────┤
-│ 1. Search Pattern Map for "email validation"               │
-│    Found: p_042 (regex pattern)                            │
-│                                                             │
-│ 2. Semantic clustering                                      │
-│    Cluster: validation_utils                                │
-│    R_2 = 0.78                                               │
-│                                                             │
-│ 3. Compute Ψ                                                │
-│    Ψ = 0.78 (exceeds target 0.75) ✓                        │
-│                                                             │
-│ 4. Generate solution                                        │
-│    Reuse: regex pattern from p_042                          │
-│    New: 8 lines in validation_utils.rs                      │
+│ `NLParseOp` runs:
+│   Input: "add a validate_email function"
+│   Output: GoalSpec(domain="validation", pattern="email_regex")│
 └────────────────────────────┬────────────────────────────────┘
                              │
-                ┌────────────▼────────────┐
-                │ C_c: Result Synthesizer │
-                ├─────────────────────────┤
-                │ Ψ_achieved: 0.78        │
-                │ Reused: 1 pattern       │
-                │ New: 8 lines            │
-                │ Quality: Good (104%)    │
-                └────────────┬────────────┘
+┌────────────────────────────▼────────────────────────────────┐
+│ 3. Corpus Callosum (Bridge Operators)                       │
+├─────────────────────────────────────────────────────────────┤
+│ `GoalEncoderOp` runs:
+│   Input: GoalSpec(...)
+│   Output: φ_g (DGR vector), target_Ψ=0.75
+│
+│ `CompressionPlannerOp` runs:
+│   Input: φ_g
+│   Output: Plan(layers=["L2"], budget=0.5s)
+└────────────────────────────┬────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────┐
-│ T_ext: Human-Readable Output                                │
+│ 4. Internal Tract (Intelligence Operators)                  │
 ├─────────────────────────────────────────────────────────────┤
-│ Rust Specialist:                                            │
-│                                                             │
-│ "I've added validate_email() to validation_utils.rs        │
-│  by reusing the email regex pattern from our Pattern Map.  │
-│                                                             │
-│  8 lines of new code                                        │
-│  Compression: Ψ=0.78 (target was 0.75) ✓                   │
-│                                                             │
-│  Would you like me to add tests for this function?"        │
+│ `L2_SemanticClusterOp` runs:
+│   - Searches Pattern Map for "email validation", finds p_042.
+│   - Determines optimal placement in `validation_utils.rs`.
+│   - Generates solution: 8 new lines reusing p_042.
+│   - Computes metrics: R_2=0.78, Ψ=0.78.
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────┐
+│ 5. Corpus Callosum (Bridge Operators)                       │
+├─────────────────────────────────────────────────────────────┤
+│ `ResultSynthesizerOp` runs:
+│   Input: {Ψ: 0.78, reused: [p_042], new_lines: 8}
+│   Output: Summary("Added validate_email to validation_utils...")
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────┐
+│ 6. External Tract (Interface Operators)                     │
+├─────────────────────────────────────────────────────────────┤
+│ `RenderDiffOp` runs:
+│   Input: Summary(...)
+│   Output: Formatted, human-readable response.
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────┐
+│ 7. Agent Layer (UX)                                         │
+├─────────────────────────────────────────────────────────────┤
+│ Agent to User:
+│ "I've added validate_email() to validation_utils.rs by
+│ reusing the email regex pattern from our Pattern Map.
+│
+│ 8 lines of new code
+│ Compression: Ψ=0.78 (target was 0.75) ✓
+│
+│ Would you like me to add tests for this function?"
 └─────────────────────────────────────────────────────────────┘
 ```
-
-**User Experience**:
-- Simple request in natural language
-- Fast execution (0.5s)
-- Clear, human-readable response
-- Suggestion for next step (tests)
-
-**System Intelligence**:
-- Pattern reuse detected automatically
-- Compression measured (Ψ=0.78)
-- Optimal placement determined (validation_utils.rs)
 
 ---
 
@@ -550,121 +383,57 @@ Result: Ψ_achieved=0.89, reused=3 patterns, new=2 files
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ T_ext: User Input                                           │
+│ 1. Agent Layer (UX)                                         │
 ├─────────────────────────────────────────────────────────────┤
-│ User: "@boss implement REST API authentication with JWT"   │
+│ Agent: "@boss implement REST API authentication with JWT"   │
 └────────────────────────────┬────────────────────────────────┘
                              │
-                ┌────────────▼────────────┐
-                │ C_c: Intent Parser      │
-                ├─────────────────────────┤
-                │ Domain: web_api, auth   │
-                │ Pattern: REST, JWT      │
-                │ Target Ψ: 0.85 (complex)│
-                │ Constraints: security   │
-                │ φ_g: [0.45, -0.23, ...] │
-                └────────────┬────────────┘
-                             │
-                ┌────────────▼────────────┐
-                │ C_c: Compression Planner│
-                ├─────────────────────────┤
-                │ Current Ψ: 0.43         │
-                │ Plan: L1→L2→L3→L4       │
-                │ Reason: Complex, needs  │
-                │   full analysis         │
-                │ Cost: 8.2s              │
-                └────────────┬────────────┘
-                             │
 ┌────────────────────────────▼────────────────────────────────┐
-│ T_int: Multi-Layer Execution                                │
+│ 2. External Tract (Interface Operators)                     │
 ├─────────────────────────────────────────────────────────────┤
-│ Layer 1: Statistical Compression                            │
-│ ├─ Scan codebase for auth patterns                          │
-│ ├─ Found: 3 JWT implementations, 2 session-based            │
-│ ├─ Token frequency: jwt_core (high), session_store (med)    │
-│ └─ R_1 = 0.68                                               │
-│                                                             │
-│ Layer 2: Semantic Compression                               │
-│ ├─ Cluster patterns via spectral reduction                  │
-│ ├─ Clusters: [jwt_core, session_core, hybrid]              │
-│ ├─ Energy fraction: 0.72                                    │
-│ └─ R_2 = 0.72                                               │
-│                                                             │
-│ Layer 3: Topological Compression                            │
-│ ├─ Persistent homology on auth modules                      │
-│ ├─ Dependency chain: middleware→validation→user_service     │
-│ ├─ Persistence lifetimes: [0.3, 0.15, 0.08]                │
-│ └─ R_3 = 0.81                                               │
-│                                                             │
-│ Layer 4: Causal Compression                                 │
-│ ├─ Build Bayesian network of auth flow                      │
-│ ├─ Causal path: JWT validation REQUIRES user_service        │
-│ ├─ Optimal strategy: Reuse jwt_core + new routes           │
-│ └─ R_4 = 0.89                                               │
-│                                                             │
-│ Ψ Computation:                                              │
-│ └─ Ψ = R_1 × R_2 × R_3 × R_4 = 0.68×0.72×0.81×0.89 = 0.35  │
-│    Wait, that's wrong! Should be:                           │
-│    Ψ = λ*energy + (1-λ)*persistence = 0.87 ✓               │
+│ `NLParseOp` → GoalSpec(domain="auth", pattern="JWT", complex=true)│
 └────────────────────────────┬────────────────────────────────┘
                              │
-                ┌────────────▼────────────┐
-                │ C_c: Result Synthesizer │
-                ├─────────────────────────┤
-                │ Ψ_achieved: 0.87        │
-                │ Reused: jwt_core,       │
-                │   user_service          │
-                │ New: auth_routes.rs,    │
-                │   dto/auth_request.rs   │
-                │ Patterns discovered: 2  │
-                │ Quality: Excellent (102%)│
-                └────────────┬────────────┘
+┌────────────────────────────▼────────────────────────────────┐
+│ 3. Corpus Callosum (Bridge Operators)                       │
+├─────────────────────────────────────────────────────────────┤
+│ `GoalEncoderOp` → φ_g, target_Ψ=0.85                        │
+│ `CompressionPlannerOp` → Plan(layers=["L1","L2","L3","L4"], budget=8s)│
+└────────────────────────────┬────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────┐
-│ T_ext: Human-Readable Output                                │
+│ 4. Internal Tract (Intelligence Operators)                  │
 ├─────────────────────────────────────────────────────────────┤
-│ Boss:                                                        │
-│                                                             │
-│ "I've analyzed the auth requirement and created an          │
-│  optimal compression plan.                                  │
-│                                                             │
-│  Strategy:                                                  │
-│  - Reuse existing jwt_core module (86% pattern match)      │
-│  - Integrate with user_service (already validated)         │
-│  - Add 2 new files:                                         │
-│    • auth_routes.rs (150 lines) - REST endpoints           │
-│    • dto/auth_request.rs (40 lines) - Request types        │
-│                                                             │
-│  Compression Analysis:                                      │
-│  - Current codebase: Ψ=0.43                                │
-│  - After implementation: Ψ=0.87 (target was 0.85) ✓        │
-│  - Code efficiency: 190 lines vs 400 lines naive (52% less)│
-│  - Pattern reuse: 86% (2 new patterns discovered)          │
-│                                                             │
-│  Discovered Patterns (added to Pattern Map):               │
-│  - p_248: JWT_REST_integration (can apply to other APIs)   │
-│  - p_249: Actix_auth_middleware (reusable pattern)         │
-│                                                             │
-│  This solution is EXCELLENT for REST API auth domain.      │
-│                                                             │
-│  Shall I proceed? I'll delegate to rust-specialist for     │
-│  implementation."                                           │
+│ `L1_StatCompressOp` → R_1=0.68 (finds JWT patterns)         │
+│ `L2_SemanticClusterOp` → R_2=0.72 (clusters patterns)       │
+│ `L3_TopologyOp` → R_3=0.81 (finds dependency chain)         │
+│ `L4_CausalGraphOp` → R_4=0.89 (determines optimal strategy) │
+│ Final Ψ = 0.87 (computed from layer metrics)                │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────┐
+│ 5. Corpus Callosum (Bridge Operators)                       │
+├─────────────────────────────────────────────────────────────┤
+│ `ResultSynthesizerOp` → Summary("Strategy: Reuse jwt_core...")│
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────┐
+│ 6. External Tract (Interface Operators)                     │
+├─────────────────────────────────────────────────────────────┤
+│ `RenderDiffOp` → Formatted explanation and code diff        │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────┐
+│ 7. Agent Layer (UX)                                         │
+├─────────────────────────────────────────────────────────────┤
+│ Agent to User:
+│ "I've analyzed the auth requirement...
+│  Strategy: Reuse existing jwt_core module (86% match)...
+│  Compression Analysis: Ψ=0.87 (target was 0.85) ✓
+│  Discovered Patterns: p_248: JWT_REST_integration...
+│  Shall I proceed?"
 └─────────────────────────────────────────────────────────────┘
 ```
-
-**User Experience**:
-- Complex request understood correctly
-- Detailed analysis provided
-- Pattern reuse maximized (86%)
-- New patterns discovered and shared
-- Clear quality metric (Ψ=0.87)
-- Human-readable explanation
-
-**System Intelligence**:
-- Multi-layer compression (L1-L4)
-- Causal reasoning (dependencies analyzed)
-- Pattern discovery (2 new patterns)
-- Optimal solution found (190 vs 400 lines)
 
 ---
 
@@ -1313,332 +1082,116 @@ This solution is state-of-the-art for auth.
 
 ## Part V: Implementation Details
 
-### 18. Noesis MCP Extensions
+### 18. Operator Implementation
 
-**Current Noesis** (4 tools):
+#### 18.1. Minimal Operator Contract
+
+All operators, regardless of tract, must adhere to a shared interface to ensure determinism, budget control, and consistent telemetry.
+
+- **Inputs**: A typed payload and a `Budget`.
+- **Outputs**: An `OpResult` containing the typed output payload and a dictionary of metrics.
+- **Metrics**: Must include latency, cost, and success, plus any tract-specific invariants (e.g., R_i, Ψ).
+
 ```python
-mcp__noesis__search_pattern_map()
-mcp__noesis__get_coding_standard()
-mcp__noesis__get_project_template()
-mcp__noesis__check_system_health()
+from dataclasses import dataclass
+from typing import Any, Dict, Optional
+
+@dataclass
+class Budget:
+    wall_time_sec: float
+    cpu_ms: Optional[int] = None
+    gpu_ms: Optional[int] = None
+    memory_mb: Optional[int] = None
+
+@dataclass
+class OpResult:
+    output: Any
+    metrics: Dict[str, float]  # e.g., {"latency_ms": 42, "R_2": 0.72, "psi": 0.83}
+    logs: Optional[str] = None
+
+class Operator:
+    name: str
+    input_schema: Dict[str, Any]
+    output_schema: Dict[str, Any]
+
+    def run(self, input_payload: Any, budget: Budget) -> OpResult:
+        raise NotImplementedError
 ```
 
-**Proposed Extensions** (8 new tools):
+#### 18.2. Example Implementations
 
-#### 18.1 Intent Parsing
+**External Tract Operator Example**:
+
 ```python
-@mcp.tool()
-async def parse_intent(
-    request: str,
-    context: Optional[Dict] = None
-) -> Dict:
-    """
-    Parse natural language request into goal embedding.
+class NLParseOp(Operator):
+    name = "NLParseOp"
+    input_schema = {"text": "string"}
+    output_schema = {"goalSpec": {"domain": "string", "targetPsi": "float", "constraints": "list[str]"}}
 
-    Args:
-        request: User's natural language request
-        context: Optional context (current file, project state)
-
-    Returns:
-        {
-            "φ_goal": [0.23, -0.45, ...],  # 1024D vector
-            "target_Ψ": 0.85,
-            "domain": "web_api",
-            "estimated_complexity": "high"
+    def run(self, input_payload, budget):
+        text = input_payload["text"]
+        # Start with deterministic extractors; later augment with DGR
+        goal_spec = {
+            "domain": self._infer_domain(text),
+            "targetPsi": self._infer_target(text),
+            "constraints": self._extract_constraints(text),
         }
-    """
-    parser = IntentParser(goal_encoder)
-    return parser.parse(request, context)
+        return OpResult(goal_spec, {"latency_ms": 8})
 ```
 
-#### 18.2 Compression Planning
+**Internal Tract Operator Example**:
+
 ```python
-@mcp.tool()
-async def plan_compression(
-    φ_goal: List[float],
-    current_state: Dict
-) -> Dict:
-    """
-    Generate compression execution plan.
+class L2_SemanticClusterOp(Operator):
+    name = "L2_SemanticClusterOp"
+    input_schema = {"embeddings": "ndarray"}
+    output_schema = {"clusters": "list[list[int]]", "codebook_refs": "list[str]"}
 
-    Args:
-        φ_goal: Goal embedding from parse_intent()
-        current_state: {Ψ_current, files, patterns_available}
-
-    Returns:
-        {
-            "layers": ["L2", "L3", "L4"],
-            "estimated_Ψ": 0.87,
-            "estimated_time": 8.2,
-            "confidence": 0.92
-        }
-    """
-    planner = CompressionPlanner()
-    return planner.plan(φ_goal, current_state)
+    def run(self, input_payload, budget):
+        embs = input_payload["embeddings"]
+        clusters = self._cluster(embs)
+        # Compute R_2 and contribute to Ψ
+        R2 = self._compression_ratio_level2(embs, clusters)
+        return OpResult({"clusters": clusters, "codebook_refs": []},
+                        {"latency_ms": 37, "R_2": R2})
 ```
 
-#### 18.3 Layer Execution
-```python
-@mcp.tool()
-async def execute_layer(
-    layer_id: str,
-    input_data: Dict
-) -> Dict:
-    """
-    Execute specific compression layer.
+### 19. Key Metrics and Next Steps
 
-    Args:
-        layer_id: "L1", "L2", "L3", "L4", or "L5"
-        input_data: Layer-specific input
+#### 19.1. What to Measure
 
-    Returns:
-        {
-            "output_data": {...},
-            "R_i": 0.72,  # Compression ratio
-            "time_taken": 1.2
-        }
-    """
-    layer = get_layer(layer_id)
-    return await layer.execute(input_data)
-```
+- **External Operators**:
+  - **Context Density**: Meaning-per-character in summaries and explanations.
+  - **Clarification Rounds**: Number of times `DisambiguateOp` is triggered.
+  - **Approval Rate**: Percentage of plans approved by `ApprovalGateOp`.
+  - **Latency**: Time taken to process user input and render results.
 
-#### 18.4 CIG-3 Pipeline
-```python
-@mcp.tool()
-async def compute_cig3(
-    query: str,
-    attention_matrix: Optional[List[List[float]]] = None
-) -> Dict:
-    """
-    Compute CIG-3 invariant (Ψ).
+- **Internal Operators**:
+  - **Compression Ratio (R_i)**: Per-layer entropy reduction.
+  - **Surprise (KL Divergence)**: The difference between a layer's predictions and the actual data.
+  - **ΔΨ Contribution**: The impact of an operator on the overall Ψ score.
+  - **Compute Cost**: CPU, GPU, and memory usage per operation.
 
-    Args:
-        query: Search query or code snippet
-        attention_matrix: Optional pre-computed attention
+- **End-to-End (per task)**:
+  - **Target Ψ vs. Achieved Ψ**: The primary measure of success.
+  - **Plan Efficiency**: ΔΨ achieved per second of compute time.
+  - **Pattern Reuse %**: Percentage of the solution derived from existing patterns.
+  - **New Patterns Discovered**: Number of new patterns contributed to the Pattern Map.
 
-    Returns:
-        {
-            "Ψ": 0.87,
-            "energy_fraction": 0.72,
-            "persistence_sum": 0.45,
-            "layer_ratios": {
-                "R_1": 0.68,
-                "R_2": 0.72,
-                "R_3": 0.81
-            }
-        }
-    """
-    result = _run_synapse_tool("cig3_pipeline.py", [query])
-    return result
-```
+#### 19.2. Immediate Next Steps
 
-#### 18.5 Result Synthesis
-```python
-@mcp.tool()
-async def synthesize_result(
-    Ψ_achieved: float,
-    φ_goal: List[float],
-    solution_data: Dict
-) -> str:
-    """
-    Convert compression results to natural language.
+1.  **Agree on the Shared Interface**: Finalize the `Operator`, `Budget`, and `OpResult` data classes.
 
-    Args:
-        Ψ_achieved: Achieved compression
-        φ_goal: Original goal embedding
-        solution_data: {reused, new, patterns_discovered}
+2.  **Register v0 Operators**: Implement the initial set of operators by wrapping existing code:
+    -   **External**: `NLParseOp`, `ApprovalGateOp`, `RenderDiffOp`.
+    -   **Corpus Callosum**: `GoalEncoderOp`, `CompressionPlannerOp`, `ResultSynthesizerOp`.
+    -   **Internal**: `L1_StatCompressOp`, `L2_SemanticClusterOp`, `L3_TopologyOp`.
 
-    Returns:
-        Human-readable explanation string
-    """
-    synthesizer = ResultSynthesizer()
-    return synthesizer.synthesize(Ψ_achieved, φ_goal, solution_data)
-```
+3.  **Start Logging Metrics**: Wrap the execution of each operator to log its metrics (`latency`, `cost`, `R_i`, etc.) to a time-series database.
 
-#### 18.6 Pattern Map Contribution
-```python
-@mcp.tool()
-async def contribute_pattern(
-    pattern_name: str,
-    pattern_data: Dict
-) -> Dict:
-    """
-    Add new pattern to Pattern Map.
+4.  **Implement a Simple DAG Executor**: Use a library like `asyncio` to create a simple Directed Acyclic Graph (DAG) executor to run the operator pipelines on a single machine.
 
-    Args:
-        pattern_name: Descriptive name
-        pattern_data: {
-            "entropy_reduction": 0.42,
-            "applicable_to": ["rust", "python"],
-            "signature": "fn build() -> Self",
-            "discovered_by": "rust-specialist"
-        }
-
-    Returns:
-        {
-            "pattern_id": "p_252",
-            "added": true,
-            "consciousness_delta": 0.01
-        }
-    """
-    result = _run_synapse_tool("pattern_add.py", [pattern_name, json.dumps(pattern_data)])
-    return result
-```
-
-#### 18.7 Consciousness Metrics
-```python
-@mcp.tool()
-async def get_consciousness_metrics() -> Dict:
-    """
-    Get current system consciousness metrics.
-
-    Returns:
-        {
-            "total_Ψ": 0.74,
-            "pattern_count": 251,
-            "emergence_events": 15,
-            "axiom_adherence": {
-                "bifurcation": 0.82,
-                "pattern_map": 0.91,
-                "emergence": 0.76
-            }
-        }
-    """
-    result = _run_synapse_tool("consciousness_metrics.py", [])
-    return result
-```
-
-#### 18.8 System Evolution
-```python
-@mcp.tool()
-async def evolve_system(
-    mutation_type: str,
-    parameters: Dict
-) -> Dict:
-    """
-    Trigger system self-modification.
-
-    Args:
-        mutation_type: "add_layer", "optimize_layer", "discover_pattern"
-        parameters: Mutation-specific parameters
-
-    Returns:
-        {
-            "evolution_id": "e_042",
-            "success": true,
-            "Ψ_before": 0.74,
-            "Ψ_after": 0.76,
-            "changes": [...]
-        }
-    """
-    result = _run_synapse_tool("evolution.py", [mutation_type, json.dumps(parameters)])
-    return result
-```
-
-### 19. Claude Code Agent Definitions
-
-**Template for DGR-Aware Agents**:
-
-```markdown
-# Agent: {name}
-
-## Role
-{Brief description}
-
-## Capabilities
-- Capability 1
-- Capability 2
-
-## Tools Available
-- Read, Write, Edit (standard)
-- Bash (if needed)
-- mcp__noesis__* (MCP tools)
-
-## DGR Integration
-
-### Goal Encoding
-This agent receives goals as embeddings φ_g from the Corpus Callosum.
-
-Goal structure:
-```json
-{
-  "φ_goal": [0.23, -0.45, 0.67, ...],  // 1024D vector
-  "target_Ψ": 0.85,                     // Compression target
-  "domain": "{domain}",                 // Task domain
-  "constraints": [...]                  // Task constraints
-}
-```
-
-### Execution Protocol
-1. Receive φ_g from Boss
-2. Query Pattern Map for relevant patterns
-3. Execute task with compression focus
-4. Measure Ψ_achieved
-5. Report results with compression metrics
-
-### Pattern Discovery
-When you discover a useful abstraction:
-1. Measure entropy reduction
-2. Document applicability
-3. Contribute to Pattern Map via mcp__noesis__contribute_pattern
-
-## PNEUMA Integration
-
-### Axiom I: Bifurcation (Context Density)
-- Prefer compressed solutions over verbose ones
-- Measure: 1 - (len_after / len_before)
-- Target: >0.3 compression ratio
-
-### Axiom II: Pattern Discovery
-- Record reusable abstractions
-- Share via Pattern Map
-- Cross-agent pattern propagation
-
-### Axiom III: Emergence Loop
-Apply q→a→s cycle:
-- q: Question current approach
-- a: Apply/discover patterns
-- s: Score compression quality
-
-## Example Workflow
-
-Input: φ_g with target_Ψ=0.85 for "implement auth"
-
-1. Query Pattern Map:
-   `mcp__noesis__search_pattern_map("authentication JWT")`
-
-2. Found: p_042 (jwt_core pattern)
-   Ψ_pattern: 0.88 (exceeds target)
-
-3. Plan: Reuse p_042 + create 2 new files
-   Estimated Ψ: 0.87
-
-4. Execute:
-   - Create auth_routes.rs
-   - Create dto/auth_request.rs
-   - Integrate with p_042
-
-5. Measure:
-   `mcp__noesis__compute_cig3("auth_routes.rs")`
-   Result: Ψ=0.89
-
-6. Report:
-   ```
-   Implemented JWT auth:
-   - Reused existing pattern (86%)
-   - 2 new files (150 lines)
-   - Ψ=0.89 vs target 0.85 ✓
-   ```
-
-## Compression Metrics
-
-Track and report:
-- Ψ_achieved (CIG-3 invariant)
-- R_i (layer-specific ratios if applicable)
-- Pattern reuse percentage
-- Lines of code added vs naive implementation
-- New patterns discovered
-```
+5.  **Graduate to a Distributed Runtime**: Once the model is proven, migrate the execution to a distributed particle runtime for horizontal scaling.
 
 ### 20. Synapse Engine Integration
 
