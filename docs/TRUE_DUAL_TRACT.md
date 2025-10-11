@@ -279,6 +279,8 @@ C = R_1 × R_2 × R_3 × R_4 × R_5
 
 - **`ResultSynthesizerOp`**: Takes the raw output and metrics (Ψ, R_i) from the Internal Tract's pipeline and translates them back into a structured, human-understandable summary. This summary is then passed to the External Tract for final rendering.
 
+**Contract Validation**: All three tracts and the Corpus Callosum adhere to the formal contracts defined in `schemas/corpus_callosum.schema.json` (GoalSpec, ExecutionPlan, ResultPayload). This ensures type safety and enables validation at the API seam.
+
 **Data Flow Through C_c**:
 ```
 GoalSpec (from T_ext)
