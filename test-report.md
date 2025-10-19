@@ -11,9 +11,9 @@
 
   search_pattern_map - Timing out after 30s
 
-  Root cause: Noesis venv missing numpy dependencies; subprocess uses wrong Python interpreter
+  Root cause: No3sis venv missing numpy dependencies; subprocess uses wrong Python interpreter
 
-  Fix: Update /home/m0xu/1-projects/noesis/src/noesis/server.py:59:
+  Fix: Update /home/m0xu/1-projects/no3sis/src/no3sis/server.py:59:
   # Change to use Neo4j venv Python
   neo4j_python = "/home/m0xu/.synapse-system/.synapse/neo4j/.venv/bin/python"
   cmd = [neo4j_python, str(script_path)] + args + ["--json"]

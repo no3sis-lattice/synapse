@@ -1,11 +1,11 @@
 """
-Noesis - Knowledge Engine MCP Server
+No3sis - Knowledge Engine MCP Server
 
 MCP server exposing Synapse Pattern Map to AI agents via 4 knowledge tools:
-- noesis_search: Query Pattern Map for solutions and patterns
-- noesis_standard: Retrieve language-specific coding standards
-- noesis_template: Access project templates
-- noesis_health: Check knowledge engine infrastructure health
+- no3sis_search: Query Pattern Map for solutions and patterns
+- no3sis_standard: Retrieve language-specific coding standards
+- no3sis_template: Access project templates
+- no3sis_health: Check knowledge engine infrastructure health
 """
 
 __version__ = "0.1.0"

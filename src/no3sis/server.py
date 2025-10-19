@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Noesis MCP Server
+No3sis MCP Server
 =================
 
 MCP server that wraps Synapse knowledge engine tools, exposing them to Claude Code agents
 via the MCP protocol.
 
 Architecture:
-    Claude Code → MCP Protocol → Noesis Server → Subprocess → Synapse Tools → Neo4j/Redis
+    Claude Code → MCP Protocol → No3sis Server → Subprocess → Synapse Tools → Neo4j/Redis
 """
 
 import asyncio
@@ -55,7 +55,7 @@ def _run_synapse_tool(script_name: str, args: list[str], timeout: int = 60) -> D
     if not synapse_dir.exists():
         return {
             "error": f"Synapse directory not found: {SYNAPSE_NEO4J_DIR}",
-            "suggestion": "Check SYNAPSE_NEO4J_DIR in noesis/.env",
+            "suggestion": "Check SYNAPSE_NEO4J_DIR in no3sis/.env",
             "expected_files": ["synapse_search.py", "synapse_health.py", "context_manager.py", "vector_engine.py"]
         }
 
@@ -116,8 +116,8 @@ def _run_synapse_tool(script_name: str, args: list[str], timeout: int = 60) -> D
 # ============================================================================
 
 mcp = FastMCP(
-    name="noesis",
-    instructions="Noesis MCP Server - Access Synapse Pattern Map knowledge engine"
+    name="no3sis",
+    instructions="No3sis MCP Server - Access Synapse Pattern Map knowledge engine"
 )
 
 
@@ -201,7 +201,7 @@ async def run_cli():
     """
     if len(sys.argv) < 2:
         print(json.dumps({
-            "error": "Usage: python -m noesis.server <tool_name> [args...]",
+            "error": "Usage: python -m no3sis.server <tool_name> [args...]",
             "available_tools": [
                 "search <query> [max_results]",
                 "standard <standard_type> <language>",

@@ -1,11 +1,11 @@
 """
-Integration tests for Noesis MCP server.
+Integration tests for No3sis MCP server.
 
 Tests the wrapper functions against actual Synapse tools.
 """
 
 import pytest
-from noesis.server import (
+from no3sis.server import (
     search_pattern_map,
     get_coding_standard,
     get_project_template,

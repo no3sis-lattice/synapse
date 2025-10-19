@@ -1,15 +1,15 @@
-# Noesis - Knowledge Engine MCP Server
+# No3sis - Knowledge Engine MCP Server
 
 **MCP server exposing the Synapse Pattern Map to Claude Code agents**
 
-Noesis (νόησις - "understanding, knowledge") is a FastMCP-based server that wraps the Synapse System's knowledge engine, enabling AI agents to access collective intelligence stored in Neo4j, Redis, and vector embeddings via the Model Context Protocol (MCP).
+No3sis (νόησις - "understanding, knowledge") is a FastMCP-based server that wraps the Synapse System's knowledge engine, enabling AI agents to access collective intelligence stored in Neo4j, Redis, and vector embeddings via the Model Context Protocol (MCP).
 
 ## Architecture
 
 ```
 Claude Code Agents
     ↓ (MCP stdio protocol)
-Noesis MCP Server (FastMCP)
+No3sis MCP Server (FastMCP)
     ↓ (subprocess wrapper)
 Synapse Knowledge Engine CLI Tools
     ├─ synapse_search.py → Neo4j + BGE-M3 vectors
@@ -30,7 +30,7 @@ Search the Synapse Pattern Map for relevant patterns, solutions, and best practi
 
 **Claude Code Usage:**
 ```python
-mcp__noesis_search_pattern_map(
+mcp__no3sis_search_pattern_map(
     query="error handling patterns rust",
     max_results=5
 )
@@ -41,7 +41,7 @@ Retrieve language-specific coding standards from the Pattern Map.
 
 **Claude Code Usage:**
 ```python
-mcp__noesis_get_coding_standard(
+mcp__no3sis_get_coding_standard(
     standard_type="naming-conventions",
     language="rust"
 )
@@ -52,7 +52,7 @@ Access project templates and boilerplate code.
 
 **Claude Code Usage:**
 ```python
-mcp__noesis_get_project_template(
+mcp__no3sis_get_project_template(
     template_type="cli-app",
     language="rust",
     variables='{"project_name": "my-app"}'  # Optional JSON string
@@ -64,7 +64,7 @@ Check health of Synapse knowledge engine infrastructure.
 
 **Claude Code Usage:**
 ```python
-mcp__noesis_check_system_health()
+mcp__no3sis_check_system_health()
 ```
 
 ## Installation
@@ -78,8 +78,8 @@ mcp__noesis_check_system_health()
 ### Setup
 
 ```bash
-# Navigate to noesis directory
-cd /path/to/noesis
+# Navigate to no3sis directory
+cd /path/to/no3sis
 
 # Install with uv (recommended)
 uv venv
@@ -116,16 +116,16 @@ This is the correct way to register the MCP server with Claude Code CLI:
 
 ```bash
 # Register in local scope (project-specific)
-claude mcp add noesis \
-  "/path/to/noesis/.venv/bin/python" \
+claude mcp add no3sis \
+  "/path/to/no3sis/.venv/bin/python" \
   --scope local \
   --transport stdio \
   -e "SYNAPSE_NEO4J_DIR=/home/username/.synapse-system/.synapse/neo4j" \
-  -- -m noesis.server
+  -- -m no3sis.server
 
 # Verify registration
 claude mcp list
-claude mcp get noesis
+claude mcp get no3sis
 ```
 
 **Scope options:**
@@ -140,9 +140,9 @@ Create `.mcp.json` in your project root:
 ```json
 {
   "mcpServers": {
-    "noesis": {
-      "command": "/path/to/noesis/.venv/bin/python",
-      "args": ["-m", "noesis.server"],
+    "no3sis": {
+      "command": "/path/to/no3sis/.venv/bin/python",
+      "args": ["-m", "no3sis.server"],
       "env": {
         "SYNAPSE_NEO4J_DIR": "/home/username/.synapse-system/.synapse/neo4j"
       }
@@ -158,12 +158,12 @@ Create `.mcp.json` in your project root:
 ```bash
 # Check if server is connected
 claude mcp list
-# Should show: noesis: ✓ Connected
+# Should show: no3sis: ✓ Connected
 
 # Test in interactive session
 claude
 # Type: /mcp
-# Should show noesis with 4 tools available
+# Should show no3sis with 4 tools available
 ```
 
 ## Testing
@@ -173,19 +173,19 @@ claude
 The server supports direct CLI invocation for testing (bypasses MCP protocol):
 
 ```bash
-cd /path/to/noesis
+cd /path/to/no3sis
 
 # Test health check
-.venv/bin/python -m noesis.server health
+.venv/bin/python -m no3sis.server health
 
 # Test pattern search
-.venv/bin/python -m noesis.server search "error handling" 5
+.venv/bin/python -m no3sis.server search "error handling" 5
 
 # Test coding standards
-.venv/bin/python -m noesis.server standard naming-conventions rust
+.venv/bin/python -m no3sis.server standard naming-conventions rust
 
 # Test templates
-.venv/bin/python -m noesis.server template cli-app rust
+.venv/bin/python -m no3sis.server template cli-app rust
 ```
 
 ### MCP Protocol Testing
@@ -195,7 +195,7 @@ cd /path/to/noesis
 claude mcp list
 
 # Get detailed server info
-claude mcp get noesis
+claude mcp get no3sis
 
 # Test in Claude session
 claude
@@ -210,30 +210,30 @@ Update `.claude/agents/boss.md` (or other agents):
 
 ```markdown
 ---
-tools: Read, Grep, Glob, Write, Bash, mcp__noesis_search_pattern_map, mcp__noesis_get_coding_standard, mcp__noesis_get_project_template, mcp__noesis_check_system_health
+tools: Read, Grep, Glob, Write, Bash, mcp__no3sis_search_pattern_map, mcp__no3sis_get_coding_standard, mcp__no3sis_get_project_template, mcp__no3sis_check_system_health
 ---
 
 ## Instructions
 
-Use `mcp__noesis_search_pattern_map` to query the Pattern Map for relevant patterns.
-Use `mcp__noesis_get_coding_standard` to retrieve language-specific standards.
-Use `mcp__noesis_get_project_template` to access project templates.
-Use `mcp__noesis_check_system_health` to check infrastructure status.
+Use `mcp__no3sis_search_pattern_map` to query the Pattern Map for relevant patterns.
+Use `mcp__no3sis_get_coding_standard` to retrieve language-specific standards.
+Use `mcp__no3sis_get_project_template` to access project templates.
+Use `mcp__no3sis_check_system_health` to check infrastructure status.
 ```
 
 ### Tool Naming Convention
 
 When Claude Code registers MCP tools, they're prefixed with `mcp__<server_name>_`:
-- `search_pattern_map` → `mcp__noesis_search_pattern_map`
-- `get_coding_standard` → `mcp__noesis_get_coding_standard`
-- `get_project_template` → `mcp__noesis_get_project_template`
-- `check_system_health` → `mcp__noesis_check_system_health`
+- `search_pattern_map` → `mcp__no3sis_search_pattern_map`
+- `get_coding_standard` → `mcp__no3sis_get_coding_standard`
+- `get_project_template` → `mcp__no3sis_get_project_template`
+- `check_system_health` → `mcp__no3sis_check_system_health`
 
 ## Architecture Details
 
 ### MCP Protocol Implementation
 
-Noesis uses **FastMCP** with **stdio transport**:
+No3sis uses **FastMCP** with **stdio transport**:
 - FastMCP handles MCP protocol (JSON-RPC over stdio)
 - Tools are registered as async functions with `@mcp.tool()` decorator
 - Communication happens via stdin/stdout pipes
@@ -250,11 +250,11 @@ The server shells out to existing Synapse CLI tools:
 ### Request Flow
 
 ```
-1. Agent invokes: mcp__noesis_search_pattern_map("rust error handling", 5)
-2. Claude Code → MCP JSON-RPC request via stdio → Noesis FastMCP
-3. Noesis → subprocess.run(synapse_search.py) → Synapse tool
+1. Agent invokes: mcp__no3sis_search_pattern_map("rust error handling", 5)
+2. Claude Code → MCP JSON-RPC request via stdio → No3sis FastMCP
+3. No3sis → subprocess.run(synapse_search.py) → Synapse tool
 4. Synapse tool → Neo4j/Redis query → return JSON
-5. Noesis → parse JSON → return to FastMCP
+5. No3sis → parse JSON → return to FastMCP
 6. FastMCP → MCP response via stdio → Claude Code
 7. Agent receives results
 ```
@@ -269,21 +269,21 @@ The server shells out to existing Synapse CLI tools:
 
 ### Why Separate Repo?
 
-- **Independent versioning**: Noesis can evolve separately from Synapse
+- **Independent versioning**: No3sis can evolve separately from Synapse
 - **Reusability**: Other projects can use the same knowledge engine
 - **Clean boundaries**: MCP protocol is infrastructure, not agent logic
-- **Publishable**: Can become `pip install noesis-mcp-server`
+- **Publishable**: Can become `pip install no3sis-mcp-server`
 
 ## Directory Structure
 
 ```
-noesis/
+no3sis/
 ├── README.md              # This file
 ├── LICENSE                # MIT
 ├── pyproject.toml         # Python package config (dependencies: mcp, python-dotenv)
 ├── .env.example           # Config template
 ├── .gitignore
-├── src/noesis/
+├── src/no3sis/
 │   ├── __init__.py       # Package exports
 │   └── server.py         # MCP server (~270 lines)
 │       ├── FastMCP setup
@@ -298,13 +298,13 @@ noesis/
 
 ### Server Not Connecting
 
-**Error:** `noesis: ✗ Failed to connect`
+**Error:** `no3sis: ✗ Failed to connect`
 
 **Solutions:**
-1. Check venv path: `ls /path/to/noesis/.venv/bin/python`
-2. Test CLI mode: `.venv/bin/python -m noesis.server health`
+1. Check venv path: `ls /path/to/no3sis/.venv/bin/python`
+2. Test CLI mode: `.venv/bin/python -m no3sis.server health`
 3. Check environment: Ensure `SYNAPSE_NEO4J_DIR` is set correctly
-4. Re-register: `claude mcp remove noesis -s local && claude mcp add ...`
+4. Re-register: `claude mcp remove no3sis -s local && claude mcp add ...`
 
 ### Tool Not Found Errors
 
@@ -337,7 +337,7 @@ docker-compose up -d
 1. Ensure you're in the correct project directory
 2. Check registration: `claude mcp list`
 3. Restart Claude Code session
-4. Verify `.claude.json` contains noesis entry
+4. Verify `.claude.json` contains no3sis entry
 
 ## Development
 
@@ -363,7 +363,7 @@ async def my_new_tool(param: str) -> str:
 ```
 
 2. Create corresponding Synapse CLI tool
-3. Update agent definitions with `mcp__noesis_my_new_tool`
+3. Update agent definitions with `mcp__no3sis_my_new_tool`
 
 ## Performance
 
@@ -374,7 +374,7 @@ async def my_new_tool(param: str) -> str:
 
 ## Contributing
 
-This repo is designed to be portable - it can live in the Synapse workspace or as a standalone repo at `github.com/noesis-lattice/noesis`.
+This repo is designed to be portable - it can live in the Synapse workspace or as a standalone repo at `github.com/noesis-lattice/no3sis`.
 
 Pull requests welcome for:
 - Performance optimizations (direct imports vs subprocess)

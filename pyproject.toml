@@ -1,5 +1,5 @@
 [project]
-name = "noesis"
+name = "no3sis"
 version = "0.1.0"
 description = "MCP server exposing Synapse Pattern Map knowledge to AI agents"
 readme = "README.md"
@@ -21,11 +21,11 @@ dev = [
 ]
 
 [project.scripts]
-noesis = "noesis.server:main"
+no3sis = "no3sis.server:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/noesis"]
+packages = ["src/no3sis"]

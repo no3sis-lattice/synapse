@@ -1,6 +1,6 @@
-# Noesis Setup Guide
+# No3sis Setup Guide
 
-Quick start guide for setting up and testing the Noesis MCP server.
+Quick start guide for setting up and testing the No3sis MCP server.
 
 ## Prerequisites
 
@@ -12,12 +12,12 @@ Quick start guide for setting up and testing the Noesis MCP server.
 
 ## Installation
 
-### 1. Install Noesis
+### 1. Install No3sis
 
-From the `noesis/` directory:
+From the `no3sis/` directory:
 
 ```bash
-cd /home/m0xu/1-projects/synapse/noesis
+cd /home/m0xu/1-projects/no3sis
 
 # Create environment file
 cp .env.example .env
@@ -42,20 +42,20 @@ ls ~/.synapse-system/.synapse/neo4j/synapse_*.py
 # synapse_template.py
 ```
 
-### 3. Test Noesis Tools
+### 3. Test No3sis Tools
 
 ```bash
 # Test health check
-python -m noesis.server health
+python -m no3sis.server health
 
 # Test pattern search
-python -m noesis.server search "error handling" 3
+python -m no3sis.server search "error handling" 3
 
 # Test getting standards
-python -m noesis.server standard naming-conventions rust
+python -m no3sis.server standard naming-conventions rust
 
 # Test template retrieval
-python -m noesis.server template cli-app rust
+python -m no3sis.server template cli-app rust
 ```
 
 Expected output: JSON responses from each tool
@@ -65,7 +65,7 @@ Expected output: JSON responses from each tool
 ### From Python
 
 ```python
-from noesis.server import (
+from no3sis.server import (
     search_pattern_map,
     check_system_health,
     get_coding_standard,
@@ -89,16 +89,16 @@ print(standard)
 
 ```bash
 # Search
-python -m noesis.server search "testing strategies" 10
+python -m no3sis.server search "testing strategies" 10
 
 # Standards
-python -m noesis.server standard error-handling golang
+python -m no3sis.server standard error-handling golang
 
 # Templates
-python -m noesis.server template web-api rust
+python -m no3sis.server template web-api rust
 
 # Health
-python -m noesis.server health
+python -m no3sis.server health
 ```
 
 ## Testing Against Real Synapse Infrastructure
@@ -115,7 +115,7 @@ docker ps | grep -E "neo4j|redis"
 ### 2. Run Integration Tests
 
 ```bash
-# From noesis directory
+# From no3sis directory
 pytest tests/test_integration.py -v
 
 # Or run manually
@@ -167,7 +167,7 @@ docker-compose up -d
 python ~/.synapse-system/.synapse/neo4j/synapse_search.py --help
 ```
 
-If `--json` is not supported, update the tools or modify `noesis/src/noesis/server.py` to parse non-JSON output.
+If `--json` is not supported, update the tools or modify `no3sis/src/no3sis/server.py` to parse non-JSON output.
 
 ## Integration with Claude Code
 
@@ -178,10 +178,10 @@ Add to Claude Code's MCP configuration:
 ```json
 {
   "mcpServers": {
-    "noesis": {
+    "no3sis": {
       "command": "python",
-      "args": ["-m", "noesis.server"],
-      "cwd": "/home/m0xu/1-projects/synapse/noesis"
+      "args": ["-m", "no3sis.server"],
+      "cwd": "/home/m0xu/1-projects/no3sis"
     }
   }
 }
@@ -190,27 +190,27 @@ Add to Claude Code's MCP configuration:
 ### Test from Claude Code
 
 ```
-@boss Use mcp__noesis_search to find error handling patterns
+@boss Use mcp__no3sis_search to find error handling patterns
 ```
 
 Agent should be able to invoke the tool and receive Pattern Map results.
 
 ## Moving to Separate Repo
 
-The Noesis directory is designed to be portable:
+The No3sis directory is designed to be portable:
 
 ```bash
 # Copy to new location
-cp -r /home/m0xu/1-projects/synapse/noesis /path/to/new/repo
+cp -r /home/m0xu/1-projects/no3sis /path/to/new/repo
 
 # Initialize git repo
 cd /path/to/new/repo
 git init
-git remote add origin https://github.com/noesis-lattice/noesis.git
+git remote add origin https://github.com/noesis-lattice/no3sis.git
 
 # Commit and push
 git add .
-git commit -m "Initial commit: Noesis MCP server"
+git commit -m "Initial commit: No3sis MCP server"
 git push -u origin main
 ```
 
@@ -218,7 +218,7 @@ The only dependency is that `SYNAPSE_NEO4J_DIR` in `.env` points to the correct 
 
 ## Next Steps
 
-1. **Test with Claude Code agents**: Verify all 11 agents can use `mcp__noesis_*` tools
+1. **Test with Claude Code agents**: Verify all 11 agents can use `mcp__no3sis_*` tools
 2. **Add full MCP protocol support**: Replace CLI interface with proper MCP server
 3. **Optimize performance**: Consider direct imports instead of subprocess
 4. **Add monitoring**: Track tool usage, latency, cache hit rates
@@ -226,7 +226,7 @@ The only dependency is that `SYNAPSE_NEO4J_DIR` in `.env` points to the correct 
 
 ## Status
 
-✅ Noesis server implemented
+✅ No3sis server implemented
 ✅ All 4 tools functional
 ✅ Agent definitions updated
 ⏳ MCP protocol integration (using CLI interface for now)

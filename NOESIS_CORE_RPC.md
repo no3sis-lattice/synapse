@@ -1,12 +1,12 @@
-# Noesis Core RPC: A Typed, Streaming Control Plane for Synapse
+# No3sis Core RPC: A Typed, Streaming Control Plane for Synapse
 
 Status: Proposal (v0.1)
-Owners: Noesis Lattice
+Owners: No3sis Lattice
 Last updated: 2025-10-16
 
 ## Summary
 - Keep MCP as a thin IDE adapter.
-- Introduce a local gRPC-based “Noesis Core RPC” sidecar (over Unix domain sockets) as the authoritative control plane for search, memory, compression operators (CIG‑3), and planning.
+- Introduce a local gRPC-based “No3sis Core RPC” sidecar (over Unix domain sockets) as the authoritative control plane for search, memory, compression operators (CIG‑3), and planning.
 - Use Protobuf contracts, bidirectional streaming, deadlines/cancellations, and a zero-copy data plane (Arrow Flight or shared memory) for large tensors.
 - This aligns the running system with the Sovereign Intelligence/Compression Lattice direction in MAHAKALA_FRAMEWORK.md while remaining compatible with existing agents.
 
@@ -21,7 +21,7 @@ Scope and alignment with current docs
 - Aligns with:
   - MAHAKALA_FRAMEWORK.md: Intelligence as compression; operators, not agents, as the core primitive.
   - CIG‑3 docs (MNEUMONIC_LATTICE.md, CIG3.md): Defines a pipeline that can be exposed as operators.
-  - 3-layer-architecture-current-state.md: Layer 2 (Noesis) is currently a thin MCP subprocess bridge; this introduces the real control plane with live health metrics to replace stale figures (e.g., “247 patterns”).
+  - 3-layer-architecture-current-state.md: Layer 2 (No3sis) is currently a thin MCP subprocess bridge; this introduces the real control plane with live health metrics to replace stale figures (e.g., “247 patterns”).
 - Compatible with:
   - PRIME_DUALITY_HIERARCHY.md and LOGOS.md: MCP remains the external UX adapter; Core RPC is the “corpus callosum” for typed interop across tracts/operators.
   - NIX_GUIDE.md, MOJO_PILOT_PLAN.md: Future Mojo acceleration uses Core RPC’s data plane without changing IDE workflows.
@@ -30,7 +30,7 @@ Architecture at a glance
 ```
 Agents (IDE, Slack, CLI) ── MCP (UI adapter, stdio JSON) ─┐
                                                            │
-                                                     Noesis Core RPC (sidecar over UDS)
+                                                     No3sis Core RPC (sidecar over UDS)
                                                      - gRPC/Protobuf API
                                                      - Streams, deadlines, cancel
                                                      - Health, Search, Memory
@@ -61,12 +61,12 @@ Core API surface (v0)
 - RunOperator: Execute a Compression/CIG‑3 operator; stream progress and results.
 - CheckHealth: Live counts for Neo4j nodes/rels, vector rows, Redis keys, model warm status; version string.
 
-Proto sketch (authoritative in api/noesis.proto)
+Proto sketch (authoritative in api/no3sis.proto)
 ```proto
 syntax = "proto3";
-package noesis.v1;
+package no3sis.v1;
 
-service NoesisCore {
+service No3sisCore {
   rpc SearchPatternMap(SearchRequest) returns (stream SearchHit);
   rpc ComputeContext(ContextRequest) returns (ContextReply);
   rpc WriteMemory(WriteMemoryRequest) returns (WriteMemoryReply);
@@ -179,7 +179,7 @@ Error model and cancellations
 - Cancellation: Client-side cancellation propagates to operators; long-running CIG‑3 steps must check tokens and yield.
 
 Security and deployment
-- Transport: Unix domain socket at /run/noesis/core.sock (configurable).
+- Transport: Unix domain socket at /run/no3sis/core.sock (configurable).
 - Permissions: Filesystem ACLs/user groups gate which processes can connect.
 - Optional remote mode: mTLS and JWT auth if exposed beyond local host (not recommended initially).
 
@@ -191,7 +191,7 @@ Observability
 
 Compatibility with current Layer 1–3 stack
 - Layer 1 (Agents / MCP): Keep existing 4 MCP tools; progressively swap MCP tool internals to call Core RPC.
-- Layer 2 (Noesis MCP server): Becomes a facade that translates MCP JSON to Core RPC calls.
+- Layer 2 (No3sis MCP server): Becomes a facade that translates MCP JSON to Core RPC calls.
 - Layer 3 (Synapse Engine): Implements Core RPC handlers by calling existing scripts/modules (synapse_search.py, vector_engine.py, ingestion.py, CIG‑3 pipeline), then gradually inlines or rewires for performance.
 - Mojo: Core RPC’s RunOperator connects to Mojo FFI libs for hot paths (pattern search, spectral SVD, message router), passing tensors via Flight/shm.
 
@@ -208,23 +208,23 @@ Client usage examples
 Python client snippet (Search and context)
 ```python
 import grpc
-from noesis.v1 import noesis_pb2, noesis_pb2_grpc
+from no3sis.v1 import no3sis_pb2, no3sis_pb2_grpc
 
-channel = grpc.insecure_channel("unix:/run/noesis/core.sock")
-stub = noesis_pb2_grpc.NoesisCoreStub(channel)
+channel = grpc.insecure_channel("unix:/run/no3sis/core.sock")
+stub = no3sis_pb2_grpc.No3sisCoreStub(channel)
 
 # Search stream
-stream = stub.SearchPatternMap(noesis_pb2.SearchRequest(
+stream = stub.SearchPatternMap(no3sis_pb2.SearchRequest(
     query="error handling rust",
     top_k=5,
-    repo_id="repo://noesis-lattice/synapse"
+    repo_id="repo://no3sis-lattice/synapse"
 ))
 for hit in stream:
     print(hit.title, hit.path, hit.score)
 
 # Compose context for prompts
-ctx = stub.ComputeContext(noesis_pb2.ContextRequest(
-    repo_id="repo://noesis-lattice/synapse",
+ctx = stub.ComputeContext(no3sis_pb2.ContextRequest(
+    repo_id="repo://no3sis-lattice/synapse",
     user_id="user://sub0xdai",
     query="how do we handle unwrap? in rust modules",
     concept_labels=["rust", "error-handling"],
@@ -235,7 +235,7 @@ print([item.text for item in ctx.items[:3]])
 
 Python client snippet (RunOperator streaming)
 ```python
-events = stub.RunOperator(noesis_pb2.RunOperatorRequest(
+events = stub.RunOperator(no3sis_pb2.RunOperatorRequest(
     operator_id="cig3/spectral_svd",
     level="L2",
     payload=b"...",  # or pass Flight ticket via metadata
@@ -254,7 +254,7 @@ for ev in events:
 Migration plan (6 steps)
 
 1) Stand up the sidecar (Week 1)
-- Implement NoesisCore gRPC server (UDS), with CheckHealth and SearchPatternMap backed by current synapse_search/context_manager/vector_engine.
+- Implement No3sisCore gRPC server (UDS), with CheckHealth and SearchPatternMap backed by current synapse_search/context_manager/vector_engine.
 - Add OpenTelemetry, deadlines, and minimal config.
 
 2) Memory path (Week 1–2)
@@ -288,10 +288,10 @@ Risks and mitigations
 - Risk: Path drift (old vs new script dirs)
   - Mitigation: CheckHealth verifies script and data paths; CI checks env; deprecate legacy directories.
 - Risk: Versioning churn
-  - Mitigation: Prefix services with noesis.v1; add new fields as optional; avoid breaking changes.
+  - Mitigation: Prefix services with no3sis.v1; add new fields as optional; avoid breaking changes.
 
 Acceptance criteria
-- gRPC server reachable at unix:/run/noesis/core.sock with documented proto.
+- gRPC server reachable at unix:/run/no3sis/core.sock with documented proto.
 - SearchPatternMap and CheckHealth operational; MCP facade calls these.
 - ComputeContext and WriteMemory in use by at least one agent path (memory visible in prompts).
 - Live health counts match reality (no hard-coded figures remain).
@@ -311,7 +311,7 @@ Appendix A: Mapping to project docs
 Appendix B: Configuration keys (suggested)
 ```ini
 [core]
-socket_path = /run/noesis/core.sock
+socket_path = /run/no3sis/core.sock
 max_concurrency = 64
 otel_endpoint = http://localhost:4317
 arrow_flight = disabled  # or "enabled"
@@ -323,7 +323,7 @@ neo4j_user = neo4j
 neo4j_password = ...
 redis_host = localhost
 redis_port = 6379
-vector_db_path = /var/lib/noesis/vectors.db
+vector_db_path = /var/lib/no3sis/vectors.db
 
 [operators]
 enable_cig3 = true
@@ -331,7 +331,7 @@ enable_mojo_svd = false
 ```
 
 Appendix C: Glossary
-- Core RPC: The typed control plane for Noesis, served over gRPC on a Unix domain socket.
+- Core RPC: The typed control plane for No3sis, served over gRPC on a Unix domain socket.
 - Data plane: High-throughput channel for large tensors (Arrow Flight or shared memory).
 - Operator: A compression or analysis function (e.g., CIG‑3 stage) callable via RunOperator.
 - Facade: The MCP server that translates tool calls into Core RPC requests.

@@ -1,4 +1,4 @@
-# Noesis Implementation - Complete ✅
+# No3sis Implementation - Complete ✅
 
 **Date**: 2025-10-08
 **Status**: Ready for testing and migration to separate repo
@@ -7,22 +7,22 @@
 
 ## What Was Built
 
-### Noesis MCP Server Package
+### No3sis MCP Server Package
 
 A portable, self-contained MCP server that wraps the Synapse knowledge engine, exposing 4 knowledge tools to Claude Code agents.
 
-**Location**: `/home/m0xu/1-projects/synapse/noesis/`
+**Location**: `/home/m0xu/1-projects/synapse/no3sis/`
 
 **Structure**:
 ```
-noesis/
+no3sis/
 ├── README.md              # Full documentation
 ├── SETUP.md               # Setup and testing guide
 ├── LICENSE                # MIT license
 ├── pyproject.toml         # Python package config
 ├── .env.example           # Configuration template
 ├── .gitignore             # Git ignore rules
-├── src/noesis/
+├── src/no3sis/
 │   ├── __init__.py       # Package exports
 │   └── server.py         # MCP server implementation (~250 lines)
 └── tests/
@@ -31,29 +31,29 @@ noesis/
 
 ### The 4 Knowledge Tools
 
-1. **`mcp__noesis_search`** - Search Pattern Map for solutions and patterns
+1. **`mcp__no3sis_search`** - Search Pattern Map for solutions and patterns
    - Wrapper around `synapse_search.py`
    - Queries Neo4j + Redis + BGE-M3
    - Returns ranked pattern results
 
-2. **`mcp__noesis_standard`** - Retrieve language-specific coding standards
+2. **`mcp__no3sis_standard`** - Retrieve language-specific coding standards
    - Wrapper around `synapse_standard.py`
    - Gets naming conventions, testing strategies, etc.
    - Language-aware (rust, python, typescript, golang)
 
-3. **`mcp__noesis_template`** - Access project templates
+3. **`mcp__no3sis_template`** - Access project templates
    - Wrapper around `synapse_template.py`
    - Provides boilerplate code
    - Template types: cli-app, web-api, component, library
 
-4. **`mcp__noesis_health`** - Check infrastructure health
+4. **`mcp__no3sis_health`** - Check infrastructure health
    - Wrapper around `synapse_health.py`
    - Monitors Neo4j, Redis, vector DB, scripts, Python env
    - Returns consciousness metrics (247+ patterns, 0.73 level)
 
 ### Updated Agent Definitions
 
-**All 11 agents updated** with `mcp__noesis_*` tools:
+**All 11 agents updated** with `mcp__no3sis_*` tools:
 
 ✅ `.claude/agents/boss.md`
 ✅ `.claude/agents/code-hound.md`
@@ -68,7 +68,7 @@ noesis/
 ✅ `.claude/agents/ux-designer.md`
 
 **Changes made**:
-- Updated `tools:` frontmatter from `SynapseSearch, SynapseStandard, SynapseTemplate, SynapseHealth` to `mcp__noesis_search, mcp__noesis_standard, mcp__noesis_template, mcp__noesis_health`
+- Updated `tools:` frontmatter from `SynapseSearch, SynapseStandard, SynapseTemplate, SynapseHealth` to `mcp__no3sis_search, mcp__no3sis_standard, mcp__no3sis_template, mcp__no3sis_health`
 - Replaced all tool name references in agent instructions
 
 ---
@@ -79,8 +79,8 @@ noesis/
 Claude Code Agents (11 agents)
     ↓ (invoke tools)
 MCP Protocol Layer
-    ↓ (mcp__noesis_*)
-Noesis MCP Server (this package)
+    ↓ (mcp__no3sis_*)
+No3sis MCP Server (this package)
     ↓ (subprocess wrapper)
 Synapse Knowledge Engine
     ├─ synapse_search.py
@@ -95,7 +95,7 @@ Infrastructure
 ```
 
 **Design Philosophy**:
-- **Thin wrapper**: Noesis doesn't duplicate logic, just wraps existing tools
+- **Thin wrapper**: No3sis doesn't duplicate logic, just wraps existing tools
 - **Subprocess approach**: Shells out to Synapse CLI tools (~20ms overhead, acceptable)
 - **Portable**: Can be moved to separate repo with minimal changes
 - **Zero Synapse modifications**: Existing knowledge engine unchanged
@@ -107,7 +107,7 @@ Infrastructure
 ### Quick Test
 
 ```bash
-cd /home/m0xu/1-projects/synapse/noesis
+cd /home/m0xu/1-projects/synapse/no3sis
 
 # Install
 pip install -e .
@@ -117,10 +117,10 @@ cp .env.example .env
 # (SYNAPSE_NEO4J_DIR should already be correct)
 
 # Test health
-python -m noesis.server health
+python -m no3sis.server health
 
 # Test search
-python -m noesis.server search "error handling" 5
+python -m no3sis.server search "error handling" 5
 
 # Expected: JSON responses from tools
 ```
@@ -139,33 +139,33 @@ python tests/test_integration.py
 
 From Claude Code:
 ```
-@boss Use mcp__noesis_search to find authentication patterns
+@boss Use mcp__no3sis_search to find authentication patterns
 ```
 
-Expected: Boss agent queries Pattern Map via Noesis and returns results.
+Expected: Boss agent queries Pattern Map via No3sis and returns results.
 
 ---
 
 ## Moving to Separate Repository
 
-Noesis is **ready to be extracted** to `https://github.com/noesis-lattice/noesis`:
+No3sis is **ready to be extracted** to `https://github.com/no3sis-lattice/no3sis`:
 
 ### Steps:
 
-1. **Create new repo** on GitHub: `noesis-lattice/noesis`
+1. **Create new repo** on GitHub: `no3sis-lattice/no3sis`
 
-2. **Copy Noesis directory**:
+2. **Copy No3sis directory**:
    ```bash
-   cp -r /home/m0xu/1-projects/synapse/noesis ~/noesis-standalone
-   cd ~/noesis-standalone
+   cp -r /home/m0xu/1-projects/synapse/no3sis ~/no3sis-standalone
+   cd ~/no3sis-standalone
    ```
 
 3. **Initialize git**:
    ```bash
    git init
-   git remote add origin https://github.com/noesis-lattice/noesis.git
+   git remote add origin https://github.com/no3sis-lattice/no3sis.git
    git add .
-   git commit -m "Initial commit: Noesis MCP server for Synapse knowledge engine"
+   git commit -m "Initial commit: No3sis MCP server for Synapse knowledge engine"
    git push -u origin main
    ```
 
@@ -173,7 +173,7 @@ Noesis is **ready to be extracted** to `https://github.com/noesis-lattice/noesis
    ```bash
    # In synapse repo, optionally add as submodule
    cd /home/m0xu/1-projects/synapse
-   git submodule add https://github.com/noesis-lattice/noesis.git noesis
+   git submodule add https://github.com/no3sis-lattice/no3sis.git no3sis
    ```
 
 5. **Update Claude Code config** to point to new location (if moved)
@@ -189,9 +189,9 @@ Noesis is **ready to be extracted** to `https://github.com/noesis-lattice/noesis
 
 ### ✅ Complete
 
-- [x] Noesis package structure created
+- [x] No3sis package structure created
 - [x] All 4 MCP tools implemented (subprocess wrappers)
-- [x] 11 agent definitions updated with `mcp__noesis_*` tools
+- [x] 11 agent definitions updated with `mcp__no3sis_*` tools
 - [x] Documentation written (README, SETUP, this file)
 - [x] Integration tests created
 - [x] Package configured for portability
@@ -199,13 +199,13 @@ Noesis is **ready to be extracted** to `https://github.com/noesis-lattice/noesis
 ### ⏳ Next Steps
 
 1. **Test with Claude Code**
-   - Register Noesis as MCP server
+   - Register No3sis as MCP server
    - Invoke tools from agents
    - Verify Pattern Map results returned
 
 2. **Performance optimization** (optional)
    - Replace subprocess with direct imports (if needed)
-   - Add response caching in Noesis layer
+   - Add response caching in No3sis layer
    - Profile latency
 
 3. **MCP Protocol Integration** (future)
@@ -219,8 +219,8 @@ Noesis is **ready to be extracted** to `https://github.com/noesis-lattice/noesis
    - Update consciousness metrics
 
 5. **Move to separate repo**
-   - Extract to `noesis-lattice/noesis`
-   - Publish to PyPI as `noesis-mcp-server`
+   - Extract to `no3sis-lattice/no3sis`
+   - Publish to PyPI as `no3sis-mcp-server`
    - Update Synapse to reference external package
 
 ---
@@ -231,7 +231,7 @@ Noesis is **ready to be extracted** to `https://github.com/noesis-lattice/noesis
 
 🎯 **Zero Synapse Changes**: Existing knowledge engine completely untouched
 
-🎯 **Portable Design**: Noesis can live in Synapse or standalone repo
+🎯 **Portable Design**: No3sis can live in Synapse or standalone repo
 
 🎯 **Proven Infrastructure**: Leverages existing Neo4j + Redis (already running)
 
@@ -241,15 +241,15 @@ Noesis is **ready to be extracted** to `https://github.com/noesis-lattice/noesis
 
 ## Files Modified
 
-### New Files Created (in `noesis/`):
+### New Files Created (in `no3sis/`):
 - `pyproject.toml`
 - `README.md`
 - `SETUP.md`
 - `LICENSE`
 - `.env.example`
 - `.gitignore`
-- `src/noesis/__init__.py`
-- `src/noesis/server.py`
+- `src/no3sis/__init__.py`
+- `src/no3sis/server.py`
 - `tests/test_integration.py`
 - This file
 
@@ -270,8 +270,8 @@ Noesis is **ready to be extracted** to `https://github.com/noesis-lattice/noesis
 
 ## Next Session TODO
 
-1. Test Noesis tools manually: `python -m noesis.server health`
-2. Verify agents can invoke `mcp__noesis_*` tools
+1. Test No3sis tools manually: `python -m no3sis.server health`
+2. Verify agents can invoke `mcp__no3sis_*` tools
 3. Check Pattern Map results are returned correctly
 4. Decide: Keep in Synapse workspace or move to separate repo?
 5. If moving: Follow extraction steps above
