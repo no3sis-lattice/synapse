@@ -206,7 +206,7 @@ cp -r /home/m0xu/1-projects/no3sis /path/to/new/repo
 # Initialize git repo
 cd /path/to/new/repo
 git init
-git remote add origin https://github.com/noesis-lattice/no3sis.git
+git remote add origin https://github.com/no3sis-lattice/synapse.git
 
 # Commit and push
 git add .

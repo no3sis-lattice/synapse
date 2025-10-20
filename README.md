@@ -374,7 +374,7 @@ async def my_new_tool(param: str) -> str:
 
 ## Contributing
 
-This repo is designed to be portable - it can live in the Synapse workspace or as a standalone repo at `github.com/noesis-lattice/no3sis`.
+This repo is designed to be portable - it can live in the Synapse workspace or as a standalone repo at `github.com/no3sis-lattice/synapse`.
 
 Pull requests welcome for:
 - Performance optimizations (direct imports vs subprocess)

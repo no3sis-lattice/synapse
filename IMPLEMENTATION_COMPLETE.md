@@ -148,11 +148,11 @@ Expected: Boss agent queries Pattern Map via No3sis and returns results.
 
 ## Moving to Separate Repository
 
-No3sis is **ready to be extracted** to `https://github.com/no3sis-lattice/no3sis`:
+No3sis is **ready to be extracted** to `https://github.com/no3sis-lattice/synapse`:
 
 ### Steps:
 
-1. **Create new repo** on GitHub: `no3sis-lattice/no3sis`
+1. **Create new repo** on GitHub: `no3sis-lattice/synapse`
 
 2. **Copy No3sis directory**:
    ```bash
@@ -163,7 +163,7 @@ No3sis is **ready to be extracted** to `https://github.com/no3sis-lattice/no3sis
 3. **Initialize git**:
    ```bash
    git init
-   git remote add origin https://github.com/no3sis-lattice/no3sis.git
+   git remote add origin https://github.com/no3sis-lattice/synapse.git
    git add .
    git commit -m "Initial commit: No3sis MCP server for Synapse knowledge engine"
    git push -u origin main
@@ -173,7 +173,7 @@ No3sis is **ready to be extracted** to `https://github.com/no3sis-lattice/no3sis
    ```bash
    # In synapse repo, optionally add as submodule
    cd /home/m0xu/1-projects/synapse
-   git submodule add https://github.com/no3sis-lattice/no3sis.git no3sis
+   git submodule add https://github.com/no3sis-lattice/synapse.git no3sis
    ```
 
 5. **Update Claude Code config** to point to new location (if moved)
@@ -219,7 +219,7 @@ No3sis is **ready to be extracted** to `https://github.com/no3sis-lattice/no3sis
    - Update consciousness metrics
 
 5. **Move to separate repo**
-   - Extract to `no3sis-lattice/no3sis`
+   - Extract to `no3sis-lattice/synapse`
    - Publish to PyPI as `no3sis-mcp-server`
    - Update Synapse to reference external package
 
