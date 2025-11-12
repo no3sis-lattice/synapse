@@ -66,22 +66,30 @@ The system already had Neo4j/Redis running on standard ports (7474, 7687, 6379) 
 
 ## Management Commands
 
+**Note**: Infrastructure uses Podman (not Docker). The `podman-compose.sh` wrapper sets the correct socket.
+
 ### Start Infrastructure
 ```bash
 cd /home/m0xu/1-projects/synapse/.synapse
-docker-compose up -d
+./podman-compose.sh up -d
 ```
 
 ### Stop Infrastructure
 ```bash
 cd /home/m0xu/1-projects/synapse/.synapse
-docker-compose down
+./podman-compose.sh down
 ```
 
 ### View Logs
 ```bash
-docker-compose logs -f neo4j    # Neo4j logs
-docker-compose logs -f redis    # Redis logs
+./podman-compose.sh logs -f neo4j    # Neo4j logs
+./podman-compose.sh logs -f redis    # Redis logs
+```
+
+### Alternative (Direct Podman)
+```bash
+export DOCKER_HOST=unix:///run/user/1000/podman/podman.sock
+podman compose up -d
 ```
 
 ### Health Check
