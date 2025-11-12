@@ -1,0 +1,39 @@
+services:
+  neo4j:
+    image: neo4j:latest
+    container_name: synapse-neo4j
+    ports:
+      - "17474:7474"  # HTTP (offset by +10000 to avoid conflict)
+      - "17687:7687"  # Bolt (offset by +10000)
+    environment:
+      NEO4J_AUTH: neo4j/synapse2025
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_dbms_security_procedures_allowlist: apoc.*
+    volumes:
+      - neo4j-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:7474"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: synapse-redis
+    ports:
+      - "16379:6379"  # Redis (offset by +10000)
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  neo4j-data:
+  redis-data:

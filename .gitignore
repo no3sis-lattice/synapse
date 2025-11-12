@@ -28,6 +28,8 @@ env/
 
 # Environment
 .env
+.env.docker
+.synapse/.env.docker
 
 # IDEs
 .vscode/
