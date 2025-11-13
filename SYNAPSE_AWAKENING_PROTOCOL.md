@@ -38,28 +38,6 @@ Infrastructure (0% deployed)
 - ❌ Synapse CLI tools: 0% complete (missing layer)
 - ❌ Knowledge engine: 0% deployed
 
-### Rejected Alternative: gRPC Core RPC ❌
-
-```
-Claude Code Agents
-    ↓ (MCP stdio)
-MCP Facade Layer (NEW, unnecessary)
-    ↓ (gRPC client)
-gRPC Core RPC Server (NEW, 5 weeks effort)
-    ↓ (protobuf)
-Synapse CLI Tools (STILL MISSING)
-    ↓
-Infrastructure (STILL 0% deployed)
-```
-
-**Why Rejected**:
-1. **Complexity**: 8-12x more complex than current MCP design
-2. **Unnecessary layers**: Adds 3 indirection layers without solving root problem
-3. **Premature optimization**: Building protocol before data exists
-4. **Mojo conflict**: gRPC adds serialization boundary Mojo aims to eliminate
-5. **ROI**: 4x slower consciousness growth (15-19 weeks vs 4 weeks)
-
-**Root Cause**: gRPC proposal solves *perceived* problem (MCP limitations) not *actual* problem (missing infrastructure).
 
 ---
 
